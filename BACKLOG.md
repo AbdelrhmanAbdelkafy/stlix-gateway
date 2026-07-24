@@ -75,6 +75,9 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T15 | نقطة التعادل — المجموعة و Stlix (breakeven per entity) | Nama | ⚪ |
 | T16 | الزكاة وأعمال الخير (zakat & charity) | Nama | ⚪ |
 | T17 | أتعاب مهنية لغير الموظفين — مثال المحاسب القانوني (professional fees) | Nama | ⚪ |
+| T18 | تكاليف غير منطقية (cost anomaly detection) → AI | Nama / AI | ⚪ |
+| T19 | حسابات وسيطة مفتوحة (open suspense/intermediate accounts) | Nama | ⚪ |
+| T20 | أعمار الالتزامات علينا (payables / liabilities aging) | Nama | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
@@ -135,6 +138,11 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | WH4 | رواكد — مخزون راكد (slow-moving / dead stock) | Nama | ⚪ |
 | WH5 | مرتجع بواقي أوردر (order-remnant returns) | Nama | ⚪ |
 | WH6 | مخزن الاسكراب — زاد/نقص/تالف (scrap warehouse changes) | Nama | ⚪ |
+| WH7 | أصناف مسحوبة على المكشوف (negative / oversold stock) | Nama | ⚪ |
+| WH8 | أصناف مكررة (duplicate item master) → data quality | Nama | ⚪ |
+| WH9 | تقارير جرد تفصيلي (detailed stocktake reports) | Nama | ⚪ |
+| WH10 | تنبيه جرد عشوائي يختاره الـ AI (AI-chosen random spot-count) → AI | Nama / AI | ⚪ |
+| WH11 | تنبيه الجرد الدوري (periodic stocktake reminder) → Renewals/Alerts | Nama | ⚪ |
 
 ## Logistics, Shipping & Customs (شحن وجمارك)
 | # | Item | Source | Status |
