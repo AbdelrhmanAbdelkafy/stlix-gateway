@@ -27,6 +27,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | S3 | أداء مسؤولي المبيعات | Nama / Vtiger | ⚪ |
 | S4 | عملاء غير نشطين | Vtiger / Nama | ⚪ |
 | S5 | Chinese leads — عملاء محتملين | Vtiger Leads | ⚪ ⚠ needs a China/segment field or tag on leads first (currently 15 leads, `country` empty, no Chinese marker) |
+| S6 | حصيلة مطلوبة (required collections / target receivables) | Nama | ⚪ |
 
 ## Purchasing & Materials (مشتريات وخامات)
 | # | Item | Source | Status |
@@ -47,6 +48,10 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T6 | فواتير بورتال (portal / e-invoicing — ETA?) | portal API / Nama | ⚪ |
 | T7 | أسعار الصرف اللحظية — يوان / دولار / يورو (real-time FX) | external FX API | ⚪ |
 | T8 | أقساط واجبة السداد (installments due) | Nama | ⚪ |
+| T9 | قوائم وتقارير مالية (financial statements & reports) | Nama / SQL | ⚪ |
+| T10 | قرارات مالية (financial decisions) | new | ⚪ |
+| T11 | مطابقة حركات البنوك مع نما (bank reconciliation) | bank feed + Nama | ⚪ |
+| T12 | فواتير لم تُحصّل — لكل بنك (uncashed invoices per bank) | Nama | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
@@ -65,6 +70,9 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H5 | تعيينات مفتوحة (open positions / requisitions) | Nama / Vtiger | ⚪ |
 | H6 | عهدة الموظف (employee cash custody — distinct from asset custody العهدة) | Nama | ⚪ |
 | H7 | سلف العاملين (employee advances / loans) | Nama | ⚪ |
+| H8 | عقود موظفين (employee contracts) | Nama | ⚪ |
+| H9 | موظفين — خروج ودخول (employee entry / exit) | Nama | ⚪ |
+| H10 | عقود عمل مطلوب تجديدها (contracts due for renewal) → Renewals | Nama | ⚪ |
 
 ## Marketing (تسويق)
 | # | Item | Source | Status |
@@ -85,6 +93,29 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | WH2 | مرتجعات مبيعات ومشتريات (sales & purchase returns) | Nama | ⚪ |
 | WH3 | تقارير مخزون لحظية + غير المسجّل بعد (real-time stock incl. unposted) | Nama | ⚪ |
 
+## Logistics, Shipping & Customs (شحن وجمارك)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| LG1 | شحنات على وصول (incoming / in-transit shipments) | Nama / new | ⚪ |
+| LG2 | شحنات مطلوبة (required shipments) | Nama / new | ⚪ |
+| LG3 | شحنات تحت التجهيز + عروض أسعار مشتريات + عروض شحن + طلب عرض سعر شحن | Nama / new | ⚪ |
+| LG4 | نموذج 4 (Form 4 — customs / insurance) | new | ⚪ |
+| LG5 | شحن داخلي (domestic shipping) | Nama / new | ⚪ |
+| LG6 | مخلّصين (customs clearance agents) | new | ⚪ |
+| LG7 | Cargo | new | ⚪ |
+| LG8 | نافذة / Nafeza (national single window) | external portal | ⚪ |
+
+## Safety / HSE (السلامة)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| SF1 | إصابات عمل (work injuries) | Nama / new | ⚪ |
+| SF2 | مهمات سيفتي — غسيل / نظافة (PPE / safety supplies) | Nama / new | ⚪ |
+
+## Governance & Watchlist (حوكمة وقوائم حظر)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| GV1 | Blacklist — موظف / مورد / عميل (cross-domain) | Nama / Vtiger | ⚪ |
+
 ## Market Data & Rates (بيانات السوق والأسعار)
 | # | Item | Source | Status |
 |---|------|--------|--------|
@@ -104,6 +135,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 |---|------|--------|--------|
 | AC1 | التأشيرات — تنبيه تجديد (visas, renewal alerts) | new | ⚪ |
 | AC2 | التراخيص والسجلات والمرور (licenses, registers, traffic) | new / Nama | ⚪ |
+| AC3 | أوراق مطلوب تجديدها (documents due for renewal) → Renewals | new | ⚪ |
+| AC4 | إيجارات شارفت على الانتهاء (leases nearing expiry) → Renewals | Nama / new | ⚪ |
 
 ## Operations & Production (عمليات وإنتاج)
 | # | Item | Source | Status |
