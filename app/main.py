@@ -11,14 +11,17 @@ from .core.logging_conf import configure_logging
 from .core.middleware import ObservabilityMiddleware, RateLimitMiddleware
 from .core.render import respond
 from .core.security import require_api_key
+from .ideas.router import router as ideas_router
 from .integrations.attendance.router import router as attendance_router
 from .integrations.banks.router import router as banks_router
 from .integrations.crm.router import router as crm_router
+from .integrations.finance.router import router as finance_router
 from .integrations.inventory.router import router as inventory_router
 from .integrations.nama.router import router as nama_router
 from .registry import SYSTEMS, Status
 from .routers.meta import router as meta_router
 from .routers.observability import router as observability_router
+from .routers.tools import router as tools_router
 from .workspace.router import router as workspace_router
 
 API_PREFIX = "/api/v1"
@@ -59,6 +62,7 @@ def create_app() -> FastAPI:
     # meta (health, systems) + monitoring at root
     app.include_router(meta_router)
     app.include_router(observability_router)
+    app.include_router(tools_router)
 
     # live integrations
     app.include_router(nama_router, prefix=API_PREFIX)
@@ -66,7 +70,9 @@ def create_app() -> FastAPI:
     app.include_router(crm_router, prefix=API_PREFIX)
     app.include_router(banks_router, prefix=API_PREFIX)
     app.include_router(inventory_router, prefix=API_PREFIX)
+    app.include_router(finance_router, prefix=API_PREFIX)
     app.include_router(workspace_router, prefix=API_PREFIX)
+    app.include_router(ideas_router, prefix=API_PREFIX)
 
     # planned integrations -> 501 placeholders (keeps the map complete)
     live_keys = {"nama", "attendance", "crm", "banks", "inventory"}

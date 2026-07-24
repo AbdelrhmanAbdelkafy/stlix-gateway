@@ -1,0 +1,88 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>التقارير المالية — Stlix Gateway</title>
+<style>
+:root{color-scheme:light dark;--bg:#0e131a;--card:#151c26;--card2:#1b2431;--ln:#232e3d;--tx:#e9edf3;--sub:#7e8ba0;--ac:#2bc4c4;--ok:#2fbd6b;--warn:#e0a53a;--red:#f0685f}
+@media(prefers-color-scheme:light){:root{--bg:#f5f7f8;--card:#fff;--card2:#eef1f4;--ln:#e3e7ec;--tx:#131922;--sub:#6a7688;--ac:#0c8a8a;--ok:#15914b;--warn:#c07a0a;--red:#c8362f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",system-ui,Tahoma,sans-serif;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 18px 60px}
+.head{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--ln);padding-bottom:16px;margin-bottom:20px}
+.logo{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--ac),#0a6a6a);display:grid;place-items:center;color:#fff;font-weight:800}
+h1{font-size:22px;margin:0;font-weight:800;letter-spacing:-.3px}.sub{color:var(--sub);font-size:12.5px}
+.src{margin-inline-start:auto;text-align:end;font-size:11.5px;color:var(--sub)}
+.badge{display:inline-block;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(47,189,107,.15);color:var(--ok)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:26px}
+.kpi{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:15px 16px}
+.kpi .l{font-size:11.5px;color:var(--sub)}.kpi .v{font-size:22px;font-weight:800;letter-spacing:-.5px;margin-top:3px;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:12px;color:var(--sub);font-weight:600}
+.kpi.red .v{color:var(--red)}.kpi.warn .v{color:var(--warn)}.kpi.ok .v{color:var(--ok)}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);margin:30px 0 4px;font-weight:700}
+.h2ar{font-size:17px;font-weight:800;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:start;padding:9px 14px;border-bottom:1px solid var(--ln)}
+th{color:var(--sub);font-size:11px;font-weight:600;background:var(--card2)}
+td.n{font-variant-numeric:tabular-nums;text-align:end;font-weight:600}
+tr:last-child td{border-bottom:0}.out{color:var(--red)}.paid{color:var(--ok)}
+.note{background:var(--card2);border:1px solid var(--ln);border-radius:12px;padding:13px 15px;font-size:12.5px;color:var(--sub);margin-top:14px}
+.note b{color:var(--tx)}
+.load{padding:30px;text-align:center;color:var(--sub)}
+.foot{margin-top:28px;padding-top:14px;border-top:1px solid var(--ln);font-size:11px;color:var(--sub);text-align:center}
+</style></head><body><div class="wrap">
+
+<div class="head">
+  <div class="logo">SG</div>
+  <div><h1>التقارير المالية</h1><div class="sub">Stlix Gateway · العملاء · الموردين · KPIs</div></div>
+  <div class="src" id="src">⏳ بتحميل من نما SQL…</div>
+</div>
+
+<div id="app" style="display:none">
+  <h2>المؤشرات التنفيذية · KPIs</h2>
+  <div class="kpis" id="kpis"></div>
+
+  <h2>الموردون · Accounts Payable</h2>
+  <div class="h2ar">أكبر الموردين بالمستحق علينا</div>
+  <div class="card"><table id="supTbl"><thead><tr><th>الكود</th><th>المورد</th><th>فواتير</th><th>المشتريات</th><th>المدفوع</th><th>المستحق علينا</th></tr></thead><tbody id="supBody"></tbody></table></div>
+
+  <h2>العملاء · Accounts Receivable</h2>
+  <div class="h2ar">المدينون بالرصيد المستحق</div>
+  <div class="card"><table id="cusTbl"><thead><tr><th>الكود</th><th>العميل</th><th>المبيعات</th><th>المحصّل</th><th>المستحق</th></tr></thead><tbody id="cusBody"></tbody></table></div>
+  <div class="note" id="arNote"></div>
+</div>
+
+<div id="load" class="load">⏳ بتحميل التقارير الحقيقية من نما…</div>
+
+<div class="foot">Stlix Gateway · التقارير المالية · أرقام حيّة من نما عبر SQL (قراءة فقط) — تتحدّث تلقائيًا مع أحدث نسخة مُرستَرة.</div>
+
+<script>
+const H={"X-API-Key":"__GATEWAY_API_KEY__"};
+const $=id=>document.getElementById(id);
+const fmt=n=>n==null?"—":new Intl.NumberFormat("en-US").format(n);
+const M=n=>n==null?"—":(Math.abs(n)>=1e6?(n/1e6).toFixed(1)+" M":fmt(n));
+async function gw(p){const r=await fetch("/api/v1/finance/"+p,{headers:H});if(!r.ok)throw new Error(p+" "+r.status);return r.json();}
+function kpi(l,v,cls){return `<div class="kpi ${cls||''}"><div class="l">${l}</div><div class="v">${v}</div></div>`;}
+async function load(){
+ try{
+  const [k,sup,cus]=await Promise.all([gw("kpis"),gw("suppliers?limit=12"),gw("customers?limit=200")]);
+  $("kpis").innerHTML=[
+    kpi("عدد العملاء",fmt(k.customers)),
+    kpi("عدد الموردين",fmt(k.suppliers)),
+    kpi("إجمالي المبيعات",M(k.salesTotal)+' <small>ج</small>',"ok"),
+    kpi("مستحق لنا (AR)",M(k.arOutstanding)+' <small>ج</small>',"red"),
+    kpi("إجمالي المشتريات",M(k.purchaseTotal)+' <small>ج</small>'),
+    kpi("مستحق علينا (AP)",M(k.apOutstanding)+' <small>ج</small>',"warn"),
+    kpi("فواتير بيع",fmt(k.salesInvoices)),
+    kpi("فواتير شراء",fmt(k.purchaseInvoices)),
+  ].join("");
+  $("supBody").innerHTML=(sup.records||[]).map(s=>`<tr><td>${s.code}</td><td>${s.name1||"—"}</td><td class="n">${fmt(s.invoices)}</td><td class="n">${fmt(s.purchaseTotal)}</td><td class="n paid">${fmt(s.paid)}</td><td class="n out">${fmt(s.outstanding)}</td></tr>`).join("");
+  const debtors=(cus.records||[]).filter(c=>c.outstanding>0).sort((a,b)=>b.outstanding-a.outstanding);
+  $("cusBody").innerHTML=debtors.map(c=>`<tr><td>${c.code}</td><td>${c.name1||"—"}</td><td class="n">${fmt(c.salesTotal)}</td><td class="n paid">${fmt(c.collected)}</td><td class="n out">${fmt(c.outstanding)}</td></tr>`).join("")||'<tr><td colspan="5" style="color:var(--sub)">لا يوجد مدينون بأرصدة على عملاء بالاسم</td></tr>';
+  const attributed=debtors.reduce((s,c)=>s+c.outstanding,0);
+  $("arNote").innerHTML=`⚠️ <b>ملاحظة بيانات:</b> إجمالي المستحق (AR) = <b>${fmt(k.arOutstanding)} ج</b>، لكن المنسوب منه لعملاء بالاسم = <b>${fmt(attributed)} ج</b> (${debtors.length} عميل). الباقي على فواتير غير مربوطة بعميل مُسمّى — يستحق مراجعة بيانات.`;
+  $("src").innerHTML='<span class="badge">حيّ · نما SQL</span><br>بيانات حتى: '+(k.asOf||"—");
+  $("load").style.display="none";$("app").style.display="block";
+ }catch(e){$("load").innerHTML="❌ فشل التحميل: "+e.message+" — اتأكد إن NAMA_SQL مظبوط في .env والسيرفر شغّال.";}
+}
+load();
+</script>
+</div></body></html>

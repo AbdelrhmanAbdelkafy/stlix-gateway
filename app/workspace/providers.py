@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 
 from ..config import Settings
 from ..core.metrics import metrics
+from ..ideas import registry as ideas
 from ..integrations.banks.connector import BanksConnector
 from ..integrations.crm.connector import CrmConnector
 from ..integrations.inventory.connector import InventoryConnector
@@ -104,6 +105,23 @@ class InventoryProvider(Provider):
                        rows=p["counted_items"][:limit], columns=["code", "q", "u", "counter"])
 
 
+class IdeasProvider(Provider):
+    key, title = "ideas", "الأفكار والمتطلبات · Ideas"
+
+    async def collect(self, settings: Settings, limit: int) -> Section:
+        s = ideas.summary()
+        # Surface what is unblocked first — those need a report, not an integration.
+        rows = [i for i in ideas.as_dicts() if i["readiness"] == "ready"][:limit]
+        summary = {
+            "total": s["total"],
+            "domains": s["domains"],
+            **{f"readiness_{k}": v for k, v in s["readiness"].items()},
+            "board": "/tools/ideas",
+        }
+        return Section(self.key, self.title, "ok", summary, rows=rows,
+                       columns=["id", "title", "domain", "source", "readiness", "link"])
+
+
 class MonitoringProvider(Provider):
     key, title = "monitoring", "مراقبة · Monitoring"
 
@@ -128,6 +146,7 @@ PROVIDERS: list[Provider] = [
     CrmProvider(),
     BanksProvider(),
     InventoryProvider(),
+    IdeasProvider(),
     MonitoringProvider(),
 ]
 

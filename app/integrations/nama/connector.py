@@ -18,6 +18,21 @@ class NamaConnector(Connector):
     async def list(self, entity: str, max_records: int = 25) -> dict:
         return await self._client.list(entity, max_records=max_records)
 
+    async def list_query(
+        self,
+        entity: str,
+        *,
+        page_size: int = 25,
+        order_by: str | None = None,
+        text_criteria: str | None = None,
+    ) -> dict:
+        return await self._client.list_query(
+            entity, page_size=page_size, order_by=order_by, text_criteria=text_criteria
+        )
+
+    async def find_first(self, entity: str, *, text_criteria: str) -> dict | None:
+        return await self._client.find_first(entity, text_criteria=text_criteria)
+
     async def find(self, entity: str, code: str) -> dict:
         return await self._client.find(entity, code)
 

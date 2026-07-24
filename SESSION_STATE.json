@@ -1,0 +1,69 @@
+{
+  "project": "Stlix Gateway",
+  "one_liner": "نقطة تكامل واحدة (FastAPI) تربط كل أنظمة الشركة — قراءة أولًا، مفاتيح server-side، بوابة مزدوجة.",
+  "aka": "hub = gateway = platform = الهَب = الجيتواي = المنصّة — all the same project (owner's words). Not to be confused with 'D:\\CLAUDE SHARED MEMORY\\Enterprise Platform AI based' (unrelated doc set).",
+  "path": "D:\\Nama Code project\\stlix-gateway",
+  "git": "local only (no remote, by owner's choice)",
+  "as_of": "2026-07-24",
+  "language_pref": "Egyptian Arabic (reply to owner in it)",
+  "run": {
+    "how": ".claude/launch.json name 'stlix-gateway' -> uvicorn app.main:app on 127.0.0.1:8000 (no --reload)",
+    "restart_after": "python code / registry / config changes (HTML/JS in modules/ is read fresh per request)",
+    "venv": ".venv (Python 3.14; deps need current pins)",
+    "tests": "56 passing (.venv/Scripts/python.exe -m pytest -q)"
+  },
+  "architecture_6_layers": {
+    "1_gateway": "done",
+    "2_connectors": "5 live (read-only) + SQL finance connector",
+    "3_unified_workspace": "done",
+    "4_ai_orchestrator": "planned (human-like chat, sales AI, collector AI)",
+    "5_workflows_write": "planned (item create, invoice approve — audited + HITL)",
+    "6_logs_monitoring_security": "done"
+  },
+  "connectors_live": ["nama", "attendance", "crm(vtiger)", "banks", "inventory(الجرد)"],
+  "finance_sql": {
+    "status": "LIVE — real balances from Nama SQL (REST exposes none)",
+    "login": "stlix_gw (read-only, db_datareader)",
+    "conn": "localhost / NAMA_TEST / ODBC Driver 17 / Encrypt=yes;TrustServerCertificate=yes",
+    "env_keys": ["NAMA_SQL_SERVER", "NAMA_SQL_DATABASE", "NAMA_SQL_USER", "NAMA_SQL_PASSWORD", "NAMA_SQL_DRIVER"],
+    "driver_pkg": "pyodbc",
+    "endpoints": ["/api/v1/finance/kpis", "/api/v1/finance/customers", "/api/v1/finance/suppliers"],
+    "real_figures_asOf_2026-07-14": {
+      "customers": 549, "suppliers": 586,
+      "salesTotal": 329913390, "arOutstanding": 20022676,
+      "purchaseTotal": 320048231, "apOutstanding": 186710932
+    },
+    "data_quality_finding": "AR 20.0M but only ~178K attributed to named customers; rest on unlinked invoices — needs review.",
+    "freshness": "as-of = latest restored .bak (2026-07-14). Newer daily backups (hardsteel<date>.bak, ~5.7GB) on Google Drive folder 1yvCI6unRWALtzf1yiU9kiHAPaBB56Xtt. Refresh = download+RESTORE (can't read .bak in place). Automate as nightly job."
+  },
+  "pages_served": {
+    "/tools/platform": "unified hub (entry point) — live modules + placeholders + SSO placeholder",
+    "/tools/finance-os": "role-based cockpit (Demo prototype). REAL: dashboard KPI strip, Customers 360 (customer AR + supplier AP). Treasury = honest (no fake numbers, GL balances pending). AP invoices / GL ledger = still demo.",
+    "/tools/finance-reports": "100% REAL finance reports (AR/AP/KPIs) from SQL — the production finance UI",
+    "/tools/name-builder": "item creation — reads Nama lists + local parser + fuzzy autocomplete + dedup (read-only; create = write step pending)",
+    "/tools/ideas": "ideas board — all 181 owner requirements as links, parsed live from BACKLOG.md; search + filter by connector readiness; deep link /tools/ideas#<id>"
+  },
+  "ideas": {
+    "source_of_truth": "BACKLOG.md (add a markdown row -> appears on the board, no code change)",
+    "code": "app/ideas/{registry,router}.py + modules/platform/ideas.html",
+    "endpoints": ["/api/v1/ideas", "/api/v1/ideas/domains", "/api/v1/ideas/{id}"],
+    "counts_2026-07-25": {"total": 181, "domains": 26, "done": 1, "ready": 107, "partial": 43, "blocked": 30},
+    "readiness_meaning": "ready = every connector it needs already exists, so it only needs a report built",
+    "top_missing_connectors": {"new-system": 47, "external": 15, "ai-layer": 9}
+  },
+  "modules": {
+    "finance-os": {"roles": ["PRESIDENT(default)", "CFO", "AP_MANAGER", "AP_CLERK", "OPERATOR", "AUDITOR"], "principle": "ERP=system of record, AI never writes directly, audited workflow"},
+    "name-builder": {"UX1": "fuzzy search + autocomplete + Arabic normalization done in type box; UX1b (full-name validator->dedup->reject) pending"}
+  },
+  "verified_nama_facts": [
+    "REST is entity-CRUD ONLY (list/find/save/delete per entity via OpenAPI /erp/browseapi/openapi/{Entity}.json). NO SQL/report/balance op.",
+    "Zero-result filtered list = HTTP 400 empty body (not 200+[]) — handled in NamaClient.find_first.",
+    "textCriteria operator case-sensitive: 'Equal' only. Dates DD-MM-YYYY.",
+    "Nama web SQL utility (/erp/vue.html#/utils/sql) + API browser are web-login features, NOT reachable with API creds.",
+    "Real balances only via SQL (now wired) or a Namasoft-published report (spec at docs/nama-balance-report-spec.md, optional)."
+  ],
+  "open_blocker": "🔴 Rotate exposed keys (Anthropic first, then Nama/Vtiger/inventory) — DEFERRED by owner. See secrets/gates-keys.backup.md.",
+  "next_step_file": "NEXT_STEP.md",
+  "handover_files": ["SESSION_STATE.json", "MASTER_EXECUTION_RUNBOOK.md", "HANDOFF.md", "TASKS.md", "DECISIONS.md", "CHANGELOG.md", "NEXT_STEP.md"],
+  "memories": ["stlix-gateway-project", "nama-rest-protocol", "attendance-app-project"]
+}

@@ -1,63 +1,43 @@
-# Stlix Gateway — Handoff (start here in a new chat)
+# HANDOFF — حالة آخر جلسة (ابدأ من MASTER_EXECUTION_RUNBOOK.md)
 
-Single integration platform ("نقطة تكامل واحدة") fronting all company systems.
-Read this + the linked files to continue with zero context loss.
+> شات جديد؟ اقرأ `MASTER_EXECUTION_RUNBOOK.md` (المرجع) ثم `NEXT_STEP.md`. الملف ده لقطة آخر جلسة.
+> كلّم المالك بالعربي المصري. `D:\Nama Code project\stlix-gateway` · git محلي · run: preview `stlix-gateway` (:8000).
+> ⚠️ **الهَب = الجيتواي = المنصّة = المشروع ده** (كلام المالك). مافيش مجلد تاني.
 
-## Where / how
-- Path: `D:\Nama Code project\stlix-gateway` · **local git only** (no remote, by choice).
-- Python 3.14 venv `.venv`. Deps need current pins (pydantic 2.13+; 3.14 has no old wheels).
-- Run: `.claude/launch.json` name **stlix-gateway** (uvicorn :8000). Browser preview verified.
-  Restart after code/registry changes (no --reload). Reply to owner in **Egyptian Arabic**.
-- Creds: gitignored `.env`. Backup of ALL gate keys: `secrets/gates-keys.backup.md` (gitignored).
+## آخر جلسة عملت إيه (2026-07-25)
+1. **لوحة الأفكار `/tools/ideas`** — الـ**181 متطلب** اللي المالك قالهم بقوا كلهم لينكات قدامه: بحث، فلاتر، deep link لكل بند (`#T14`). مصدرها `BACKLOG.md` مباشرة → **أي سطر جديد يظهر فورًا بدون كود** (يستحمل 300+).
+2. **بُعد جديد: جاهزية الكنكتور** لكل فكرة — `1` اتعمل · **`107` كنكتورها جاهز (محتاجة تقرير بس)** · `43` ناقص جزء · `30` محتاجة تكامل جديد. `/api/v1/ideas?readiness=ready` = اللي نقدر نبنيه النهاردة.
+3. **توحيد المستودع** — الكتاب المرجعي (83 فصل) اتنقل جوه الريبو: `docs/enterprise-platform/` + `reference/finance-mvp/`.
+4. **56 اختبار يعدّي** (كانوا 44).
 
-## Architecture — 6 layers
-1 Gateway ✅ · 2 Connectors · 3 Unified Workspace ✅ · 4 AI Orchestrator ⚪ ·
-5 n8n workflows ⚪ · 6 Logs/Monitoring/Security ✅.
+## الجلسة اللي قبلها (2026-07-24)
+1. **حلّ مشكلة الأرصدة نهائيًا** — اتأكد إن نما REST مابيدّيش أرصدة (CRUD كيانات فقط، من عقد الـ OpenAPI نفسه)، فبنينا **SQL connector** بيقرأ أرصدة العملاء/الموردين/KPIs من نما مباشرة (read-only login `stlix_gw`, pyodbc). Endpoints `/api/v1/finance/{kpis,customers,suppliers}` = **أرقام حقيقية**.
+2. **صفحة تقارير حقيقية** `/tools/finance-reports` (100% من SQL) + **هَب موحّد** `/tools/platform`.
+3. **Finance OS** بقى فيه KPIs حقيقية + أرصدة عملاء/موردين حقيقية؛ الخزينة اتعملت أمينة (شيلنا الأرقام الوهمية).
+4. **حزمة handover كاملة** (الملفات تحت).
 
-## Built & verified live (5 connectors, all read-only)
-| Connector | Source | Notes |
-|---|---|---|
-| nama | Nama REST (cloud) | employees + generic entity read |
-| attendance | Nama TimeAttendance | punch push guarded (read-only → 403) |
-| crm | Vtiger `crm.stlixvalley.com` | contacts/leads/accounts — live data |
-| banks | Nama Bank/BankAccount | **accounts** only; numeric balances NOT on Nama REST |
-| inventory (الجرد) | count app `crm.stlixvalley.com/count/sync.php?k=KELMETAK` | {rev,items,manual} |
+## الحالة الحالية
+- **الطبقات:** 1 Gateway ✅ · 2 Connectors (5 live + SQL) · 3 Workspace ✅ · 4 AI ⚪ · 5 Write ⚪ · 6 Security ✅.
+- **حيّ:** 5 كنكتورات (nama·attendance·crm·banks·inventory) · Finance OS · التقارير · NameBuilder · **لوحة الأفكار** · الهَب · Workspace · Metrics. **56 اختبار يعدّي.**
+- **أرقام نما الحقيقية (as-of 14 يوليو):** 549 عميل · 586 مورد · مبيعات 329.9M · AR 20.0M · مشتريات 320.0M · AP 186.7M.
 
-Also live: `/health`, `/systems`, `/connectors`, `/metrics` (HTML+Prometheus+JSON),
-`/api/v1/workspace` (concurrent aggregation), structured JSON logs, rate-limit,
-security headers, multi API-key. 35 tests passing.
+## أرصدة نما — إزاي شغّالة
+`app/integrations/finance/` بيقرأ SQL (`.env` `NAMA_SQL_*` · `localhost/NAMA_TEST/stlix_gw` · ODBC Driver 17). البيانات = آخر backup مُرستَر. نسخ يومية على Google Drive (`hardsteel<date>.bak`) — التحديث محتاج download+RESTORE (سكربت ليلي = المهمة التالية). أرصدة البنوك مؤجّلة (GL مش مُرحّل بالكامل في النسخة).
 
-## Pattern (how to add anything)
-Connector = `app/integrations/<key>/{client,connector,router}.py` + register in
-`main.py` live_keys + `registry.py` LIVE + a `workspace/providers.py` Provider + a
-test. Scaffolds in `templates/` (see `templates/README.md`). Every read endpoint
-does HTML+JSON via `respond()`. Read-only by default; `guard_write()` → 403.
+## مفتوح / التالي
+- **المهمة التالية:** `NEXT_STEP.md` (أتمتة تحديث البيانات · أو صوت/شات-إنسان · أو Finance OS كله حقيقي · أو أول محرّك).
+- **placeholders في الهَب:** AI (Layer 4) · Write (Layer 5) · محرّكات · Omnichannel · صوت · SSO/RBAC · دومينات نما.
+- 🔴 **تغيير المفاتيح المكشوفة** (Anthropic أولًا) — مؤجّل بطلب المالك (`secrets/gates-keys.backup.md`).
 
-## The insight (VISION.md)
-~180 backlog requirements = ~24 domains collapsing into **6 reusable engines**:
-Planned-vs-Actual · Renewals/Deadlines · Reconciliation · Live-vs-Pending ·
-Watchlist · Market-Feeds. Most items are **reports over Nama**, not new systems.
+## حزمة الـ Handover (الملفات)
+- `MASTER_EXECUTION_RUNBOOK.md` — المرجع الرئيسي (ابدأ منه)
+- `SESSION_STATE.json` — الحالة المُهيكلة (machine-readable)
+- `HANDOFF.md` — الملف ده (حالة آخر جلسة)
+- `TASKS.md` — كل المهام (done/partial/planned)
+- `DECISIONS.md` — كل القرارات + أسبابها
+- `CHANGELOG.md` — كل تعديل
+- `NEXT_STEP.md` — المهمة الواحدة التالية
 
-## Modules (front-ends, "develop together" — demos captured, not wired)
-- `modules/finance-os/` — role-based financial cockpit + AI team + HITL + audit.
-  Principle "ERP=system of record, AI never writes directly, audited workflow" = our design.
-- `modules/name-builder/` — free-text → AI → Nama InvItem create. First WRITE case
-  (Layer 5) + first AI (Layer 4). Reveals Nama write protocol (see its README).
-
-## Verified facts / gotchas
-- Nama REST exposes **NO account balances** (master entities only; balances via SQL/report).
-- Nama dates = `DD-MM-YYYY` (YYYY-MM-DD silently mis-parsed). Times `HH:MM`.
-- Nama save: `POST {Entity}/save` body `{"<Entity>":[{...}]}`; item write uses
-  `apiKey`+`X-API-SECRET` auth, identity=`description1`, ItemClass3-10 attributes.
-- Key files: `README.md` `VISION.md` `BACKLOG.md` `RESOURCES.md` `templates/` `modules/`.
-
-## Open / next
-1. 🔴 **ROTATE exposed keys** (Anthropic first, then Nama/Vtiger/inventory) — see
-   `secrets/gates-keys.backup.md` checklist.
-2. Bank **balances**: decide source (SQL vs Nama report) — REST has none.
-3. Build first **engine** (suggest Renewals/Alerts — covers 7-8 items) or a report.
-4. Wire **Finance OS** live panels (Treasury ← banks, Customers ← CRM) when owner says.
-5. The 3 published Google Sheets (RESOURCES.md) are candidate data sources — inspect.
-
-Memory: `stlix-gateway-project`, `nama-rest-protocol`, `attendance-app-project`
-(auto-loaded via MEMORY.md in every session).
+## مراجع تانية في الريبو
+`BACKLOG.md` (~180 متطلب) · `VISION.md` (6 محرّكات) · `RESOURCES.md` · `docs/` (spec + SQL queries) · `templates/` · `modules/`.
+الذاكرة: `stlix-gateway-project` · `nama-rest-protocol` · `attendance-app-project`.

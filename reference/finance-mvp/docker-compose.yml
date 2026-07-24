@@ -1,0 +1,42 @@
+# Finance OS MVP — local stack (Chapters 36-37)
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: finance_os
+      MYSQL_USER: finance
+      MYSQL_PASSWORD: finance
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - db_data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: development
+      DATABASE_URL: mysql+pymysql://finance:finance@db:3306/finance_os
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: change-me-in-production-please-32-bytes-min
+    ports:
+      - "8000:8000"
+    # Seed demo users/vendor, then start the API.
+    command: >
+      sh -c "python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+volumes:
+  db_data:

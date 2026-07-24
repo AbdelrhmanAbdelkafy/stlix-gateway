@@ -57,6 +57,27 @@ class Settings(BaseSettings):
     # Banks connector reuses the Nama REST creds; its own mode:
     banks_mode: str = Field(default="read_only")
 
+    # --- Finance connector (customer/supplier balances) ---
+    # Namasoft report/query entities that expose computed balances (REST doesn't
+    # expose them natively — see docs/nama-balance-report-spec.md). Once Namasoft
+    # publishes these, the finance endpoints go live with zero code changes.
+    finance_customer_entity: str = Field(default="StlixCustomerBalance")
+    finance_supplier_entity: str = Field(default="StlixSupplierBalance")
+    finance_statement_entity: str = Field(default="StlixCustomerStatement")
+
+    # --- Nama SQL (read-only) — real balances from the restored Nama DB backup.
+    # REST exposes no balances, so finance reads them straight from SQL. Use a
+    # read-only login (db_datareader). Server/db mirror the local restore.
+    nama_sql_server: str = Field(default="")
+    nama_sql_database: str = Field(default="NAMA_TEST")
+    nama_sql_user: str = Field(default="")
+    nama_sql_password: str = Field(default="")
+    nama_sql_driver: str = Field(default="ODBC Driver 17 for SQL Server")
+
+    @property
+    def nama_sql_configured(self) -> bool:
+        return bool(self.nama_sql_server and self.nama_sql_user and self.nama_sql_password)
+
     # --- CRM connector (Vtiger) ---
     crm_backend: str = Field(default="vtiger")
     crm_mode: str = Field(default="read_only")

@@ -5,8 +5,13 @@ cockpit that sits **on top of the gateway**: dashboard, an AI "financial team"
 (chat + recommendations with human-in-the-loop approvals), AP approval workflow,
 Customers 360, Treasury, GL, reports, and an append-only audit log.
 
-`demo.html` is the owner's full front-end demo (currently hardcoded demo data —
-banner says "نما غير متصل"). This folder is where it gets wired to live gateway data.
+`demo.html` is the owner's full front-end demo (hardcoded demo data). **`demo.gateway.html`
+is the wired version, served at `GET /tools/finance-os`** (gateway key injected server-side).
+Live now (read overlay, badged "نما · حيّ"): **Treasury ← live Nama bank accounts**,
+**Customers 360 ← live Nama customers** (`GET /api/v1/nama/lists/Customer` — a finance
+cockpit reads customers from the ERP, not the CRM). Banner flips to "متصل بالجيتواي ✅". Two roles
+added: **PRESIDENT** (default; sees all + decides + chat) and **OPERATOR** (feeds data:
+create/submit, no approve). Balances (SQL) + customer ledger + AP/GL write still pending.
 
 ## Why it fits our architecture exactly
 The demo's own principle (sidebar footer):

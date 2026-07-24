@@ -1,5 +1,12 @@
 # Stlix Gateway — Backlog / Roadmap
 
+> 🔗 **This file is live in the app.** Every row below is parsed into the ideas
+> board at **`/tools/ideas`** (and `/api/v1/ideas`), where each item becomes a
+> card with its own link, its connector readiness, and a deep link `#<id>`.
+> **Add a row here → it appears there immediately, no code change.** Keep the
+> table shape (`| ID | Item | Source | Status |`) and the id format (`S28`,
+> `WH19`, …) so the parser picks it up.
+
 Requirements captured from the owner, grouped by domain. Most are **reports /
 KPIs** derived from existing connectors (Nama, Vtiger) rather than new external
 systems — they become endpoints under a domain connector, and workspace
@@ -94,6 +101,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T23 | عدد الفواتير المراجَعة لكل مراجع (invoices reviewed per reviewer) | Nama | ⚪ |
 | T24 | الحسابات المفضلة لاستلام تحويلات العملاء (preferred collection accounts) → enhances Banks connector | Nama | ⚪ |
 | T25 | حسابات البنوك لدينا (our bank accounts) — ✅ built (banks connector) | Nama | 🟢 |
+| T26 | إيصالات دفع (payment slips / receipts) — سند صرف/قبض قابل للطباعة | Nama | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
@@ -209,6 +217,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | CM2 | Tickets — التذاكر (support / helpdesk) | Vtiger | ⚪ |
 | CM3 | مكالمات ورسائل الموظفين — خطوط الشركة (staff calls/messages, company lines) | telco / new | ⚪ |
 | CM4 | الكول سنتر (call center) → registered system `callcenter` | new | ⚪ |
+| CM5 | الشكاوي (complaints) — تسجيل/تتبع/تصعيد شكاوى العملاء والموظفين | Vtiger / new | ⚪ |
+| CM6 | الاقتراحات (suggestions) — صندوق اقتراحات + تتبع الحالة | Vtiger / new | ⚪ |
 
 ## Attendance (حضور وبصمة) — connector live
 | # | Item | Source | Status |
@@ -283,6 +293,25 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | A1 | Enterprise platform, AI-based | Layer 4 AI Orchestrator over the gateway: query/act across all connectors via natural language; the unifying vision. |
 | A2 | Nama NameBuilder | Use Nama's NameBuilder to define custom entities/screens → new connectors read them via the same REST (enabler for custom modules: maintenance, custody, forms…). |
 | A3 | مدير مبيعات ذكي (AI sales manager) | AI agent over CRM+Nama: prioritize leads, nudge follow-ups, forecast — part of the enterprise platform. |
+
+## Platform UX & Input (تجربة الاستخدام والإدخال — عابر لكل الموديولات)
+Cross-cutting front-end helpers — apply to every module's text inputs, not one screen.
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| UX1 | Autocomplete + تصحيح تلقائي في textboxes — أول تطبيق: بحث النوع/الوصف في **name-builder** (اقتراح أثناء الكتابة + تصحيح أخطاء إملائية) | front-end / KB | 🟡 خانة بحث النوع: ✅ (fuzzy/Levenshtein + تطبيع عربي + منسدل بالكيبورد). باقي: خانة الوصف الحر + مدخلات باقي الموديولات |
+| UX1b | **name-builder — إدخال الاسم الكامل**: المستخدم يكتب الاسم كله → validator يعمل autocorrect + autocomplete على كل جزء → بناء الكود → فحص التكرار في نما → **رفض لو مكرر** (end-to-end من نص حر لصنف مقبول أو مرفوض) | front-end + `/nama/invitem/exists` | ⚪ (الأساس جاهز: المحلّل المحلي + dedup endpoint) |
+| UX2 | Transcript — خيار تفريغ نصّي في أي مدخل كتابة (لصق/تحرير نص طويل) | front-end | ⚪ |
+| UX3 | صوت → كتابة + **بحث صوتي بالعربي** (voice-to-text / dictation + voice search, Arabic) في كل مدخلات النص والبحث | front-end / Arabic STT API | ⚪ |
+| UX4 | Widgets — عناصر لوحة قابلة للتخصيص والإطلاق على الـ Unified Workspace ("طلعلي") | gateway workspace | ⚪ |
+
+## Platform & Access (منصّة وصلاحيات — عابر للمنصّة كلها)
+Cross-cutting platform capabilities — apply everywhere, not one screen. **Every feature/report/action is gated twice: by the API connector's own permissions AND by the logged-in user's role/permissions (RBAC).**
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| PA1 | **Omnichannel comms** — المنصّة بتتواصل بكل القنوات: واتساب · وي شات · وغيرها (send/receive عبر الجيتواي) | WhatsApp/WeChat APIs + gateway | ⚪ |
+| PA2 | **SSO** — دخول موحّد (Single Sign-On) | IdP (Google Workspace / OAuth) | ⚪ |
+| PA3 | **RBAC** — صلاحيات المستخدم الداخل + احترام صلاحيات كل connector (بوابة مزدوجة) | gateway auth + connectors | ⚪ |
+| PA4 | بحث/كتابة بالصوت بالعربي عبر كل المنصّة → see UX3 | front-end / Arabic STT | ⚪ |
 
 ## Registered systems (map placeholders, not yet built)
 call-center · email · website · AI · archive · inventory (الجرد) · academy ·
