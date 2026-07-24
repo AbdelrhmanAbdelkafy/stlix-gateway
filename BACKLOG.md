@@ -36,6 +36,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | P2 | مين طلب خامات ستليكس | Nama | ⚪ |
 | P3 | طلبات Site Survey | Nama / Vtiger | ⚪ |
 | P4 | أسعار الخامات | Nama | ⚪ |
+| P5 | مطابقة موردين (supplier reconciliation) → Reconciliation | Nama | ⚪ |
+| P6 | مطابقة موردين تخطّت الأسبوع (overdue >1wk) → Reconciliation/Alerts | Nama | ⚪ |
 
 ## Treasury & Finance (خزينة ومالية)
 | # | Item | Source | Status |
@@ -73,6 +75,11 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H8 | عقود موظفين (employee contracts) | Nama | ⚪ |
 | H9 | موظفين — خروج ودخول (employee entry / exit) | Nama | ⚪ |
 | H10 | عقود عمل مطلوب تجديدها (contracts due for renewal) → Renewals | Nama | ⚪ |
+| H11 | قيمة الرواتب المتوقعة للشهر (expected monthly payroll) | Nama | ⚪ |
+| H12 | نسبة الإضافي للأساسي + السهر (overtime/basic ratio, night shift) | Nama | ⚪ |
+| H13 | بلو-كولر / وايت-كولر — عدد وقيمة (blue vs white collar count & cost) | Nama | ⚪ |
+| H14 | القيم المباشرة وغير المباشرة للموظفين (direct/indirect labor cost) | Nama | ⚪ |
+| H15 | تكلفة الموظف الكلية (total loaded employee cost) | Nama | ⚪ |
 
 ## Marketing (تسويق)
 | # | Item | Source | Status |
@@ -137,12 +144,14 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | AC2 | التراخيص والسجلات والمرور (licenses, registers, traffic) | new / Nama | ⚪ |
 | AC3 | أوراق مطلوب تجديدها (documents due for renewal) → Renewals | new | ⚪ |
 | AC4 | إيجارات شارفت على الانتهاء (leases nearing expiry) → Renewals | Nama / new | ⚪ |
+| AC5 | اشتراكات شارفت على الانتهاء (subscriptions nearing expiry) → Renewals | Nama / new | ⚪ |
 
 ## Operations & Production (عمليات وإنتاج)
 | # | Item | Source | Status |
 |---|------|--------|--------|
 | OP1 | طلبات تجهيز — عند الغير (prep orders at third parties / subcontract WIP) | Nama | ⚪ |
 | OP2 | Action plan — per job order / per batch (patch) | Nama / new | ⚪ |
+| OP3 | إنتاجية صالة الإنتاج — يومي + نسبة الهالك (floor productivity/day + scrap rate) | Nama / new | ⚪ |
 
 ## Management & Planning (إدارة وتخطيط)
 | # | Item | Source | Status |
