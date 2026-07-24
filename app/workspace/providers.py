@@ -13,6 +13,7 @@ from ..config import Settings
 from ..core.metrics import metrics
 from ..integrations.banks.connector import BanksConnector
 from ..integrations.crm.connector import CrmConnector
+from ..integrations.inventory.connector import InventoryConnector
 from ..integrations.nama.connector import NamaConnector
 from ..registry import as_dicts
 
@@ -91,6 +92,18 @@ class BanksProvider(Provider):
                        rows=rows, columns=["code", "name1", "_bankName", "_currency"])
 
 
+class InventoryProvider(Provider):
+    key, title = "inventory", "الجرد · Stocktake"
+
+    async def collect(self, settings: Settings, limit: int) -> Section:
+        if not settings.inventory_configured:
+            return Section(self.key, self.title, "not_configured", {"configured": False})
+        p = await InventoryConnector(settings).progress()
+        summary = {"rev": p["rev"], "tracked": p["tracked"], "counted": p["counted"], "manual": p["manual"]}
+        return Section(self.key, self.title, "ok", summary,
+                       rows=p["counted_items"][:limit], columns=["code", "q", "u", "counter"])
+
+
 class MonitoringProvider(Provider):
     key, title = "monitoring", "مراقبة · Monitoring"
 
@@ -114,6 +127,7 @@ PROVIDERS: list[Provider] = [
     NamaProvider(),
     CrmProvider(),
     BanksProvider(),
+    InventoryProvider(),
     MonitoringProvider(),
 ]
 

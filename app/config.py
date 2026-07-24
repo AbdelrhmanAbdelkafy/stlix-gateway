@@ -69,6 +69,16 @@ class Settings(BaseSettings):
     def crm_configured(self) -> bool:
         return bool(self.vtiger_url and self.vtiger_username and self.vtiger_access_key)
 
+    # --- Inventory / Stocktake connector (count app) ---
+    inventory_base_url: str = Field(default="", description="Stocktake app base, e.g. https://crm.stlixvalley.com/count")
+    inventory_key: str = Field(default="", description="sync.php ?k= key")
+    inventory_mode: str = Field(default="read_only")
+    inventory_timeout: float = Field(default=30.0)
+
+    @property
+    def inventory_configured(self) -> bool:
+        return bool(self.inventory_base_url and self.inventory_key)
+
     @property
     def nama_base(self) -> str:
         return self.nama_base_url.rstrip("/")
