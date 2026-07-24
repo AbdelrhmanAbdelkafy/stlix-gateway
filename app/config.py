@@ -22,6 +22,28 @@ class Settings(BaseSettings):
     app_env: str = Field(default="dev", description="dev | staging | prod")
     # Shared secret clients must send as `X-API-Key`. Empty string disables the check.
     gateway_api_key: str = Field(default="")
+    # Additional accepted keys (comma-separated), on top of gateway_api_key.
+    gateway_api_keys: str = Field(default="")
+
+    # --- Layer 6: logs / monitoring / security ---
+    log_level: str = Field(default="INFO")
+    log_json: bool = Field(default=True)
+    # Fixed-window requests/minute per client (0 = disabled).
+    rate_limit_per_minute: int = Field(default=120)
+    # Comma-separated allowed CORS origins ("*" = any).
+    cors_origins: str = Field(default="*")
+    security_headers: bool = Field(default=True)
+
+    @property
+    def cors_list(self) -> list[str]:
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()] or ["*"]
+
+    @property
+    def api_keys(self) -> set[str]:
+        keys = {k.strip() for k in self.gateway_api_keys.split(",") if k.strip()}
+        if self.gateway_api_key:
+            keys.add(self.gateway_api_key)
+        return keys
 
     # --- Nama ERP REST v1 ---
     # Cloud: https://stlixvalley.namasoft.net/erp/rest/v1

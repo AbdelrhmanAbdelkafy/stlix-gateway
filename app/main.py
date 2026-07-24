@@ -7,12 +7,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import __version__
 from .config import get_settings
 from .core.errors import NotImplementedYet, register_error_handlers
+from .core.logging_conf import configure_logging
+from .core.middleware import ObservabilityMiddleware, RateLimitMiddleware
 from .core.render import respond
 from .core.security import require_api_key
 from .integrations.attendance.router import router as attendance_router
 from .integrations.nama.router import router as nama_router
 from .registry import SYSTEMS, Status
 from .routers.meta import router as meta_router
+from .routers.observability import router as observability_router
 
 API_PREFIX = "/api/v1"
 
@@ -31,21 +34,27 @@ def _placeholder_router(key: str, name_en: str) -> APIRouter:
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    configure_logging(settings.log_level, settings.log_json)
     app = FastAPI(
         title=settings.app_name,
         version=__version__,
         summary="نقطة تكامل واحدة لكل الأنظمة - single integration point for all systems.",
     )
+    # Middleware runs outermost-first in reverse add order: add rate-limit first
+    # (inner), then observability (outer) so every request gets an id + metrics.
+    app.add_middleware(RateLimitMiddleware, limit_per_minute=settings.rate_limit_per_minute)
+    app.add_middleware(ObservabilityMiddleware)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=settings.cors_list,
         allow_methods=["*"],
         allow_headers=["*"],
     )
     register_error_handlers(app)
 
-    # meta (health, systems) at root
+    # meta (health, systems) + monitoring at root
     app.include_router(meta_router)
+    app.include_router(observability_router)
 
     # live integrations
     app.include_router(nama_router, prefix=API_PREFIX)

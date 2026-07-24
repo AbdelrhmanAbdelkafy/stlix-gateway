@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Request
 
 from .. import __version__
 from ..config import Settings, get_settings
+from ..core.metrics import metrics
 from ..core.render import respond
 from ..integrations.nama.connector import NamaConnector
 from ..registry import as_dicts
@@ -26,6 +27,8 @@ async def health(request: Request, settings: Settings = Depends(get_settings)):
         "status": "ok",
         "version": __version__,
         "env": settings.app_env,
+        "uptime_seconds": metrics.uptime_seconds,
+        "requests_total": metrics.total,
         "nama": {
             "configured": settings.nama_configured,
             "reachable": nama_reachable,
@@ -37,6 +40,8 @@ async def health(request: Request, settings: Settings = Depends(get_settings)):
         {"field": "status", "value": data["status"]},
         {"field": "version", "value": data["version"]},
         {"field": "env", "value": data["env"]},
+        {"field": "uptime_seconds", "value": data["uptime_seconds"]},
+        {"field": "requests_total", "value": data["requests_total"]},
         {"field": "nama.configured", "value": data["nama"]["configured"]},
         {"field": "nama.reachable", "value": data["nama"]["reachable"]},
         {"field": "nama.mode", "value": data["nama"]["mode"]},

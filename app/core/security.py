@@ -1,4 +1,4 @@
-"""Gateway-level auth: optional shared X-API-Key for clients."""
+"""Gateway-level auth: optional shared X-API-Key (one or many keys)."""
 from __future__ import annotations
 
 from fastapi import Depends, Header, HTTPException, status
@@ -10,10 +10,14 @@ def require_api_key(
     x_api_key: str | None = Header(default=None),
     settings: Settings = Depends(get_settings),
 ) -> None:
-    """Enforce X-API-Key only when GATEWAY_API_KEY is set (else no-op)."""
-    if not settings.gateway_api_key:
+    """Enforce X-API-Key only when at least one key is configured (else no-op).
+
+    Accepts any key in GATEWAY_API_KEY or the comma-separated GATEWAY_API_KEYS.
+    """
+    keys = settings.api_keys
+    if not keys:
         return
-    if x_api_key != settings.gateway_api_key:
+    if x_api_key not in keys:
         raise HTTPException(
             status.HTTP_401_UNAUTHORIZED, detail="Invalid or missing X-API-Key."
         )
