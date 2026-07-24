@@ -46,11 +46,14 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T5 | فواتير ثابتة (recurring / fixed invoices) | Nama | ⚪ |
 | T6 | فواتير بورتال (portal / e-invoicing — ETA?) | portal API / Nama | ⚪ |
 | T7 | أسعار الصرف اللحظية — يوان / دولار / يورو (real-time FX) | external FX API | ⚪ |
+| T8 | أقساط واجبة السداد (installments due) | Nama | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
 |---|------|--------|--------|
 | M1 | أعطال آلات ومعدات وأجهزة | Nama / new | ⚪ |
+| M2 | الصيانات الدورية — سيارات / آلات / معدات (scheduled maintenance) | Nama / new | ⚪ |
+| M3 | صيانة المباني (building maintenance) | Nama / new | ⚪ |
 
 ## HR (موارد بشرية)
 | # | Item | Source | Status |
@@ -67,11 +70,44 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | # | Item | Source | Status |
 |---|------|--------|--------|
 | MK1 | Social platforms (منصات التواصل) | external APIs | ⚪ |
+| MK2 | المعارض المتوقعة — حسب الدولة (expected exhibitions by country) | new / research | ⚪ |
 
 ## Investments / Equity (استثمارات ومساهمات)
 | # | Item | Source | Status |
 |---|------|--------|--------|
 | I1 | إسهامات / مساهمات (contributions / shareholdings) | Nama | ⚪ |
+
+## Market Data & Rates (بيانات السوق والأسعار)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| MD1 | أسعار الذهب (gold prices) | external API | ⚪ |
+| MD2 | البترول بالبرميل (oil per barrel) | external API | ⚪ |
+| MD3 | المحروقات (fuel prices / consumption) | external / Nama | ⚪ |
+| MD4 | توقعات أسعار الجنيه (EGP forecast) | external / AI | ⚪ |
+| MD5 | أسعار الصرف اللحظية (FX) → see T7 | external FX API | ⚪ |
+
+## Quality (جودة / QC)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| Q1 | الاختبارات / QC / الشهادات (tests, QC, certificates) | Nama / new | ⚪ |
+
+## Admin & Compliance (شؤون إدارية وامتثال)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| AC1 | التأشيرات — تنبيه تجديد (visas, renewal alerts) | new | ⚪ |
+| AC2 | التراخيص والسجلات والمرور (licenses, registers, traffic) | new / Nama | ⚪ |
+
+## Operations & Production (عمليات وإنتاج)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| OP1 | طلبات تجهيز — عند الغير (prep orders at third parties / subcontract WIP) | Nama | ⚪ |
+| OP2 | Action plan — per job order / per batch (patch) | Nama / new | ⚪ |
+
+## Management & Planning (إدارة وتخطيط)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| G1 | توجهات / أفكار (directions / ideas board) | new | ⚪ |
+| G2 | قرارات إدارية (administrative decisions) | new | ⚪ |
 
 ## Platform & AI (north star)
 | # | Item | Notes |
