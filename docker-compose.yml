@@ -1,0 +1,14 @@
+services:
+  gateway:
+    build: .
+    image: stlix-gateway:latest
+    container_name: stlix-gateway
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    restart: unless-stopped
+    # For local dev against a Nama on the host, use host.docker.internal:
+    #   NAMA_BASE_URL=http://host.docker.internal:8080/erp/rest/v1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
