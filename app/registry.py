@@ -39,6 +39,14 @@ SYSTEMS: list[System] = [
     System("inventory", "Inventory / Stocktaking", "الجرد", Status.PLANNED, "Stock counts."),
     System("academy", "Academy", "الأكاديمية", Status.PLANNED, "Training / LMS."),
     System("regulations", "Regulations", "اللوائح", Status.PLANNED, "Policies & bylaws."),
+    System("surveillance", "Surveillance & Alarm", "المراقبة والإنذار", Status.PLANNED,
+           "CCTV cameras, alarms, access control, events."),
+    System("movement", "Movement & Gate", "الحركة", Status.PLANNED,
+           "Vehicle / gate movement & logistics."),
+    System("housing", "Housing & Accommodation", "التسكين", Status.PLANNED,
+           "Worker housing / accommodation assignments."),
+    System("custody", "Custody & Assets", "العهدة", Status.PLANNED,
+           "Assets & tools held by employees (عُهد)."),
 ]
 
 

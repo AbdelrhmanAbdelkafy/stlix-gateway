@@ -17,6 +17,7 @@ from .integrations.nama.router import router as nama_router
 from .registry import SYSTEMS, Status
 from .routers.meta import router as meta_router
 from .routers.observability import router as observability_router
+from .workspace.router import router as workspace_router
 
 API_PREFIX = "/api/v1"
 
@@ -61,6 +62,7 @@ def create_app() -> FastAPI:
     app.include_router(nama_router, prefix=API_PREFIX)
     app.include_router(attendance_router, prefix=API_PREFIX)
     app.include_router(crm_router, prefix=API_PREFIX)
+    app.include_router(workspace_router, prefix=API_PREFIX)
 
     # planned integrations -> 501 placeholders (keeps the map complete)
     live_keys = {"nama", "attendance", "crm"}

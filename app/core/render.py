@@ -77,8 +77,8 @@ _PAGE = """<!doctype html>
   <h1>{title}</h1>{badges}
 </header>
 <nav>
-  <a href="/">home</a><a href="/systems">systems</a><a href="/connectors">connectors</a>
-  <a href="/health">health</a><a href="/docs">docs</a>
+  <a href="/api/v1/workspace">workspace</a><a href="/systems">systems</a><a href="/connectors">connectors</a>
+  <a href="/health">health</a><a href="/metrics">metrics</a><a href="/docs">docs</a>
 </nav>
 {body}
 <details><summary>عرض JSON الخام / raw JSON</summary>
