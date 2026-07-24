@@ -1,0 +1,45 @@
+"""Async client over {{SYSTEM_NAME}}. Copy to app/integrations/{{key}}/client.py.
+
+Replace {{...}} placeholders. Keep it read-only-first: only add write calls
+once a write workflow (Layer 5) needs them.
+"""
+from __future__ import annotations
+
+import httpx
+
+from ...config import Settings
+from ...core.errors import UpstreamError
+
+
+class {{Key}}Client:
+    def __init__(self, settings: Settings) -> None:
+        self._configured = settings.{{key}}_configured
+        self._base = settings.{{key}}_base_url.rstrip("/")
+        # self._headers = {...}  # auth headers from settings
+        self._timeout = settings.{{key}}_timeout
+
+    def _require(self) -> None:
+        if not self._configured:
+            raise UpstreamError("{{SYSTEM_NAME}} not configured; set {{KEY}}_* in .env.")
+
+    async def _get(self, path: str) -> dict:
+        self._require()
+        url = f"{self._base}/{path.lstrip('/')}"
+        try:
+            async with httpx.AsyncClient(timeout=self._timeout) as c:
+                r = await c.get(url)  # add headers=self._headers
+        except httpx.RequestError as exc:
+            raise UpstreamError(f"{{SYSTEM_NAME}} unreachable: {exc}") from exc
+        if r.status_code >= 400:
+            raise UpstreamError(f"{{SYSTEM_NAME}} HTTP {r.status_code}: {r.text[:160]}")
+        try:
+            return r.json()
+        except ValueError as exc:
+            raise UpstreamError(f"{{SYSTEM_NAME}} non-JSON: {r.text[:160]}") from exc
+
+    async def list_things(self, limit: int = 25) -> list[dict]:
+        data = await self._get(f"things?limit={limit}")
+        return data.get("records", [])
+
+    async def ping(self) -> dict:
+        return await self._get("health")  # cheapest read that proves auth

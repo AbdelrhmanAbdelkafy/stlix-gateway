@@ -1,0 +1,27 @@
+"""{{SYSTEM_NAME}} endpoints. Copy to app/integrations/{{key}}/router.py.
+
+HTML in the browser, JSON for apps — handled by respond().
+"""
+from fastapi import APIRouter, Depends, Query, Request
+
+from ...config import Settings, get_settings
+from ...core.render import respond
+from ...core.security import require_api_key
+from .connector import {{Key}}Connector
+
+router = APIRouter(prefix="/{{key}}", tags=["{{key}}"], dependencies=[Depends(require_api_key)])
+
+
+def get_conn(settings: Settings = Depends(get_settings)) -> {{Key}}Connector:
+    return {{Key}}Connector(settings)
+
+
+@router.get("")
+async def list_things(
+    request: Request,
+    limit: int = Query(25, ge=1, le=500),
+    conn: {{Key}}Connector = Depends(get_conn),
+):
+    rows = await conn.things(limit=limit)
+    return respond(request, {"count": len(rows), "records": rows},
+                   title="{{TITLE}}", rows=rows, columns={{COLUMNS}})

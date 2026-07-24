@@ -1,0 +1,40 @@
+"""Tests for the {{key}} connector. Copy to tests/test_{{key}}.py."""
+import pytest
+from fastapi.testclient import TestClient
+
+from app.config import Settings
+from app.core.errors import UpstreamError
+from app.integrations.{{key}}.connector import {{Key}}Connector
+from app.main import app
+from app.workspace.providers import PROVIDERS
+
+client = TestClient(app)
+
+
+def _bare(**kw):
+    return Settings(_env_file=None, **kw)
+
+
+def test_default_read_only():
+    assert _bare().{{key}}_mode == "read_only"
+    assert {{Key}}Connector(_bare()).read_only is True
+
+
+def test_configured_flag():
+    assert _bare().{{key}}_configured is False
+
+
+@pytest.mark.asyncio
+async def test_unconfigured_raises():
+    with pytest.raises(UpstreamError):
+        await {{Key}}Connector(_bare()).things()
+
+
+def test_live_in_registry():
+    systems = client.get("/systems?format=json").json()["systems"]
+    row = next(s for s in systems if s["key"] == "{{key}}")
+    assert row["status"] == "live"
+
+
+def test_has_workspace_provider():
+    assert any(p.key == "{{key}}" for p in PROVIDERS)

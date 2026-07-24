@@ -1,0 +1,12 @@
+"""Workspace section for {{key}}. Paste into app/workspace/providers.py and
+add an instance to the PROVIDERS list — it appears in the dashboard automatically."""
+
+class {{Key}}Provider(Provider):
+    key, title = "{{key}}", "{{TITLE_AR}} · {{TITLE_EN}}"
+
+    async def collect(self, settings: Settings, limit: int) -> Section:
+        if not settings.{{key}}_configured:
+            return Section(self.key, self.title, "not_configured", {"configured": False})
+        rows = await {{Key}}Connector(settings).things(limit=limit)
+        return Section(self.key, self.title, "ok", {"count": len(rows)},
+                       rows=rows, columns={{COLUMNS}})

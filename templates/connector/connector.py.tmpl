@@ -1,0 +1,27 @@
+"""{{SYSTEM_NAME}} connector. Copy to app/integrations/{{key}}/connector.py."""
+from __future__ import annotations
+
+from ...config import Settings
+from ..base import Connector, ConnectorMode
+from .client import {{Key}}Client
+
+
+class {{Key}}Connector(Connector):
+    key = "{{key}}"
+
+    def __init__(self, settings: Settings) -> None:
+        super().__init__(ConnectorMode(settings.{{key}}_mode))
+        self.configured = settings.{{key}}_configured
+        self._client = {{Key}}Client(settings)
+
+    # ---- reads (always allowed) ----
+    async def things(self, limit: int = 25) -> list[dict]:
+        return await self._client.list_things(limit=limit)
+
+    async def ping(self) -> dict:
+        return await self._client.ping()
+
+    # ---- writes (blocked in read-only mode) ----
+    async def create_thing(self, record: dict) -> dict:
+        self.guard_write()  # raises 403 while read_only
+        raise NotImplementedError("Write path not implemented yet.")
