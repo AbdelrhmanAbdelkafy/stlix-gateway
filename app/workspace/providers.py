@@ -81,7 +81,7 @@ class CrmProvider(Provider):
 
 
 class BanksProvider(Provider):
-    key, title = "banks", "أرصدة البنوك · Banks"
+    key, title = "banks", "حسابات البنوك · Bank Accounts"
 
     async def collect(self, settings: Settings, limit: int) -> Section:
         if not settings.nama_configured:

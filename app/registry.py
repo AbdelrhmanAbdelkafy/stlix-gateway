@@ -49,8 +49,8 @@ SYSTEMS: list[System] = [
            "Assets & tools held by employees (عُهد)."),
     System("meals", "Meals & Catering", "التغذية", Status.PLANNED,
            "Meal eligibility & catering reports."),
-    System("banks", "Bank Balances", "أرصدة البنوك", Status.LIVE,
-           "Bank accounts (Nama): bank, GL account, currency (read-only)."),
+    System("banks", "Bank Accounts", "حسابات البنوك", Status.LIVE,
+           "Bank accounts (Nama): bank, GL account, currency. Balances = separate pending report."),
 ]
 
 
