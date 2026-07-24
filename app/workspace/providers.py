@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 
 from ..config import Settings
 from ..core.metrics import metrics
+from ..integrations.banks.connector import BanksConnector
 from ..integrations.crm.connector import CrmConnector
 from ..integrations.nama.connector import NamaConnector
 from ..registry import as_dicts
@@ -79,6 +80,17 @@ class CrmProvider(Provider):
                        rows=rows, columns=["id", "firstname", "lastname", "email", "phone"])
 
 
+class BanksProvider(Provider):
+    key, title = "banks", "أرصدة البنوك · Banks"
+
+    async def collect(self, settings: Settings, limit: int) -> Section:
+        if not settings.nama_configured:
+            return Section(self.key, self.title, "not_configured", {"configured": False})
+        rows = await BanksConnector(settings).accounts(limit=limit)
+        return Section(self.key, self.title, "ok", {"accounts": len(rows), "mode": settings.banks_mode},
+                       rows=rows, columns=["code", "name1", "_bankName", "_currency"])
+
+
 class MonitoringProvider(Provider):
     key, title = "monitoring", "مراقبة · Monitoring"
 
@@ -101,6 +113,7 @@ PROVIDERS: list[Provider] = [
     OverviewProvider(),
     NamaProvider(),
     CrmProvider(),
+    BanksProvider(),
     MonitoringProvider(),
 ]
 

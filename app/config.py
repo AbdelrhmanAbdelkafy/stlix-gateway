@@ -54,6 +54,8 @@ class Settings(BaseSettings):
     nama_timeout: float = Field(default=30.0)
     # Connector mode: read_only (default, safe) | read_write
     nama_mode: str = Field(default="read_only")
+    # Banks connector reuses the Nama REST creds; its own mode:
+    banks_mode: str = Field(default="read_only")
 
     # --- CRM connector (Vtiger) ---
     crm_backend: str = Field(default="vtiger")
