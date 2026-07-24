@@ -47,6 +47,8 @@ SYSTEMS: list[System] = [
            "Worker housing / accommodation assignments."),
     System("custody", "Custody & Assets", "العهدة", Status.PLANNED,
            "Assets & tools held by employees (عُهد)."),
+    System("meals", "Meals & Catering", "التغذية", Status.PLANNED,
+           "Meal eligibility & catering reports."),
 ]
 
 
