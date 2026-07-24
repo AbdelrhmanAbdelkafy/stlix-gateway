@@ -33,6 +33,11 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | S9 | عملاء جدد — عدد ومصدر (new customers count & source) | Vtiger / Nama | ⚪ |
 | S10 | عملاء توقفوا معنا (churned customers count) | Vtiger / Nama | ⚪ |
 | S11 | نسبة الربحية — للتكلفة / لسعر البيع (margin to cost / to sale price) | Nama | ⚪ |
+| S12 | الأصناف الأفضل مبيعًا (best-selling items) | Nama | ⚪ |
+| S13 | الأصناف الأعلى ربحية (highest-margin items) | Nama | ⚪ |
+| S14 | نسبة التحويل (lead→customer conversion rate) | Vtiger / Nama | ⚪ |
+| S15 | عدد الزيارات (sales visits count) | Vtiger / Nama | ⚪ |
+| S16 | حالة إتمام الأوردر — المتبقي منه (order completion / remaining) | Nama | ⚪ |
 
 ## Purchasing & Materials (مشتريات وخامات)
 | # | Item | Source | Status |
@@ -59,6 +64,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T10 | قرارات مالية (financial decisions) | new | ⚪ |
 | T11 | مطابقة حركات البنوك مع نما (bank reconciliation) | bank feed + Nama | ⚪ |
 | T12 | فواتير لم تُحصّل — لكل بنك (uncashed invoices per bank) | Nama | ⚪ |
+| T13 | تحليلي مصروف (analytical expense breakdown) | Nama | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
@@ -85,6 +91,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H13 | بلو-كولر / وايت-كولر — عدد وقيمة (blue vs white collar count & cost) | Nama | ⚪ |
 | H14 | القيم المباشرة وغير المباشرة للموظفين (direct/indirect labor cost) | Nama | ⚪ |
 | H15 | تكلفة الموظف الكلية (total loaded employee cost) | Nama | ⚪ |
+| H16 | قيمة الانتقالات — الكلية + لكل موظف (transport cost total & per employee) | Nama | ⚪ |
 
 ## Marketing (تسويق)
 | # | Item | Source | Status |
@@ -106,6 +113,9 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | WH1 | تسليم واستلام بضائع (goods delivery & receipt) | Nama | ⚪ |
 | WH2 | مرتجعات مبيعات ومشتريات (sales & purchase returns) | Nama | ⚪ |
 | WH3 | تقارير مخزون لحظية + غير المسجّل بعد (real-time stock incl. unposted) | Nama | ⚪ |
+| WH4 | رواكد — مخزون راكد (slow-moving / dead stock) | Nama | ⚪ |
+| WH5 | مرتجع بواقي أوردر (order-remnant returns) | Nama | ⚪ |
+| WH6 | مخزن الاسكراب — زاد/نقص/تالف (scrap warehouse changes) | Nama | ⚪ |
 
 ## Logistics, Shipping & Customs (شحن وجمارك)
 | # | Item | Source | Status |
@@ -160,6 +170,19 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | OP1 | طلبات تجهيز — عند الغير (prep orders at third parties / subcontract WIP) | Nama | ⚪ |
 | OP2 | Action plan — per job order / per batch (patch) | Nama / new | ⚪ |
 | OP3 | إنتاجية صالة الإنتاج — يومي + نسبة الهالك (floor productivity/day + scrap rate) | Nama / new | ⚪ |
+| OP4 | نسبة دقة تسعير أوامر الشغل (job-order pricing accuracy) | Nama | ⚪ |
+| OP5 | التكلفة المتوقعة ↔ الفعلية لأوامر الشغل (expected vs actual cost) → Planned/Actual | Nama | ⚪ |
+| OP6 | إجمالي ساعات تشغيل لكل آلة (machine running hours) | Nama / new | ⚪ |
+
+## Legal (قانوني)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| L1 | قضايا ونزاعات (legal cases & disputes) | new | ⚪ |
+
+## Product / R&D (منتجات وتطوير)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| PD1 | مقترح منتجات جديدة (new product proposals) | new | ⚪ |
 
 ## Management & Planning (إدارة وتخطيط)
 | # | Item | Source | Status |
