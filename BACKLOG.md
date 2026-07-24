@@ -26,6 +26,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | S2 | التحصيل اليوم: المخطط / الفعلي | Nama | ⚪ |
 | S3 | أداء مسؤولي المبيعات | Nama / Vtiger | ⚪ |
 | S4 | عملاء غير نشطين | Vtiger / Nama | ⚪ |
+| S5 | Chinese leads — عملاء محتملين | Vtiger Leads | ⚪ |
 
 ## Purchasing & Materials (مشتريات وخامات)
 | # | Item | Source | Status |
@@ -54,6 +55,12 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H2 | Onboarding / Offboarding | Nama / new | ⚪ |
 | H3 | تدريبات وتطوير | Nama / new | ⚪ |
 | H4 | نماذج وتفويضات | new | ⚪ |
+
+## Platform & AI (north star)
+| # | Item | Notes |
+|---|------|-------|
+| A1 | Enterprise platform, AI-based | Layer 4 AI Orchestrator over the gateway: query/act across all connectors via natural language; the unifying vision. |
+| A2 | Nama NameBuilder | Use Nama's NameBuilder to define custom entities/screens → new connectors read them via the same REST (enabler for custom modules: maintenance, custody, forms…). |
 
 ## Registered systems (map placeholders, not yet built)
 call-center · email · website · AI · archive · inventory (الجرد) · academy ·
