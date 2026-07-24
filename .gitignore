@@ -1,5 +1,7 @@
 # Secrets
 .env
+secrets/
+*.backup.md
 
 # Python
 __pycache__/
