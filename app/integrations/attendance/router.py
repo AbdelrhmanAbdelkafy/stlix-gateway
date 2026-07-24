@@ -1,9 +1,13 @@
-"""Attendance / fingerprint - currently routes to Nama TimeAttendance."""
+"""Attendance / fingerprint - routes to the Nama connector's TimeAttendance.
+
+Writing a punch is a WRITE op, so it is blocked (403) while the Nama connector
+is in read-only mode. Set NAMA_MODE=read_write to enable it deliberately.
+"""
 from fastapi import APIRouter, Depends, status
 
 from ...config import Settings, get_settings
 from ...core.security import require_api_key
-from ..nama.client import NamaClient
+from ..nama.connector import NamaConnector
 from ..nama.schemas import AttendanceBatch, SaveResult
 
 router = APIRouter(
@@ -11,16 +15,13 @@ router = APIRouter(
 )
 
 
-def get_nama(settings: Settings = Depends(get_settings)) -> NamaClient:
-    return NamaClient(settings)
+def get_nama(settings: Settings = Depends(get_settings)) -> NamaConnector:
+    return NamaConnector(settings)
 
 
 @router.post("/punch", response_model=SaveResult, status_code=status.HTTP_201_CREATED)
-async def push_attendance(batch: AttendanceBatch, nama: NamaClient = Depends(get_nama)) -> SaveResult:
-    """Push punches as one Nama TimeAttendance document.
-
-    Client sends ISO dates/times; gateway converts to Nama DD-MM-YYYY / HH:MM.
-    """
+async def push_attendance(batch: AttendanceBatch, nama: NamaConnector = Depends(get_nama)) -> SaveResult:
+    """Push punches as one Nama TimeAttendance document (blocked if read-only)."""
     raw = await nama.save("TimeAttendance", batch.to_time_attendance())
     code = None
     ids = raw.get("saved_ids") or raw.get("savedIds")

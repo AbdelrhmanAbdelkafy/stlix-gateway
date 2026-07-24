@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "stlix-gateway",
+      "runtimeExecutable": "D:\\Nama Code project\\stlix-gateway\\.venv\\Scripts\\python.exe",
+      "runtimeArgs": [
+        "-m", "uvicorn", "app.main:app",
+        "--host", "127.0.0.1",
+        "--port", "8000",
+        "--app-dir", "D:\\Nama Code project\\stlix-gateway"
+      ],
+      "port": 8000
+    }
+  ]
+}
