@@ -46,6 +46,9 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | S22 | توصيات عملاء مقترحين بالـ AI (AI-suggested customers/leads) → AI | Vtiger / AI | ⚪ |
 | S23 | مطالبات تمت في موعدها (demands completed on time) | Nama | ⚪ |
 | S24 | طلبات تسجيلنا كمورد لدى عملاء (our vendor-registration applications at customers) | Nama / new | ⚪ |
+| S25 | قوائم أسماء ومواصفات المنتجات للعملاء (product catalog to send customers) | Nama | ⚪ |
+| S26 | تقرير المتاح للمبيعات يوميًا (daily availability report to sales) | Nama | ⚪ |
+| S27 | المحصّل الذكي — مين نحصّل منه الأول وكام وترتيب اليوم (AI collection prioritizer) → AI | Nama / AI | ⚪ |
 
 ## Purchasing & Materials (مشتريات وخامات)
 | # | Item | Source | Status |
@@ -61,6 +64,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | P9 | مشتريات إجمالي/تفصيلي حسب المورد والمنطقة الجغرافية (by supplier & region) | Nama | ⚪ |
 | P10 | مشتريات ومرتجعات تتطلب مطابقة فورية (immediate reconciliation) → Reconciliation | Nama | ⚪ |
 | P11 | طلبات تسجيل موردين (supplier registration / onboarding requests) | Nama / new | ⚪ |
+| P12 | طلبات شراء لاستليكس (Stlix purchase requests) | Nama | ⚪ |
 
 ## Treasury & Finance (خزينة ومالية)
 | # | Item | Source | Status |
@@ -133,6 +137,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H18 | متوسط العمر + العدد + المهام لكل موظف (workforce demographics & tasks/employee) | Nama | ⚪ |
 | H19 | معدل دوران الموظفين (employee turnover rate) | Nama | ⚪ |
 | H20 | الجزاءات لكل شهر (monthly penalties / deductions) | Nama | ⚪ |
+| H21 | أداء العاملين (workers performance) | Nama | ⚪ |
+| H22 | مشاكل الموظفين على نما (employee issues logged on Nama) | Nama | ⚪ |
 
 ## Marketing (تسويق)
 | # | Item | Source | Status |
@@ -143,6 +149,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | MK4 | المنافسون (competitors) | new / research | ⚪ |
 | MK5 | أسعار المنافسين (competitor prices) | new / research | ⚪ |
 | MK6 | أخبار المنافسين (competitor news) | new / research | ⚪ |
+| MK7 | أداء الويب سايت يوميًا (daily website performance) | analytics API | ⚪ |
 
 ## Investments / Equity (استثمارات ومساهمات)
 | # | Item | Source | Status |
@@ -166,6 +173,10 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | WH12 | كميات الأصناف المنصرفة من كل مخزن (issued qty per warehouse) | Nama | ⚪ |
 | WH13 | تأكيد آخر اليوم — فعلي مقابل دفتري ثم يغذّي الجرد الدوري تاني يوم (EOD actual-vs-book → next-day stocktake) | Nama | ⚪ |
 | WH14 | متابعة لايف لمعاملات لم تُسجّل/لم تُعتمد + عدّ العهد (live unposted/unapproved incl. custody) → Live-vs-Pending | Nama | ⚪ |
+| WH15 | كمية الأصناف في المخزن (stock quantities on hand) | Nama | ⚪ |
+| WH16 | قائمة الكميات بأكبر وحدة (quantities in largest unit) | Nama | ⚪ |
+| WH17 | أسماء الأصناف المكررة (duplicate item names) → data quality | Nama | ⚪ |
+| WH18 | الوحدات الخطأ (wrong units of measure) → data quality | Nama | ⚪ |
 
 ## Logistics, Shipping & Customs (شحن وجمارك)
 | # | Item | Source | Status |
@@ -195,6 +206,15 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | # | Item | Source | Status |
 |---|------|--------|--------|
 | CM1 | إيميلات تم / لم يتم الرد عليها (emails answered vs unanswered) | Email / IMAP | ⚪ |
+| CM2 | Tickets — التذاكر (support / helpdesk) | Vtiger | ⚪ |
+| CM3 | مكالمات ورسائل الموظفين — خطوط الشركة (staff calls/messages, company lines) | telco / new | ⚪ |
+| CM4 | الكول سنتر (call center) → registered system `callcenter` | new | ⚪ |
+
+## Attendance (حضور وبصمة) — connector live
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| AT1 | البصمة الإلكترونية للشركتين (electronic fingerprint, both legal entities) | Nama | ⚪ |
+| AT2 | البصمة الشخصية / الموبايل (personal / mobile fingerprint) | Nama / app | ⚪ |
 
 ## Market Data & Rates (بيانات السوق والأسعار)
 | # | Item | Source | Status |
@@ -231,6 +251,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | OP6 | إجمالي ساعات تشغيل لكل آلة (machine running hours) | Nama / new | ⚪ |
 | OP7 | تكلفة الطن للصنف — شاملة الـ overhead (cost/ton incl. overhead) | Nama | ⚪ |
 | OP8 | إنتاجية نما — ساعات التشغيل خلال اليوم (production hours logged/day) | Nama | ⚪ |
+| OP9 | خطة تشغيل استليكس اليومية (daily production/operating plan) | Nama / new | ⚪ |
 
 ## Legal (قانوني)
 | # | Item | Source | Status |
@@ -254,6 +275,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 |---|------|-------|
 | A1 | Enterprise platform, AI-based | Layer 4 AI Orchestrator over the gateway: query/act across all connectors via natural language; the unifying vision. |
 | A2 | Nama NameBuilder | Use Nama's NameBuilder to define custom entities/screens → new connectors read them via the same REST (enabler for custom modules: maintenance, custody, forms…). |
+| A3 | مدير مبيعات ذكي (AI sales manager) | AI agent over CRM+Nama: prioritize leads, nudge follow-ups, forecast — part of the enterprise platform. |
 
 ## Registered systems (map placeholders, not yet built)
 call-center · email · website · AI · archive · inventory (الجرد) · academy ·
