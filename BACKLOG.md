@@ -57,6 +57,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | P6 | مطابقة موردين تخطّت الأسبوع (overdue >1wk) → Reconciliation/Alerts | Nama | ⚪ |
 | P7 | أسعار الشراء المتوقعة — أقصى سعر مقبول (expected purchase price / ceiling) | Nama | ⚪ |
 | P8 | توصيات شراء بالـ AI — خامات قرب تخلص (AI reorder recommendations) → AI | Nama / AI | ⚪ |
+| P9 | مشتريات إجمالي/تفصيلي حسب المورد والمنطقة الجغرافية (by supplier & region) | Nama | ⚪ |
+| P10 | مشتريات ومرتجعات تتطلب مطابقة فورية (immediate reconciliation) → Reconciliation | Nama | ⚪ |
 
 ## Treasury & Finance (خزينة ومالية)
 | # | Item | Source | Status |
@@ -83,6 +85,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T20 | أعمار الالتزامات علينا (payables / liabilities aging) | Nama | ⚪ |
 | T21 | Cash flow (التدفق النقدي) | Nama / SQL | ⚪ |
 | T22 | بنود مسجّلة بشكل خاطئ على السيستم (mis-posted entries) → AI | Nama / AI | ⚪ |
+| T23 | عدد الفواتير المراجَعة لكل مراجع (invoices reviewed per reviewer) | Nama | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
@@ -125,6 +128,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H17 | الـ Outing / فعاليات الموظفين (staff outings & events) | new | ⚪ |
 | H18 | متوسط العمر + العدد + المهام لكل موظف (workforce demographics & tasks/employee) | Nama | ⚪ |
 | H19 | معدل دوران الموظفين (employee turnover rate) | Nama | ⚪ |
+| H20 | الجزاءات لكل شهر (monthly penalties / deductions) | Nama | ⚪ |
 
 ## Marketing (تسويق)
 | # | Item | Source | Status |
@@ -155,6 +159,9 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | WH9 | تقارير جرد تفصيلي (detailed stocktake reports) | Nama | ⚪ |
 | WH10 | تنبيه جرد عشوائي يختاره الـ AI (AI-chosen random spot-count) → AI | Nama / AI | ⚪ |
 | WH11 | تنبيه الجرد الدوري (periodic stocktake reminder) → Renewals/Alerts | Nama | ⚪ |
+| WH12 | كميات الأصناف المنصرفة من كل مخزن (issued qty per warehouse) | Nama | ⚪ |
+| WH13 | تأكيد آخر اليوم — فعلي مقابل دفتري ثم يغذّي الجرد الدوري تاني يوم (EOD actual-vs-book → next-day stocktake) | Nama | ⚪ |
+| WH14 | متابعة لايف لمعاملات لم تُسجّل/لم تُعتمد + عدّ العهد (live unposted/unapproved incl. custody) → Live-vs-Pending | Nama | ⚪ |
 
 ## Logistics, Shipping & Customs (شحن وجمارك)
 | # | Item | Source | Status |
@@ -178,6 +185,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | # | Item | Source | Status |
 |---|------|--------|--------|
 | GV1 | Blacklist — موظف / مورد / عميل (cross-domain) | Nama / Vtiger | ⚪ |
+| GV2 | عمل إيه على نما يوميًا — سجل نشاط المستخدمين (daily user activity/audit) | Nama / SQL | ⚪ |
 
 ## Communications (تواصل)
 | # | Item | Source | Status |
@@ -218,6 +226,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | OP5 | التكلفة المتوقعة ↔ الفعلية لأوامر الشغل (expected vs actual cost) → Planned/Actual | Nama | ⚪ |
 | OP6 | إجمالي ساعات تشغيل لكل آلة (machine running hours) | Nama / new | ⚪ |
 | OP7 | تكلفة الطن للصنف — شاملة الـ overhead (cost/ton incl. overhead) | Nama | ⚪ |
+| OP8 | إنتاجية نما — ساعات التشغيل خلال اليوم (production hours logged/day) | Nama | ⚪ |
 
 ## Legal (قانوني)
 | # | Item | Source | Status |
