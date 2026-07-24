@@ -71,6 +71,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 |---|------|--------|--------|
 | MK1 | Social platforms (منصات التواصل) | external APIs | ⚪ |
 | MK2 | المعارض المتوقعة — حسب الدولة (expected exhibitions by country) | new / research | ⚪ |
+| MK3 | استبيانات آراء العملاء (customer feedback surveys) | Vtiger / new | ⚪ |
 
 ## Investments / Equity (استثمارات ومساهمات)
 | # | Item | Source | Status |
@@ -82,6 +83,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 |---|------|--------|--------|
 | WH1 | تسليم واستلام بضائع (goods delivery & receipt) | Nama | ⚪ |
 | WH2 | مرتجعات مبيعات ومشتريات (sales & purchase returns) | Nama | ⚪ |
+| WH3 | تقارير مخزون لحظية + غير المسجّل بعد (real-time stock incl. unposted) | Nama | ⚪ |
 
 ## Market Data & Rates (بيانات السوق والأسعار)
 | # | Item | Source | Status |
