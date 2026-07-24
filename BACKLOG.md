@@ -43,6 +43,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | S19 | أقل سعر بيع لعميل معيّن — حدّ أدنى مبني على شراءنا منه (per-customer price floor) | Nama | ⚪ |
 | S20 | أعلى مبيعات حسب القطاع/الصناعة (top sales by sector) | Nama | ⚪ |
 | S21 | تحليلي مبيعات جغرافي (geographic sales analysis) | Nama | ⚪ |
+| S22 | توصيات عملاء مقترحين بالـ AI (AI-suggested customers/leads) → AI | Vtiger / AI | ⚪ |
+| S23 | مطالبات تمت في موعدها (demands completed on time) | Nama | ⚪ |
 
 ## Purchasing & Materials (مشتريات وخامات)
 | # | Item | Source | Status |
@@ -54,6 +56,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | P5 | مطابقة موردين (supplier reconciliation) → Reconciliation | Nama | ⚪ |
 | P6 | مطابقة موردين تخطّت الأسبوع (overdue >1wk) → Reconciliation/Alerts | Nama | ⚪ |
 | P7 | أسعار الشراء المتوقعة — أقصى سعر مقبول (expected purchase price / ceiling) | Nama | ⚪ |
+| P8 | توصيات شراء بالـ AI — خامات قرب تخلص (AI reorder recommendations) → AI | Nama / AI | ⚪ |
 
 ## Treasury & Finance (خزينة ومالية)
 | # | Item | Source | Status |
@@ -78,6 +81,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T18 | تكاليف غير منطقية (cost anomaly detection) → AI | Nama / AI | ⚪ |
 | T19 | حسابات وسيطة مفتوحة (open suspense/intermediate accounts) | Nama | ⚪ |
 | T20 | أعمار الالتزامات علينا (payables / liabilities aging) | Nama | ⚪ |
+| T21 | Cash flow (التدفق النقدي) | Nama / SQL | ⚪ |
+| T22 | بنود مسجّلة بشكل خاطئ على السيستم (mis-posted entries) → AI | Nama / AI | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
@@ -119,6 +124,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H16 | قيمة الانتقالات — الكلية + لكل موظف (transport cost total & per employee) | Nama | ⚪ |
 | H17 | الـ Outing / فعاليات الموظفين (staff outings & events) | new | ⚪ |
 | H18 | متوسط العمر + العدد + المهام لكل موظف (workforce demographics & tasks/employee) | Nama | ⚪ |
+| H19 | معدل دوران الموظفين (employee turnover rate) | Nama | ⚪ |
 
 ## Marketing (تسويق)
 | # | Item | Source | Status |
@@ -173,6 +179,11 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 |---|------|--------|--------|
 | GV1 | Blacklist — موظف / مورد / عميل (cross-domain) | Nama / Vtiger | ⚪ |
 
+## Communications (تواصل)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| CM1 | إيميلات تم / لم يتم الرد عليها (emails answered vs unanswered) | Email / IMAP | ⚪ |
+
 ## Market Data & Rates (بيانات السوق والأسعار)
 | # | Item | Source | Status |
 |---|------|--------|--------|
@@ -223,6 +234,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 |---|------|--------|--------|
 | G1 | توجهات / أفكار (directions / ideas board) | new | ⚪ |
 | G2 | قرارات إدارية (administrative decisions) | new | ⚪ |
+| G3 | How healthy are we? — مؤشر صحة الشركة (executive health score) → AI | all | ⚪ |
 
 ## Platform & AI (north star)
 | # | Item | Notes |
