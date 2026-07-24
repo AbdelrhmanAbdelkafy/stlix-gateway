@@ -45,6 +45,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T4 | التزامات متوقعة (expected obligations) | Nama | ⚪ |
 | T5 | فواتير ثابتة (recurring / fixed invoices) | Nama | ⚪ |
 | T6 | فواتير بورتال (portal / e-invoicing — ETA?) | portal API / Nama | ⚪ |
+| T7 | أسعار الصرف اللحظية — يوان / دولار / يورو (real-time FX) | external FX API | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
