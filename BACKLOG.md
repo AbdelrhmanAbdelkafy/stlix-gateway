@@ -26,7 +26,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | S2 | التحصيل اليوم: المخطط / الفعلي | Nama | ⚪ |
 | S3 | أداء مسؤولي المبيعات | Nama / Vtiger | ⚪ |
 | S4 | عملاء غير نشطين | Vtiger / Nama | ⚪ |
-| S5 | Chinese leads — عملاء محتملين | Vtiger Leads | ⚪ |
+| S5 | Chinese leads — عملاء محتملين | Vtiger Leads | ⚪ ⚠ needs a China/segment field or tag on leads first (currently 15 leads, `country` empty, no Chinese marker) |
 
 ## Purchasing & Materials (مشتريات وخامات)
 | # | Item | Source | Status |
@@ -42,6 +42,9 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T1 | أرصدة البنوك (أرقام) | SQL / report | 🟡 |
 | T2 | شيكات في الخزينة لم تُحصّل + شيكات التزامات | Nama | ⚪ |
 | T3 | التأمينات · الضرائب · المدفوعات الحكومية | Nama | ⚪ |
+| T4 | التزامات متوقعة (expected obligations) | Nama | ⚪ |
+| T5 | فواتير ثابتة (recurring / fixed invoices) | Nama | ⚪ |
+| T6 | فواتير بورتال (portal / e-invoicing — ETA?) | portal API / Nama | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
