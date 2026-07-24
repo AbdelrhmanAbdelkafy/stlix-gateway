@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>بوابة إنشاء الأصناف — NAME BUILDER ⇄ نما (كاملة)</title>
+<style>
+:root{--bg:#0f1419;--card:#171e26;--c2:#1e2731;--ln:#2a3543;--tx:#e8edf2;--sub:#93a1b0;--ac:#3d8bff;--ok:#2fbd6b;--err:#f0574d;--cd:#7fd1ff;--wr:#f0a935}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,Tahoma,Arial,sans-serif;font-size:15px}
+.wrap{max-width:1120px;margin:0 auto;padding:16px}h1{font-size:19px;margin:0 0 2px}.muted{color:var(--sub);font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}@media(max-width:840px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:14px}
+.card h2{font-size:13px;margin:0 0 10px;color:var(--sub);font-weight:600}
+label{display:block;font-size:12px;color:var(--sub);margin:9px 0 3px}
+select,input,textarea{width:100%;background:var(--c2);color:var(--tx);border:1px solid var(--ln);border-radius:8px;padding:8px 9px;font-size:14px;font-family:inherit}
+select:focus,input:focus{outline:none;border-color:var(--ac)}
+.search{font-size:15px;padding:10px}
+.row{display:grid;gap:9px}.r2{grid-template-columns:1fr 1fr}.r3{grid-template-columns:1fr 1fr 1fr}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;max-height:170px;overflow:auto}
+.chip{background:var(--c2);border:1px solid var(--ln);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer}
+.chip:hover{border-color:var(--ac)}.chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.chip .n{color:var(--sub);font-size:11px}.chip.on .n{color:#dbeaff}
+.out{background:var(--c2);border:1px solid var(--ln);border-radius:10px;padding:12px;margin-bottom:10px}
+.k{font-size:11px;color:var(--sub);margin-bottom:3px}
+.codebox{font-family:ui-monospace,monospace;font-size:20px;font-weight:700;color:var(--cd);word-break:break-all}
+.nm{font-size:15px;font-weight:600}
+.idkey{font-family:ui-monospace,monospace;font-size:11px;color:var(--sub);word-break:break-all}
+.st{padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;margin-top:8px}
+.st.ok{background:rgba(47,189,107,.12);color:var(--ok)}.st.dup{background:rgba(240,87,77,.12);color:var(--err)}
+.st.inc{background:rgba(147,161,176,.12);color:var(--sub)}.st.wr{background:rgba(240,169,53,.12);color:var(--wr)}
+button{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:11px 16px;font-weight:700;cursor:pointer;font-family:inherit;font-size:15px}
+button.sec{background:var(--c2);border:1px solid var(--ln);color:var(--tx)}button:disabled{opacity:.4;cursor:not-allowed}
+.btns{display:flex;gap:8px;margin-top:10px}
+table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
+th,td{text-align:right;padding:6px 7px;border-bottom:1px solid var(--ln)}th{color:var(--sub);font-size:11px}
+td.c{font-family:ui-monospace,monospace;color:var(--cd);direction:ltr;text-align:left}
+.hint{font-size:11px;color:var(--sub);margin-top:2px;min-height:14px}
+#load{padding:30px;text-align:center;color:var(--sub)}
+.warn{font-size:11px;color:var(--wr);margin-top:10px}
+</style></head><body><div class="wrap">
+<h1>🏭 بوابة إنشاء الأصناف — NAME BUILDER الكاملة ⇄ نما</h1>
+<div class="muted" id="covline">45 نوع من داتاك · قوائم نما حية · فلترة كاملة · صفر تكرار</div>
+<div id="load">⏳ بتحميل القوائم من نما…</div>
+<div id="app" style="display:none">
+<div class="grid">
+ <div class="card">
+  <h2>🤖 اكتب البند بلغتك — الذكاء الاصطناعي يفهمه ويكمّله</h2>
+  <div class="row" style="grid-template-columns:1fr auto">
+   <input id="ai_in" class="search" placeholder="مثال: كوع ٢ بوصه ستيل ٣١٦ لحام / لوح استانلس ٢ مل ١٢٥×٢٥٠">
+   <button id="ai_go" style="white-space:nowrap">✨ افهم واملأ</button>
+  </div>
+  <div class="hint" id="ai_st"></div>
+  <div id="ai_qs" class="chips"></div>
+  <h2 style="margin-top:12px">① النوع — دوّر أو اختار</h2>
+  <input id="q" class="search" placeholder="🔍 كوع / ماسورة / لوح / رولمان / بيبة…">
+  <div class="hint" id="qh"></div>
+  <div class="chips" id="chips"></div>
+  <div id="attrs" style="display:none">
+   <label>② المادة — ① نوع المادة</label><select id="mcls"></select>
+   <div id="famW" style="display:none"><label>② عائلة</label><select id="mfam"></select></div>
+   <div id="grW" style="display:none"><label>③ الدرجة</label><select id="mgr"></select></div>
+   <div id="stdW" style="display:none"><label>③ المعيار / نظام القياس</label><select id="std"></select></div>
+   <div id="schW" style="display:none"><label>الجدول / فئة السُمك</label><select id="sch"></select></div>
+   <div id="sizeW"></div>
+   <div class="row r2">
+    <div id="connW" style="display:none"><label>طريقة التوصيل</label><select id="conn"></select></div>
+    <div id="certW" style="display:none"><label>الاعتماد الصحي</label><select id="cert"></select></div>
+   </div>
+   <div id="finW" style="display:none"><label>التشطيب / نوع السطح</label><select id="fin"></select></div>
+   <label>الوحدة (بتتحدد من هنا)</label><select id="uom"></select>
+   <label>ملاحظات البائع (حرة — خارج الهوية)</label><textarea id="notes" rows="2"></textarea>
+  </div>
+ </div>
+ <div class="card">
+  <h2>② الناتج</h2>
+  <div class="out"><div class="k">الاسم (هيتسجل في نما)</div><div class="nm" id="nAr">—</div></div>
+  <div class="out"><div class="k">الكود الوصفي (الهوية — description1)</div><div class="codebox" id="code">—</div></div>
+  <div class="st inc" id="st">اختار النوع…</div>
+  <div class="st inc" id="proc">📋 معيار المشتريات: غير مكتمل</div>
+  <div class="btns"><button id="save" disabled>💾 أنشئ الصنف في نما</button><button class="sec" id="clr">تفريغ</button></div>
+  <table id="tbl" style="display:none"><thead><tr><th>كود نما</th><th>الاسم</th><th>الكود الوصفي</th></tr></thead><tbody id="tb"></tbody></table>
+  <div class="warn">⚠️ أداة داخلية فيها مفاتيح API — استضافة خاصة فقط (crm).</div>
+ </div>
+</div></div></div>
+<script>
+const KB={"types": [{"code": "PIP", "ar": "ماسورة", "en": "Pipe", "syn": ["ماسوره", "مواسير", "بيبه"], "sizing": "dim", "dims": [{"name": "قطر", "unit": "مم"}, {"name": "سمك", "unit": "مم"}], "nomUnit": null, "count": 413, "grades": ["S4", "S6", "S2"], "sec": "Pi"}, {"code": "PL", "ar": "لوح", "en": "Sheet/Plate", "syn": ["لوح", "الواح", "صاج"], "sizing": "dim", "dims": [{"name": "سمك", "unit": "مم"}, {"name": "عرض", "unit": "سم"}, {"name": "طول", "unit": "م"}], "nomUnit": null, "count": 388, "grades": ["S4", "S6", "S310", "S43", "S2"], "sec": "PL"}, {"code": "COIL", "ar": "كويل", "en": "Coil", "syn": ["كويل"], "sizing": "dim", "dims": [{"name": "سمك", "unit": "مم"}, {"name": "عرض", "unit": "مم"}], "nomUnit": null, "count": 40, "grades": ["S4"], "sec": "كويل 304"}, {"code": "STRP", "ar": "استرابس", "en": "Strip", "syn": ["استرابس", "استريبس"], "sizing": "dim", "dims": [{"name": "سمك", "unit": "مم"}, {"name": "عرض", "unit": "سم"}], "nomUnit": null, "count": 0, "grades": [], "sec": null}, {"code": "BOX", "ar": "علبة", "en": "Box section", "syn": ["علبه", "علب"], "sizing": "dim", "dims": [{"name": "مقاس", "unit": "سم"}, {"name": "سمك", "unit": "مم"}], "nomUnit": null, "count": 187, "grades": ["S4", "S2", "S6"], "sec": "SHS"}, {"code": "SQB", "ar": "مربع مصمت", "en": "Square bar", "syn": ["مربع"], "sizing": "dim", "dims": [{"name": "ضلع", "unit": "مم"}], "nomUnit": null, "count": 30, "grades": ["S4", "S6"], "sec": "IS0035"}, {"code": "RBAR", "ar": "مبروم", "en": "Round bar", "syn": ["مبروم"], "sizing": "dim", "dims": [{"name": "قطر", "unit": "مم"}], "nomUnit": null, "count": 158, "grades": ["S4", "S6", "S310", "S43"], "sec": "IS0024"}, {"code": "ANG", "ar": "زاوية", "en": "Angle", "syn": ["زاويه"], "sizing": "dim", "dims": [{"name": "جناح", "unit": "مم"}, {"name": "سمك", "unit": "مم"}], "nomUnit": null, "count": 56, "grades": ["S4", "S6"], "sec": "IS0013"}, {"code": "BEAM", "ar": "كمر", "en": "Beam", "syn": ["كمره", "كمر"], "sizing": "dim", "dims": [{"name": "مقاس", "unit": "سم"}], "nomUnit": null, "count": 51, "grades": ["S4"], "sec": null}, {"code": "MESH", "ar": "ميش", "en": "Mesh", "syn": ["ميش"], "sizing": "dim", "dims": [{"name": "قطر", "unit": "مم"}, {"name": "فتحه", "unit": "مم"}], "nomUnit": null, "count": 3, "grades": [], "sec": null}, {"code": "ELB", "ar": "كوع", "en": "Elbow", "syn": ["كوع"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 238, "grades": ["S4", "S6", "S2"], "sec": "ELB"}, {"code": "TEE", "ar": "تي", "en": "Tee", "syn": ["تي"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 223, "grades": ["S4", "S6"], "sec": "T"}, {"code": "RED", "ar": "مسلوب", "en": "Reducer", "syn": ["مسلوب"], "sizing": "dn2", "dims": [], "nomUnit": "بوصة", "count": 272, "grades": ["S4", "S6"], "sec": "IS0047"}, {"code": "CAP", "ar": "طبة", "en": "Cap", "syn": ["طبه"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 185, "grades": ["S4", "S6"], "sec": "Plug"}, {"code": "UNI", "ar": "لاكور", "en": "Union", "syn": ["لاكور"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 96, "grades": ["S6", "S4"], "sec": "Lacore"}, {"code": "CPL", "ar": "وصلة", "en": "Coupling", "syn": ["وصله"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 51, "grades": ["S4", "S6"], "sec": null}, {"code": "NIP", "ar": "نبل", "en": "Nipple", "syn": ["نبل"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 54, "grades": ["S4", "S6"], "sec": null}, {"code": "BSH", "ar": "بوش/جلبة", "en": "Bush", "syn": ["بوش", "جلبه"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 156, "grades": ["S4", "S6"], "sec": null}, {"code": "FLG", "ar": "فلانشة", "en": "Flange", "syn": ["فلانشه", "فلنجه"], "sizing": "dn", "dims": [{"name": "سمك", "unit": "مم"}], "nomUnit": "بوصة", "count": 365, "grades": ["S4", "S6"], "sec": "FLG"}, {"code": "FLR", "ar": "فليرة", "en": "Flare", "syn": ["فليره"], "sizing": "dn", "dims": [], "nomUnit": "مم", "count": 38, "grades": ["S4", "S6"], "sec": null}, {"code": "FER", "ar": "افيز", "en": "Ferrule", "syn": ["افيز"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 92, "grades": ["S4", "S6"], "sec": "IS0052"}, {"code": "TRI", "ar": "تراي كلامب", "en": "Tri-clamp", "syn": ["تراي"], "sizing": "dn", "dims": [], "nomUnit": "مم", "count": 31, "grades": ["S4", "S6"], "sec": null}, {"code": "TSH", "ar": "طلقة تيش", "en": "T-piece", "syn": ["تيش"], "sizing": "dn", "dims": [], "nomUnit": "مم", "count": 29, "grades": ["S4", "S6"], "sec": "IS0030"}, {"code": "CHK", "ar": "خوصة", "en": "Reducing bush", "syn": ["خوصه"], "sizing": "dn", "dims": [], "nomUnit": "مم", "count": 84, "grades": ["S4"], "sec": null}, {"code": "VLV", "ar": "محبس", "en": "Valve", "syn": ["محبس", "صمام"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 274, "grades": ["S4", "S6"], "sec": "IS0042"}, {"code": "CHKV", "ar": "شيك بالف", "en": "Check valve", "syn": ["شيك"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 42, "grades": ["S6", "S4"], "sec": "IS0041"}, {"code": "GSK", "ar": "جوان", "en": "Gasket", "syn": ["جوان", "جوانات"], "sizing": "dn", "dims": [], "nomUnit": "بوصة", "count": 158, "grades": ["S6", "S4"], "sec": "IS0032"}, {"code": "BLT", "ar": "مسمار", "en": "Bolt", "syn": ["مسمار", "مسامير", "براغي"], "sizing": "dim", "dims": [{"name": "قطر", "unit": "مم"}, {"name": "طول", "unit": "سم"}], "nomUnit": null, "count": 290, "grades": ["S4"], "sec": "IS0028"}, {"code": "NUT", "ar": "صامولة", "en": "Nut", "syn": ["صاموله"], "sizing": "dn", "dims": [], "nomUnit": "مم", "count": 64, "grades": ["S4", "S6", "S310"], "sec": "IS0028"}, {"code": "WSH", "ar": "وردة", "en": "Washer", "syn": ["ورده"], "sizing": "dn", "dims": [], "nomUnit": "مم", "count": 95, "grades": ["S4", "S6"], "sec": "IS0028"}, {"code": "WROD", "ar": "سلك لحام", "en": "Welding rod", "syn": ["ولد", "سلك"], "sizing": "dim", "dims": [{"name": "قطر", "unit": "مم"}], "nomUnit": null, "count": 165, "grades": ["S4", "S6"], "sec": "IS0043"}, {"code": "HNG", "ar": "مفصلة", "en": "Hinge", "syn": ["مفصله"], "sizing": "unit", "dims": [], "nomUnit": null, "count": 43, "grades": ["S4"], "sec": "IS0046"}, {"code": "WHL", "ar": "عجلة", "en": "Wheel/caster", "syn": ["عجله"], "sizing": "unit", "dims": [], "nomUnit": null, "count": 39, "grades": [], "sec": "IS0045"}, {"code": "KEY", "ar": "مفتاح", "en": "Key/wrench", "syn": ["مفتاح"], "sizing": "unit", "dims": [], "nomUnit": null, "count": 55, "grades": [], "sec": null}, {"code": "SHF", "ar": "عمود", "en": "Shaft", "syn": ["عمود"], "sizing": "dim", "dims": [{"name": "قطر", "unit": "مم"}, {"name": "طول", "unit": "سم"}], "nomUnit": null, "count": 53, "grades": [], "sec": null}, {"code": "HOSE", "ar": "خرطوم", "en": "Hose", "syn": ["خرطوم"], "sizing": "dim", "dims": [{"name": "قطر", "unit": "مم"}], "nomUnit": null, "count": 42, "grades": [], "sec": "IS0029"}, {"code": "SAF", "ar": "سيفتي", "en": "Safety", "syn": ["سيفتي"], "sizing": "unit", "dims": [], "nomUnit": null, "count": 31, "grades": [], "sec": null}, {"code": "BRSH", "ar": "فرشة", "en": "Brush", "syn": ["فرشه"], "sizing": "unit", "dims": [], "nomUnit": null, "count": 30, "grades": [], "sec": null}, {"code": "BRG", "ar": "رولمان", "en": "Bearing", "syn": ["رولمان", "بلي"], "sizing": "unit", "dims": [], "nomUnit": null, "count": 23, "grades": [], "sec": null}, {"code": "FLT", "ar": "فلتر", "en": "Filter", "syn": ["فلتر", "مصفاه"], "sizing": "unit", "dims": [], "nomUnit": null, "count": 42, "grades": ["S6", "S4"], "sec": null}, {"code": "DRL", "ar": "لقمة", "en": "Drill bit", "syn": ["لقمه", "بنطه"], "sizing": "dim", "dims": [{"name": "قطر", "unit": "مم"}], "nomUnit": null, "count": 97, "grades": [], "sec": "IS0044"}, {"code": "SEAL", "ar": "سيل", "en": "Seal", "syn": ["سيل", "اويل"], "sizing": "dim", "dims": [{"name": "قطرداخلي", "unit": "مم"}, {"name": "قطرخارجي", "unit": "مم"}, {"name": "عرض", "unit": "سم"}], "nomUnit": null, "count": 11, "grades": [], "sec": null}, {"code": "CBL", "ar": "كابل", "en": "Cable", "syn": ["كابل"], "sizing": "unit", "dims": [], "nomUnit": null, "count": 16, "grades": [], "sec": null}, {"code": "LCK", "ar": "قفل", "en": "Lock", "syn": ["قفل"], "sizing": "unit", "dims": [], "nomUnit": null, "count": 14, "grades": ["S4"], "sec": null}], "mtree": [{"ar": "معدني", "fams": [{"ar": "استانلس", "grades": [["SS304", "304"], ["SS316", "316"], ["SS316L", "316L"], ["SS201", "201"], ["SS430", "430"], ["SS310", "310"]]}, {"ar": "كربون ستيل", "grades": [["SC", "كربو ستيل"]]}, {"ar": "حديد", "grades": [["FE", "حديد"]]}, {"ar": "ألومنيوم", "grades": [["AL", "ألومنيوم"]]}, {"ar": "نحاس", "grades": [[null, "نحاس"]]}, {"ar": "مجلفن", "grades": [[null, "مجلفن"]]}]}, {"ar": "غير معدني", "fams": [{"ar": "لدائن", "grades": [["PE", "بولي إيثيلين"], ["PP-R", "بولي بروبيلين"], ["uPVC", "uPVC"], [null, "بلاستيك عام"], [null, "نايلون"]]}, {"ar": "هندسية", "grades": [[null, "ارتيلون"], [null, "تفلون"], [null, "أكريليك"], [null, "بورسلين"]]}]}], "uoms": [{"code": "عدد", "name": "عدد"}, {"code": "متر", "name": "متر"}, {"code": "سم", "name": "سم "}, {"code": "gram", "name": "جرام"}, {"code": "KG", "name": "كيلو جرام"}, {"code": "دقيقة", "name": "دقيقة"}, {"code": "ساعة", "name": "ساعة"}, {"code": "متر مربع", "name": "متر مربع"}, {"code": "علبة", "name": "علبة"}, {"code": "يوم", "name": "يوم"}, {"code": "unit", "name": "unit"}, {"code": "Ton", "name": "Ton"}, {"code": "سم مربع", "name": "سم مربع"}]};
+const BASE="https://stlixvalley.namasoft.net/erp/rest/v1/";
+const H={"apiKey":"<NAMA_API_KEY_REDACTED>","X-API-SECRET":"<NAMA_API_SECRET_REDACTED>","Content-Type":"application/json"};
+async function api(p,b,m="POST"){const r=await fetch(BASE+p,{method:m,headers:H,body:b?JSON.stringify(b):undefined});return{sc:r.status,j:await r.json().catch(()=>null)};}
+const $=id=>document.getElementById(id);
+const AI_KEY="<ANTHROPIC_API_KEY_REDACTED>";  // حط مفتاح Anthropic API هنا (sk-ant-...)
+const AI_MODELS = ["claude-haiku-4-5", "claude-haiku-4-5-20251001", "claude-sonnet-4-5-20250929"];
+const CERTS=[["","— بدون —"],["3A","3A Sanitary"],["EH","EHEDG"]];
+let LIVE={c3:[],c4:[],c5:[],c6:[],c6p:[],c7:[],c9:[],c10:[]};
+let TYPE=null,LAST=null;const REG=[];
+async function one(e,tries=3){for(let t=0;t<tries;t++){try{const r=await api(e+"/list",{pageSize:300});if(r.sc===200)return r.j?.records?.[e]||[];}catch(x){}await new Promise(s=>setTimeout(s,1500));}throw new Error(e);}
+async function loadLists(){
+ for(const e of ["ItemClass3","ItemClass4","ItemClass5","ItemClass6","ItemClass7","ItemClass9","ItemClass10"]){
+  $("load").textContent="⏳ بتحميل "+e+" من نما…";
+  const v=await one(e);
+  if(e==="ItemClass3")LIVE.c3=v;
+  if(e==="ItemClass4")LIVE.c4=v;
+  if(e==="ItemClass5")LIVE.c5=v.filter(x=>/^\d+(\.\d+)?x\d+(\.\d+)?/.test(x.code));
+  if(e==="ItemClass6"){LIVE.c6=v.filter(x=>/^\d+(\.\d+)?inch$/.test(x.code));LIVE.c6p=v.filter(x=>/\//.test(x.code));}
+  if(e==="ItemClass7")LIVE.c7=v.filter(x=>/^\d+(\.\d+)?mm$/.test(x.code));
+  if(e==="ItemClass9")LIVE.c9=v;
+  if(e==="ItemClass10")LIVE.c10=v.filter(x=>x.code!=="زومبة");
+ }
+ $("load").style.display="none";$("app").style.display="block";
+}
+function opt(sel,arr,f,blank){const s=$(sel);if(!s)return;s.innerHTML="";if(blank!==undefined){const o=document.createElement("option");o.value="";o.textContent=blank;s.appendChild(o);}arr.forEach((x,i)=>{const o=document.createElement("option");o.value=i;o.textContent=f(x);s.appendChild(o);});}
+function norm(s){return (s||"").replace(/[ةه]/g,"ه").replace(/[أإآا]/g,"ا").replace(/ى/g,"ي").trim()}
+function chips(){
+ const q=norm($("q").value);const box=$("chips");box.innerHTML="";
+ let list=KB.types.filter(t=>!q||norm(t.ar).includes(q)||(t.syn||[]).some(s=>norm(s).includes(q))||(t.en||"").toLowerCase().includes(($("q").value||"").toLowerCase()));
+ list.sort((a,b)=>(b.count||0)-(a.count||0));
+ $("qh").textContent=list.length+" نوع";
+ list.forEach(t=>{const d=document.createElement("div");d.className="chip"+(TYPE&&TYPE.code===t.code?" on":"");
+  d.innerHTML=t.ar+' <span class="n">'+(t.count||0)+"</span>";d.onclick=()=>pick(t);box.appendChild(d);});
+}
+const STDTYPES=new Set(["PIP","ELB","TEE","RED","CAP","UNI","CPL","NIP","BSH","FLG","FLR","FER","TRI","TSH","CHK","VLV","CHKV","GSK"]);
+function pick(t){
+ TYPE=t;chips();$("attrs").style.display="block";
+ opt("mcls",KB.mtree,c=>c.ar,"— اختار —");$("famW").style.display="none";$("grW").style.display="none";
+ applyMat();sizeFields();
+ $("connW").style.display=(t.sizing==="dn"||t.sizing==="dn2")?"block":"none";
+ opt("conn",LIVE.c10,x=>x.name1,"— بدون —");
+ $("finW").style.display="block";opt("fin",LIVE.c9,x=>x.name1,"— بدون —");
+ opt("uom",KB.uoms,u=>u.name);
+ const defU=(["PIP","BEAM","HOSE","CBL","WROD"].includes(t.code))?"متر":"عدد";
+ const ui=KB.uoms.findIndex(u=>u.code===defU);if(ui>=0)$("uom").value=ui;
+ build();
+}
+function isStainless(){return $("mcls").value==="0"&&$("famW").style.display!=="none"&&$("mfam").value==="0";}
+function applyMat(){
+ const ss=isStainless();
+ const showStd=TYPE&&STDTYPES.has(TYPE.code);
+ $("stdW").style.display=showStd?"block":"none";
+ if(showStd){
+  const stds=(TYPE.code==="PIP")?LIVE.c3:LIVE.c3.filter(x=>x.code!=="SCH");
+  opt("std",ss||TYPE.code==="PIP"?stds:stds,x=>x.name1,"— اختار —");
+ }
+ $("certW").style.display=ss&&showStd?"block":"none";
+ if(ss)opt("cert",CERTS,c=>c[1]);
+ onStd();
+}
+function stdSel(){
+ if($("stdW").style.display==="none")return null;
+ const stds=(TYPE.code==="PIP")?LIVE.c3:LIVE.c3.filter(x=>x.code!=="SCH");
+ const v=$("std").value;return v===""?null:stds[v];
+}
+function onStd(){
+ const c=stdSel();
+ if(c&&c.code==="SCH"){$("schW").style.display="block";opt("sch",LIVE.c4,x=>x.name1,"— اختار الجدول —");}
+ else $("schW").style.display="none";
+ build();
+}
+function sizeFields(){
+ const w=$("sizeW");w.innerHTML="";
+ if(TYPE.sizing==="dn"||TYPE.sizing==="dn2"){
+  w.innerHTML='<label>النمرة (بوصة)</label><select id="s1"></select><div class="hint" id="s1h"></div>'+
+   (TYPE.sizing==="dn2"?'<label>التحويلة من×إلى (اختياري)</label><select id="s2"></select>':"");
+  opt("s1",LIVE.c6,x=>x.name1,"— اختار —");
+  if(TYPE.sizing==="dn2")opt("s2",LIVE.c6p,x=>x.name1,"— بدون —");
+  $("s1").onchange=build;const s2=$("s2");if(s2)s2.onchange=build;
+ }else if((TYPE.dims||[]).length){
+  let h='<div class="row r3">';
+  TYPE.dims.forEach((d,i)=>{h+=`<div><label>${d.name} (${d.unit})</label><input id="d${i}" type="number" step="0.1"></div>`;});
+  h+="</div>";w.innerHTML=h;
+  TYPE.dims.forEach((d,i)=>$("d"+i).oninput=build);
+ }
+ // extra: للفلانشة والماسورة سمك من قائمة نما
+ if(TYPE.code==="FLG"||TYPE.code==="PIP"){
+  const div=document.createElement("div");
+  div.innerHTML='<label>السُمك (مم — قائمة نما)</label><select id="thk"></select>';
+  w.appendChild(div);opt("thk",LIVE.c7,x=>x.name1,"— بدون —");$("thk").onchange=build;
+ }
+}
+function matSel(){
+ const ci=$("mcls").value;if(ci==="")return null;
+ if($("famW").style.display==="none")return null;
+ const fi=$("mfam").value;if(fi==="")return null;
+ const fam=KB.mtree[ci].fams[fi];
+ const gi=$("mgr").value;if(gi==="")return null;
+ const g=fam.grades[gi];
+ return{code:g[0],ar:(fam.ar==="استانلس"?"استانلس "+g[1]:g[1]),key:(g[0]||("X:"+g[1]))};
+}
+function build(){
+ if(!TYPE)return;
+ const M=matSel(),std=stdSel();
+ const sch=($("schW").style.display!=="none"&&$("sch")&&$("sch").value!=="")?LIVE.c4[$("sch").value]:null;
+ const s1=($("s1")&&$("s1").value!=="")?LIVE.c6[$("s1").value]:null;
+ const s2=($("s2")&&$("s2").value!=="")?LIVE.c6p[$("s2").value]:null;
+ const cn=($("conn")&&$("connW").style.display!=="none"&&$("conn").value!=="")?LIVE.c10[$("conn").value]:null;
+ const ce=($("cert")&&$("certW").style.display!=="none"&&$("cert").value!==""&&CERTS[$("cert").value][0])?CERTS[$("cert").value]:null;
+ const fn=($("fin")&&$("fin").value!=="")?LIVE.c9[$("fin").value]:null;
+ const thk=($("thk")&&$("thk").value!=="")?LIVE.c7[$("thk").value]:null;
+ let dims=[],dimsOk=true;
+ (TYPE.dims||[]).forEach((d,i)=>{const v=($("d"+i)?.value||"").trim();if(!v)dimsOk=false;else dims.push({n:d.name,u:d.unit,v});});
+ const needSize=(TYPE.sizing==="dn"||TYPE.sizing==="dn2")?!!s1:((TYPE.dims||[]).length?dimsOk:true);
+ const needStd=($("stdW").style.display!=="none")?!!std:true;
+ if(!M){setSt("inc","اختار المادة (نوعها → عائلتها → درجتها)");dis();return;}
+ if(!needStd){setSt("inc","اختار المعيار");dis();return;}
+ if(std&&std.code==="SCH"&&!sch){setSt("inc","اختار رقم الجدول");dis();return;}
+ if(!needSize){setSt("inc","كمّل المقاسات");dis();return;}
+ // hint
+ if(s1&&$("s1h"))$("s1h").textContent="";
+ // code segs: sec/M/std/size(s)/thk/sch/conn/cert/fin  + dims
+ const segs=[TYPE.code,M.key];
+ if(std)segs.push(std.code);
+ if(s1)segs.push(s2?s2.code:s1.code);
+ dims.forEach(d=>segs.push(d.v+(d.u==="مم"?"mm":d.u==="سم"?"cm":d.u==="م"?"m":"")));
+ if(thk)segs.push(thk.code);
+ if(sch)segs.push(sch.code);
+ if(cn)segs.push(cn.code);
+ if(ce)segs.push(ce[0]);
+ if(fn)segs.push(fn.code);
+ const code=segs.join("-");
+ let ar=TYPE.ar+" "+M.ar;
+ if(std&&std.code!=="SCH")ar+=" "+std.name1;
+ if(s1)ar+=" "+(s2?s2.name1:s1.name1);
+ dims.forEach(d=>ar+=" "+d.n+" "+d.v+d.u);
+ if(thk)ar+=" سمك "+thk.name1;
+ if(sch)ar+=" "+sch.name1;
+ if(cn)ar+=" "+cn.name1;
+ if(ce)ar+=" "+ce[1];
+ if(fn)ar+=" "+fn.name1;
+ $("nAr").textContent=ar;$("code").textContent=code;
+ // nama payload (only mappable parts)
+ const payload={};
+ if(TYPE.sec)payload.section=TYPE.sec;
+ if(M.code)payload.itemClass1=M.code;
+ if(std)payload.itemClass3=std.code;
+ if(s1)payload.itemClass6=(s2?s2.code:s1.code);
+ if(thk)payload.itemClass7=thk.code;
+ if(sch)payload.itemClass4=sch.code;
+ if(cn)payload.itemClass10=cn.code;
+ if(fn)payload.itemClass9=fn.code;
+ LAST={payload,code,ar,secOk:!!TYPE.sec};
+ // معيار المشتريات: الحد الأدنى لكل نوع بحيث تنفيذي المشتريات لا يسأل
+ let need=[];
+ if(TYPE.sizing==="dn"||TYPE.sizing==="dn2"){if(!cn)need.push("طريقة التوصيل");}
+ if(TYPE.code==="PIP"&&!thk&&!sch)need.push("السُمك أو الجدول");
+ if(need.length){
+  $("proc").className="st wr";$("proc").textContent="📋 المشتريات هتسأل عن: "+need.join(" · ");
+  setSt("wr","كمّل: "+need.join(" · "));$("save").disabled=true;return;
+ }
+ $("proc").className="st ok";$("proc").textContent="📋 معيار المشتريات: مكتمل ✓ (مفيش أسئلة)";
+ setSt("ok","✓ جاهز — التكرار هيتفحص في نما عند الحفظ");$("save").disabled=false;
+}
+function dis(){$("save").disabled=true;$("nAr").textContent="—";$("code").textContent="—";}
+function setSt(c,m){const s=$("st");s.className="st "+c;s.textContent=m;}
+async function nextCode(){
+ let last="Inv000000";
+ while(true){
+  const r=await api("InvItem/list",{pageSize:200,orderBy:"code",textCriteria:`code,GreaterThan,${last},AND;code,LessThan,Inv999000,AND;`});
+  const rows=(r.j?.records?.InvItem||[]).filter(x=>/^Inv\d{6}$/.test(x.code));
+  if(!rows.length)break;last=rows[rows.length-1].code;if(rows.length<200)break;
+ }
+ return "Inv"+String((parseInt(last.slice(3))||0)+1).padStart(6,"0");
+}
+async function saveItem(){
+ if(!LAST)return;$("save").disabled=true;setSt("inc","⏳ بفحص التكرار في نما…");
+ const dup=await api("InvItem/list",{pageSize:1,textCriteria:`description1,Equal,${LAST.code},AND;`});
+ const hit=dup.j?.records?.InvItem?.[0];
+ if(hit){setSt("dup","⚠ موجود بالفعل: "+hit.code+" — "+(hit.name1||""));return;}
+ setSt("inc","⏳ بجيب الكود…");
+ const next=await nextCode();
+ setSt("inc","⏳ بحفظ "+next+"…");
+ const body={InvItem:[{code:next,name1:LAST.ar,name2:LAST.ar,itemType:"Stock",group:"InvItem$#Inv",
+  configurations:"default",description1:LAST.code,remarks5:$("notes").value||"",
+  ...(LAST.payload.section?{}:{section:"IS0051"}),...LAST.payload,
+  legalEntity:"PUBLIC",branch:"PUBLIC",analysisSet:"PUBLIC",sector:"PUBLIC",department:"PUBLIC",
+  primaryUOM:(u=>({baseUnit:u,reportingUnit1:u,reportingUnit2:u,defaultPurchaseUnit:u,defaultSalesUnit:u}))(KB.uoms[$("uom").value]?.code||"عدد")}]};
+ const r=await fetch(BASE+"InvItem/save?addRecord=true&updateRecord=true",{method:"POST",headers:H,body:JSON.stringify(body)});
+ const j=await r.json().catch(()=>null);
+ if(r.status===200){
+  const v=await api("InvItem/findByIdOrCode/"+next,null,"GET");
+  const rec=v.j?.records?.InvItem?.[0];
+  if(rec){setSt("ok","✅ اتسجل: "+next+" — "+rec.name1);REG.unshift({code:next,name:rec.name1,d1:rec.description1||LAST.code});renderReg();}
+  else setSt("wr","اتسجل بس التحقق فشل — راجع "+next);
+ }else{
+  const msg=j?.failed_records?.[0]?.errors?.[0]?.message?.arabicText||"رفض غير معروف";
+  setSt("dup","❌ نما رفض: "+msg.slice(0,140));
+ }
+ $("save").disabled=false;
+}
+function renderReg(){$("tbl").style.display=REG.length?"table":"none";
+ $("tb").innerHTML=REG.map(r=>`<tr><td class="c">${r.code}</td><td>${r.name}</td><td class="c">${r.d1}</td></tr>`).join("");}
+$("q").oninput=chips;
+$("mcls").onchange=()=>{const i=$("mcls").value;
+ if(i===""){$("famW").style.display="none";$("grW").style.display="none";applyMat();return;}
+ opt("mfam",KB.mtree[i].fams,f=>f.ar,"— اختار —");$("famW").style.display="block";$("grW").style.display="none";applyMat();};
+document.addEventListener("change",e=>{
+ if(e.target.id==="mfam"){const c=$("mcls").value,f=$("mfam").value;
+  if(f===""){$("grW").style.display="none";}
+  else{opt("mgr",KB.mtree[c].fams[f].grades,g=>g[1],"— اختار —");$("grW").style.display="block";}
+  applyMat();}
+ if(e.target.id==="mgr")applyMat();
+ if(e.target.id==="std")onStd();
+ if(["conn","cert","fin","sch"].includes(e.target.id))build();
+});
+$("save").onclick=saveItem;
+$("clr").onclick=()=>{TYPE=null;$("attrs").style.display="none";$("q").value="";chips();setSt("inc","اختار النوع…");dis();};
+
+// ===== مُحلّل محلي (بدون AI): قاموس السوق =====
+function arDigits(s){const m={"٠":"0","١":"1","٢":"2","٣":"3","٤":"4","٥":"5","٦":"6","٧":"7","٨":"8","٩":"9","½":"0.5","¼":"0.25","¾":"0.75"};return s.replace(/[٠-٩½¼¾]/g,c=>m[c]||c);}
+function localParse(txt){
+ const t=arDigits(norm(txt));
+ const p={questions:[]};
+ // النوع
+ for(const ty of KB.types){if([ty.ar,...(ty.syn||[])].some(s=>t.includes(norm(s)))){p.type=ty.code;break;}}
+ if(!p.type){p.questions.push("النوع إيه؟ (كوع/ماسورة/لوح…)");return p;}
+ const ty=KB.types.find(x=>x.code===p.type);
+ // الخامة
+ const g=t.match(/\b(304|316l|316|201|430|310)\b/);
+ if(g)p.material="SS"+g[1].toUpperCase().replace("L","L");
+ else if(/استانلس|استنلس|ستانلس/.test(t))p.questions.push("درجة الاستانلس؟ (304/316…)");
+ else if(/كربون|كربو/.test(t))p.material="SC";
+ else if(/حديد|اسود/.test(t))p.material="FE";
+ else if(/الومنيوم|المونيوم/.test(t))p.material="AL";
+ else p.questions.push("الخامة إيه؟");
+ // المعيار + الجدول
+ const sc=t.match(/جدول\s*(\d+)/); if(sc){p.std="SCH";p.sch=sc[1];}
+ else if(/البان|صحي/.test(t))p.std="NPS";
+ else if(p.material&&p.material.startsWith("SS")&&(ty.sizing==="dn"||ty.sizing==="dn2"))p.std="NPS";
+ // النمرة بوصة
+ const inch=t.match(/(\d+(?:\.\d+)?)\s*(?:بوصه|بوصة|انش|inch|")/);
+ if(inch)p.size=inch[1]+"inch";
+ // أبعاد مم/سم/م حسب النوع
+ if(ty.dims&&ty.dims.length){
+  p.dims={};
+  const mm=[...t.matchAll(/(\d+(?:\.\d+)?)\s*(?:مم|مل|mm)/g)].map(m=>m[1]);
+  const dm=t.match(/(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)/);
+  ty.dims.forEach((d,i)=>{
+   if(d.name==="سمك"&&mm.length)p.dims["سمك"]=mm[0];
+   else if(dm&&i>0&&!p.dims[d.name])p.dims[d.name]=[dm[1],dm[2]][i-1]||"";
+  });
+  ty.dims.forEach(d=>{if(!p.dims[d.name])p.questions.push(d.name+"؟ ("+d.unit+")");});
+ }
+ if(ty.code==="PIP"&&!p.sch){const mm=t.match(/سمك\s*(\d+(?:\.\d+)?)/);if(mm)p.thk=mm[1]+"mm";else p.questions.push("سُمك الماسورة أو الجدول؟");}
+ // التوصيل
+ if(/لحام اوربيتال|اوربيتال/.test(t))p.conn="OW";
+ else if(/لحام/.test(t))p.conn="WID";
+ else if(/كلامب|تراي/.test(t))p.conn="Lacour"===undefined?undefined:undefined;
+ if(/لاكور|رباط/.test(t))p.conn="Lacour";
+ if(/قلاووظ|سن/.test(t))p.conn="Threaded";
+ if((ty.sizing==="dn"||ty.sizing==="dn2")&&!p.conn)p.questions.push("طريقة التوصيل؟ (لحام/لاكور/قلاووظ…)");
+ if((ty.sizing==="dn"||ty.sizing==="dn2")&&!p.size)p.questions.push("النمرة كام بوصة؟");
+ if(/3a|ثري ايه/.test(t))p.cert="3A";
+ if(/لامع/.test(t))p.fin="Shiny"; if(/مصنفر/.test(t))p.fin="sander"; if(/مجلفن/.test(t))p.fin="galvanized";
+ return p;
+}
+function aiCatalog(){
+ return {types:KB.types.map(t=>({code:t.code,ar:t.ar,syn:t.syn,sizing:t.sizing,dims:(t.dims||[]).map(d=>d.name+"("+d.unit+")")}))
+  ,materials:KB.mtree,stds:LIVE.c3.map(x=>x.code),sizes:LIVE.c6.map(x=>x.code)
+  ,thk:LIVE.c7.map(x=>x.code),sch:LIVE.c4.map(x=>x.code),conn:LIVE.c10.map(x=>({c:x.code,n:x.name1}))
+  ,fin:LIVE.c9.map(x=>({c:x.code,n:x.name1})),uoms:KB.uoms.map(u=>u.code)};
+}
+async function aiGo(){
+ const txt=$("ai_in").value.trim();if(!txt)return;
+ if(!AI_KEY){const p=localParse(txt);$("ai_st").textContent="🧠 (محلي بدون AI) ";aiApply(p);return;}
+ $("ai_st").textContent="🤖 بفهم البند…";$("ai_qs").innerHTML="";
+ const sys="أنت خبير مواد معدنية وسوق مصري في مصنع ستانلس. حوّل وصف البند الحر إلى JSON صارم بالمفاتيح: "+
+  "{type:كود النوع, material:كود الخامة أو null, std, size, thk, sch, conn, fin, cert:(3A|EH|null), dims:{اسم:قيمة}, uom, questions:[أسئلة قصيرة للناقص الإلزامي فقط]} "+
+  "استخدم حصريًا الأكواد من الكتالوج. الإلزامي: النوع والخامة والمقاس، والوصلات لازم طريقة توصيل، والماسورة لازم سمك أو جدول. الكتالوج: "+JSON.stringify(aiCatalog());
+ try{
+  let r=null,j=null;
+  for(const mdl of AI_MODELS){
+   r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+    headers:{"x-api-key":AI_KEY,"anthropic-version":"2023-06-01","content-type":"application/json",
+             "anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:mdl,max_tokens:800,system:sys,
+      messages:[{role:"user",content:txt}]})});
+   j=await r.json().catch(()=>null);
+   const msg=j?.error?.message||"";
+   if(r.ok&&!j?.error)break;
+   if(!/model/i.test(msg)){ // خطأ مش عن الموديل → اعرضه وارجع للمحلي
+    $("ai_st").textContent="❌ Anthropic: "+String(msg||("HTTP "+r.status)).slice(0,120)+" — كمّلت بالمحلل المحلي";aiApply(localParse(txt));return;
+   }
+  }
+  if(!r.ok||j?.error){
+    $("ai_st").textContent="❌ كل الموديلات مرفوضة — كمّلت بالمحلل المحلي";aiApply(localParse(txt));return;
+  }
+  const raw=(j.content?.[0]?.text||"").replace(/```json|```/g,"").trim();
+  const s=raw.indexOf("{"),e2=raw.lastIndexOf("}");
+  if(s<0||e2<0){$("ai_st").textContent="❌ الـAI رجّع نص مش JSON: "+raw.slice(0,120);return;}
+  const p=JSON.parse(raw.slice(s,e2+1));
+  aiApply(p);
+ }catch(e){$("ai_st").textContent="❌ الـAI فشل: "+String(e).slice(0,120);}
+}
+function selByCode(selId,arr,code){if(!code)return false;const i=arr.findIndex(x=>(x.code||x[0])===code);if(i>=0){$(selId).value=i;return true;}return false;}
+function aiApply(p){
+ const t=KB.types.find(x=>x.code===p.type);
+ if(!t){$("ai_st").textContent="❌ النوع مش متعرف: "+p.type;return;}
+ pick(t);
+ // material via tree walk
+ if(p.material){outer:for(let ci=0;ci<KB.mtree.length;ci++){const fams=KB.mtree[ci].fams;
+   for(let fi=0;fi<fams.length;fi++){const gi=fams[fi].grades.findIndex(g=>g[0]===p.material);
+    if(gi>=0){$("mcls").value=ci;$("mcls").onchange();$("mfam").value=fi;
+      opt("mgr",fams[fi].grades,g=>g[1],"— اختار —");$("grW").style.display="block";$("mgr").value=gi;applyMat();break outer;}}}}
+ if(p.std){const stds=(TYPE.code==="PIP")?LIVE.c3:LIVE.c3.filter(x=>x.code!=="SCH");selByCode("std",stds,p.std);onStd();}
+ if(p.sch&&$("sch"))selByCode("sch",LIVE.c4,p.sch);
+ if(p.size&&$("s1"))selByCode("s1",LIVE.c6,p.size);
+ if(p.thk&&$("thk"))selByCode("thk",LIVE.c7,p.thk);
+ if(p.conn&&$("conn"))selByCode("conn",LIVE.c10,p.conn);
+ if(p.cert&&$("cert"))selByCode("cert",CERTS.map(c=>({code:c[0]})),p.cert);
+ if(p.fin&&$("fin"))selByCode("fin",LIVE.c9,p.fin);
+ if(p.dims&&TYPE.dims)TYPE.dims.forEach((d,i)=>{const v=p.dims[d.name];if(v&&$("d"+i))$("d"+i).value=parseFloat(v)||v;});
+ if(p.uom)selByCode("uom",KB.uoms,p.uom);
+ build();
+ const qs=(p.questions||[]);
+ $("ai_qs").innerHTML=qs.map(q=>'<div class="chip" style="border-color:var(--wr);color:var(--wr)">❓ '+q+"</div>").join("");
+ $("ai_st").textContent=qs.length?("🤖 فهمت وملّيت — ناقص "+qs.length+" إجابة"):"🤖 فهمت وملّيت البند كامل ✓";
+}
+$("ai_go").onclick=aiGo;
+$("ai_in").addEventListener("keydown",e=>{if(e.key==="Enter")aiGo();});
+$("covline").textContent=KB.types.length+" نوع من داتاك · قوائم نما حية · فلترة كاملة · صفر تكرار";
+loadLists().then(chips).catch(e=>{$("load").innerHTML="❌ معرفتش أوصل لنما ("+e.message+") — افتح من جهاز واصل أو استضيف على crm.";});
+</script></body></html>
