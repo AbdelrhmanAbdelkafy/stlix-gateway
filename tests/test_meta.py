@@ -22,7 +22,7 @@ def test_systems_lists_all():
 
 
 def test_planned_system_returns_501():
-    r = client.get("/api/v1/crm")
+    r = client.get("/api/v1/email")  # still a planned placeholder
     assert r.status_code == 501
 
 

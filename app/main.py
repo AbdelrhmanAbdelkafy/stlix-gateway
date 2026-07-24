@@ -12,6 +12,7 @@ from .core.middleware import ObservabilityMiddleware, RateLimitMiddleware
 from .core.render import respond
 from .core.security import require_api_key
 from .integrations.attendance.router import router as attendance_router
+from .integrations.crm.router import router as crm_router
 from .integrations.nama.router import router as nama_router
 from .registry import SYSTEMS, Status
 from .routers.meta import router as meta_router
@@ -59,9 +60,10 @@ def create_app() -> FastAPI:
     # live integrations
     app.include_router(nama_router, prefix=API_PREFIX)
     app.include_router(attendance_router, prefix=API_PREFIX)
+    app.include_router(crm_router, prefix=API_PREFIX)
 
     # planned integrations -> 501 placeholders (keeps the map complete)
-    live_keys = {"nama", "attendance"}
+    live_keys = {"nama", "attendance", "crm"}
     for s in SYSTEMS:
         if s.status is Status.PLANNED and s.key not in live_keys:
             app.include_router(_placeholder_router(s.key, s.name_en), prefix=API_PREFIX)

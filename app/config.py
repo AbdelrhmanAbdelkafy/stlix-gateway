@@ -55,6 +55,18 @@ class Settings(BaseSettings):
     # Connector mode: read_only (default, safe) | read_write
     nama_mode: str = Field(default="read_only")
 
+    # --- CRM connector (Vtiger) ---
+    crm_backend: str = Field(default="vtiger")
+    crm_mode: str = Field(default="read_only")
+    vtiger_url: str = Field(default="", description="Vtiger base URL, e.g. https://crm.example.com")
+    vtiger_username: str = Field(default="")
+    vtiger_access_key: str = Field(default="")
+    crm_timeout: float = Field(default=30.0)
+
+    @property
+    def crm_configured(self) -> bool:
+        return bool(self.vtiger_url and self.vtiger_username and self.vtiger_access_key)
+
     @property
     def nama_base(self) -> str:
         return self.nama_base_url.rstrip("/")

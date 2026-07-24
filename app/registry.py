@@ -30,7 +30,7 @@ SYSTEMS: list[System] = [
     System("nama", "Nama ERP", "نما", Status.LIVE, "ERP: employees, attendance, documents."),
     System("attendance", "Attendance & Fingerprint", "البصمة والحضور", Status.LIVE,
            "Punch push/read (routes to Nama TimeAttendance)."),
-    System("crm", "CRM", "سي آر إم", Status.PLANNED, "Customers, leads, opportunities."),
+    System("crm", "CRM", "سي آر إم", Status.LIVE, "Vtiger: contacts, leads, accounts (read-only)."),
     System("callcenter", "Call Center", "الكول سنتر", Status.PLANNED, "Calls, tickets, IVR."),
     System("email", "Email", "الإيميل", Status.PLANNED, "Send/receive, templates."),
     System("website", "Website", "الويب سايت", Status.PLANNED, "Public site / forms."),
