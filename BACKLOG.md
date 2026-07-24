@@ -45,6 +45,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | S21 | تحليلي مبيعات جغرافي (geographic sales analysis) | Nama | ⚪ |
 | S22 | توصيات عملاء مقترحين بالـ AI (AI-suggested customers/leads) → AI | Vtiger / AI | ⚪ |
 | S23 | مطالبات تمت في موعدها (demands completed on time) | Nama | ⚪ |
+| S24 | طلبات تسجيلنا كمورد لدى عملاء (our vendor-registration applications at customers) | Nama / new | ⚪ |
 
 ## Purchasing & Materials (مشتريات وخامات)
 | # | Item | Source | Status |
@@ -59,6 +60,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | P8 | توصيات شراء بالـ AI — خامات قرب تخلص (AI reorder recommendations) → AI | Nama / AI | ⚪ |
 | P9 | مشتريات إجمالي/تفصيلي حسب المورد والمنطقة الجغرافية (by supplier & region) | Nama | ⚪ |
 | P10 | مشتريات ومرتجعات تتطلب مطابقة فورية (immediate reconciliation) → Reconciliation | Nama | ⚪ |
+| P11 | طلبات تسجيل موردين (supplier registration / onboarding requests) | Nama / new | ⚪ |
 
 ## Treasury & Finance (خزينة ومالية)
 | # | Item | Source | Status |
@@ -86,6 +88,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T21 | Cash flow (التدفق النقدي) | Nama / SQL | ⚪ |
 | T22 | بنود مسجّلة بشكل خاطئ على السيستم (mis-posted entries) → AI | Nama / AI | ⚪ |
 | T23 | عدد الفواتير المراجَعة لكل مراجع (invoices reviewed per reviewer) | Nama | ⚪ |
+| T24 | الحسابات المفضلة لاستلام تحويلات العملاء (preferred collection accounts) → enhances Banks connector | Nama | ⚪ |
+| T25 | حسابات البنوك لدينا (our bank accounts) — ✅ built (banks connector) | Nama | 🟢 |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
