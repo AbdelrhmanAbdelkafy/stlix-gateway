@@ -77,6 +77,12 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 |---|------|--------|--------|
 | I1 | إسهامات / مساهمات (contributions / shareholdings) | Nama | ⚪ |
 
+## Warehouse & Inventory (مخازن ومخزون)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| WH1 | تسليم واستلام بضائع (goods delivery & receipt) | Nama | ⚪ |
+| WH2 | مرتجعات مبيعات ومشتريات (sales & purchase returns) | Nama | ⚪ |
+
 ## Market Data & Rates (بيانات السوق والأسعار)
 | # | Item | Source | Status |
 |---|------|--------|--------|
