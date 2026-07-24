@@ -93,6 +93,11 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | FL2 | تكلفة البنزين (fuel cost) | Nama | ⚪ |
 | FL3 | تكلفة الصيانات (vehicle maintenance cost) | Nama | ⚪ |
 
+## IT & Electronic Assets (أصول تقنية)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| IT1 | تقارير الأجهزة الإلكترونية — موبايل / شاشة / كمبيوتر (device inventory & reports) | Nama / custody | ⚪ |
+
 ## HR (موارد بشرية)
 | # | Item | Source | Status |
 |---|------|--------|--------|
@@ -113,6 +118,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H15 | تكلفة الموظف الكلية (total loaded employee cost) | Nama | ⚪ |
 | H16 | قيمة الانتقالات — الكلية + لكل موظف (transport cost total & per employee) | Nama | ⚪ |
 | H17 | الـ Outing / فعاليات الموظفين (staff outings & events) | new | ⚪ |
+| H18 | متوسط العمر + العدد + المهام لكل موظف (workforce demographics & tasks/employee) | Nama | ⚪ |
 
 ## Marketing (تسويق)
 | # | Item | Source | Status |
