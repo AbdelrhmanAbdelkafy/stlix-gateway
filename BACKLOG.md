@@ -28,6 +28,11 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | S4 | عملاء غير نشطين | Vtiger / Nama | ⚪ |
 | S5 | Chinese leads — عملاء محتملين | Vtiger Leads | ⚪ ⚠ needs a China/segment field or tag on leads first (currently 15 leads, `country` empty, no Chinese marker) |
 | S6 | حصيلة مطلوبة (required collections / target receivables) | Nama | ⚪ |
+| S7 | مبيعات فرع (sales by branch) | Nama | ⚪ |
+| S8 | مبيعات مسؤول مبيعات (sales by rep) | Nama | ⚪ |
+| S9 | عملاء جدد — عدد ومصدر (new customers count & source) | Vtiger / Nama | ⚪ |
+| S10 | عملاء توقفوا معنا (churned customers count) | Vtiger / Nama | ⚪ |
+| S11 | نسبة الربحية — للتكلفة / لسعر البيع (margin to cost / to sale price) | Nama | ⚪ |
 
 ## Purchasing & Materials (مشتريات وخامات)
 | # | Item | Source | Status |
@@ -87,6 +92,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | MK1 | Social platforms (منصات التواصل) | external APIs | ⚪ |
 | MK2 | المعارض المتوقعة — حسب الدولة (expected exhibitions by country) | new / research | ⚪ |
 | MK3 | استبيانات آراء العملاء (customer feedback surveys) | Vtiger / new | ⚪ |
+| MK4 | المنافسون (competitors) | new / research | ⚪ |
+| MK5 | أسعار المنافسين (competitor prices) | new / research | ⚪ |
 
 ## Investments / Equity (استثمارات ومساهمات)
 | # | Item | Source | Status |
@@ -145,6 +152,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | AC3 | أوراق مطلوب تجديدها (documents due for renewal) → Renewals | new | ⚪ |
 | AC4 | إيجارات شارفت على الانتهاء (leases nearing expiry) → Renewals | Nama / new | ⚪ |
 | AC5 | اشتراكات شارفت على الانتهاء (subscriptions nearing expiry) → Renewals | Nama / new | ⚪ |
+| AC6 | الحراسة (security guarding / shifts) — ties to surveillance system | Nama / new | ⚪ |
 
 ## Operations & Production (عمليات وإنتاج)
 | # | Item | Source | Status |
