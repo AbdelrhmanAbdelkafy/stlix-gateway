@@ -38,6 +38,9 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | S14 | نسبة التحويل (lead→customer conversion rate) | Vtiger / Nama | ⚪ |
 | S15 | عدد الزيارات (sales visits count) | Vtiger / Nama | ⚪ |
 | S16 | حالة إتمام الأوردر — المتبقي منه (order completion / remaining) | Nama | ⚪ |
+| S17 | العميل-المورد — مين بيشتري أكثر (dual customer/supplier: who buys more) | Nama | ⚪ |
+| S18 | صافي وضع العميل مقابل المورد (net customer-vs-supplier position) | Nama | ⚪ |
+| S19 | أقل سعر بيع لعميل معيّن — حدّ أدنى مبني على شراءنا منه (per-customer price floor) | Nama | ⚪ |
 
 ## Purchasing & Materials (مشتريات وخامات)
 | # | Item | Source | Status |
@@ -48,6 +51,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | P4 | أسعار الخامات | Nama | ⚪ |
 | P5 | مطابقة موردين (supplier reconciliation) → Reconciliation | Nama | ⚪ |
 | P6 | مطابقة موردين تخطّت الأسبوع (overdue >1wk) → Reconciliation/Alerts | Nama | ⚪ |
+| P7 | أسعار الشراء المتوقعة — أقصى سعر مقبول (expected purchase price / ceiling) | Nama | ⚪ |
 
 ## Treasury & Finance (خزينة ومالية)
 | # | Item | Source | Status |
@@ -65,6 +69,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T11 | مطابقة حركات البنوك مع نما (bank reconciliation) | bank feed + Nama | ⚪ |
 | T12 | فواتير لم تُحصّل — لكل بنك (uncashed invoices per bank) | Nama | ⚪ |
 | T13 | تحليلي مصروف (analytical expense breakdown) | Nama | ⚪ |
+| T14 | أعمار الديون (AR / AP aging) | Nama | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
