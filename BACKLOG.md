@@ -59,6 +59,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H3 | تدريبات وتطوير | Nama / new | ⚪ |
 | H4 | نماذج وتفويضات | new | ⚪ |
 | H5 | تعيينات مفتوحة (open positions / requisitions) | Nama / Vtiger | ⚪ |
+| H6 | عهدة الموظف (employee cash custody — distinct from asset custody العهدة) | Nama | ⚪ |
+| H7 | سلف العاملين (employee advances / loans) | Nama | ⚪ |
 
 ## Marketing (تسويق)
 | # | Item | Source | Status |
