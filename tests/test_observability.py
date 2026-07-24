@@ -34,6 +34,22 @@ def test_metrics_prometheus_and_json():
     assert "by_status_class" in body
 
 
+def test_metrics_html_view():
+    r = client.get("/metrics?format=html")
+    assert r.status_code == 200
+    assert "text/html" in r.headers["content-type"]
+    assert "By route" in r.text
+    # raw JSON snapshot kept inside the HTML page
+    assert "requests_total" in r.text
+
+
+def test_metrics_default_is_prometheus_for_scrapers():
+    # Accept */* (curl/scraper) must NOT get HTML
+    r = client.get("/metrics", headers={"Accept": "*/*"})
+    assert "text/plain" in r.headers["content-type"]
+    assert "gateway_requests_total" in r.text
+
+
 def test_api_keys_property_merges_single_and_list():
     s = Settings(gateway_api_key="k1", gateway_api_keys="k2, k3")
     assert s.api_keys == {"k1", "k2", "k3"}

@@ -30,6 +30,11 @@ def _cell(v: Any) -> str:
     return html.escape(str(v))
 
 
+def table(rows: list[dict], columns: list[str] | None = None) -> str:
+    """Public: render a list of dicts as an HTML table (for composing pages)."""
+    return _table(rows, columns)
+
+
 def _table(rows: list[dict], columns: list[str] | None) -> str:
     if not rows:
         return '<p class="muted">No rows.</p>'
