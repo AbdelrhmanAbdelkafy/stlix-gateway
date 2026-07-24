@@ -55,6 +55,17 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H2 | Onboarding / Offboarding | Nama / new | ⚪ |
 | H3 | تدريبات وتطوير | Nama / new | ⚪ |
 | H4 | نماذج وتفويضات | new | ⚪ |
+| H5 | تعيينات مفتوحة (open positions / requisitions) | Nama / Vtiger | ⚪ |
+
+## Marketing (تسويق)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| MK1 | Social platforms (منصات التواصل) | external APIs | ⚪ |
+
+## Investments / Equity (استثمارات ومساهمات)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| I1 | إسهامات / مساهمات (contributions / shareholdings) | Nama | ⚪ |
 
 ## Platform & AI (north star)
 | # | Item | Notes |
