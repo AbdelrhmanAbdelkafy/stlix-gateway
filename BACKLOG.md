@@ -70,6 +70,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T12 | فواتير لم تُحصّل — لكل بنك (uncashed invoices per bank) | Nama | ⚪ |
 | T13 | تحليلي مصروف (analytical expense breakdown) | Nama | ⚪ |
 | T14 | أعمار الديون (AR / AP aging) | Nama | ⚪ |
+| T15 | نقطة التعادل — المجموعة و Stlix (breakeven per entity) | Nama | ⚪ |
+| T16 | الزكاة وأعمال الخير (zakat & charity) | Nama | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
@@ -97,6 +99,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H14 | القيم المباشرة وغير المباشرة للموظفين (direct/indirect labor cost) | Nama | ⚪ |
 | H15 | تكلفة الموظف الكلية (total loaded employee cost) | Nama | ⚪ |
 | H16 | قيمة الانتقالات — الكلية + لكل موظف (transport cost total & per employee) | Nama | ⚪ |
+| H17 | الـ Outing / فعاليات الموظفين (staff outings & events) | new | ⚪ |
 
 ## Marketing (تسويق)
 | # | Item | Source | Status |
@@ -178,6 +181,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | OP4 | نسبة دقة تسعير أوامر الشغل (job-order pricing accuracy) | Nama | ⚪ |
 | OP5 | التكلفة المتوقعة ↔ الفعلية لأوامر الشغل (expected vs actual cost) → Planned/Actual | Nama | ⚪ |
 | OP6 | إجمالي ساعات تشغيل لكل آلة (machine running hours) | Nama / new | ⚪ |
+| OP7 | تكلفة الطن للصنف — شاملة الـ overhead (cost/ton incl. overhead) | Nama | ⚪ |
 
 ## Legal (قانوني)
 | # | Item | Source | Status |
