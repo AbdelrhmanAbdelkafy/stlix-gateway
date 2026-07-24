@@ -41,6 +41,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | S17 | العميل-المورد — مين بيشتري أكثر (dual customer/supplier: who buys more) | Nama | ⚪ |
 | S18 | صافي وضع العميل مقابل المورد (net customer-vs-supplier position) | Nama | ⚪ |
 | S19 | أقل سعر بيع لعميل معيّن — حدّ أدنى مبني على شراءنا منه (per-customer price floor) | Nama | ⚪ |
+| S20 | أعلى مبيعات حسب القطاع/الصناعة (top sales by sector) | Nama | ⚪ |
+| S21 | تحليلي مبيعات جغرافي (geographic sales analysis) | Nama | ⚪ |
 
 ## Purchasing & Materials (مشتريات وخامات)
 | # | Item | Source | Status |
@@ -72,6 +74,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T14 | أعمار الديون (AR / AP aging) | Nama | ⚪ |
 | T15 | نقطة التعادل — المجموعة و Stlix (breakeven per entity) | Nama | ⚪ |
 | T16 | الزكاة وأعمال الخير (zakat & charity) | Nama | ⚪ |
+| T17 | أتعاب مهنية لغير الموظفين — مثال المحاسب القانوني (professional fees) | Nama | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
@@ -79,6 +82,13 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | M1 | أعطال آلات ومعدات وأجهزة | Nama / new | ⚪ |
 | M2 | الصيانات الدورية — سيارات / آلات / معدات (scheduled maintenance) | Nama / new | ⚪ |
 | M3 | صيانة المباني (building maintenance) | Nama / new | ⚪ |
+
+## Fleet (أسطول / سيارات)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| FL1 | تكلفة السيارة — يوميًا / شهريًا (vehicle cost daily/monthly, TCO) | Nama | ⚪ |
+| FL2 | تكلفة البنزين (fuel cost) | Nama | ⚪ |
+| FL3 | تكلفة الصيانات (vehicle maintenance cost) | Nama | ⚪ |
 
 ## HR (موارد بشرية)
 | # | Item | Source | Status |
@@ -109,6 +119,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | MK3 | استبيانات آراء العملاء (customer feedback surveys) | Vtiger / new | ⚪ |
 | MK4 | المنافسون (competitors) | new / research | ⚪ |
 | MK5 | أسعار المنافسين (competitor prices) | new / research | ⚪ |
+| MK6 | أخبار المنافسين (competitor news) | new / research | ⚪ |
 
 ## Investments / Equity (استثمارات ومساهمات)
 | # | Item | Source | Status |
