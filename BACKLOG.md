@@ -253,6 +253,13 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | OP8 | إنتاجية نما — ساعات التشغيل خلال اليوم (production hours logged/day) | Nama | ⚪ |
 | OP9 | خطة تشغيل استليكس اليومية (daily production/operating plan) | Nama / new | ⚪ |
 
+## Travel & Personal (سفر — خاص بالمالك)
+| # | Item | Source | Status |
+|---|------|--------|--------|
+| TR1 | Tracker سفريات — وقت / تكلفة / أهداف (owner-personal) | new | ⚪ |
+| TR2 | قائمة مشتريات السفر (travel purchases list) | new / Nama | ⚪ |
+| TR3 | Checklist (travel / ops checklist) | new | ⚪ |
+
 ## Legal (قانوني)
 | # | Item | Source | Status |
 |---|------|--------|--------|
