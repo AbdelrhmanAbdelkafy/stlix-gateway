@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- skill:chrome -->
+<style>
+/* Credit line — bottom-right */
+.design-ui-credit {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  font: 11px/1 system-ui, sans-serif;
+  color: rgba(128,128,128,0.5);
+  pointer-events: none;
+  z-index: 2147483647;
+  transition: opacity 0.4s ease;
+  user-select: none;
+  letter-spacing: 0.02em;
+}
+
+/* Hide chrome on touch devices */
+@media (hover: none) {
+  .design-ui-credit { display: none; }
+}
+
+/* Print fixes */
+@media print {
+  * {
+    transition: none !important;
+    animation: none !important;
+    box-shadow: none !important;
+  }
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .design-ui-credit { display: none !important; }
+}
+
+</style>
+<script>
+(function () {
+    // Design-ui pages are single compositions, so the whole body is editable.
+    function markEditable() {
+        document.body.classList.add('artifact-editable');
+    }
+
+    // Credit badge with idle-fade. Hover devices only.
+    function initChromeUI() {
+        if (!matchMedia('(hover: hover)').matches) return;
+
+        var credit = document.createElement('div');
+        credit.className = 'design-ui-credit';
+        credit.setAttribute('aria-hidden', 'true');
+        credit.innerHTML = '\u{1F49C} by ClickUp Brain';
+        document.body.appendChild(credit);
+
+        var timer = null;
+        var fade = function (out) { credit.style.opacity = out ? '0' : ''; };
+        fade(true);
+        var show = function () {
+            fade(false);
+            clearTimeout(timer);
+            timer = setTimeout(function () { fade(true); }, 3000);
+        };
+        document.addEventListener('mousemove', show);
+        show();
+    }
+
+    function init() {
+        markEditable();
+        initChromeUI();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+</script>
+<!-- /skill:chrome -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Quality Certificate Generator</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: oklch(97% 0.005 250);
+  --surface: oklch(99.5% 0.003 250);
+  --border: oklch(85% 0.01 250);
+  --text: oklch(20% 0.01 250);
+  --text-secondary: oklch(45% 0.01 250);
+  --accent: oklch(45% 0.12 250);
+  --accent-hover: oklch(38% 0.14 250);
+  --danger: oklch(55% 0.2 25);
+  --warning-bg: oklch(92% 0.08 80);
+  --warning-border: oklch(75% 0.15 80);
+  --warning-text: oklch(35% 0.1 80);
+  --success: oklch(50% 0.15 150);
+  --radius: 6px;
+  --shadow-sm: 0 1px 3px oklch(0% 0 0 / 0.08);
+  --shadow-md: 0 4px 12px oklch(0% 0 0 / 0.1);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+.control-panel {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+
+.control-group { display: flex; align-items: center; gap: 6px; }
+.control-group label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+
+select {
+  padding: 6px 28px 6px 10px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); font-size: 13px; color: var(--text);
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+}
+select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.separator { width: 1px; height: 28px; background: var(--border); margin: 0 4px; }
+
+.btn {
+  padding: 6px 14px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); font-size: 12px; font-weight: 500; color: var(--text);
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap; display: inline-flex; align-items: center; gap: 5px;
+}
+.btn:hover { background: oklch(94% 0.005 250); border-color: oklch(70% 0.01 250); }
+.btn-primary { background: var(--accent); color: oklch(98% 0.005 250); border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-danger { color: var(--danger); border-color: oklch(80% 0.05 25); }
+.btn-danger:hover { background: oklch(95% 0.03 25); }
+.btn-success { background: var(--success); color: oklch(98% 0.005 150); border-color: var(--success); }
+.btn-success:hover { background: oklch(43% 0.15 150); }
+
+.main-content { max-width: 1200px; margin: 24px auto; padding: 0 24px; }
+.certificate-wrapper { background: white; box-shadow: var(--shadow-md); border-radius: 2px; overflow-x: auto; }
+
+.certificate {
+  width: 297mm; min-height: 210mm; margin: 0 auto; padding: 10mm 12mm;
+  font-family: "SimSun", "宋体", "Times New Roman", serif;
+  font-size: 11px; color: oklch(10% 0 0); position: relative; line-height: 1.4;
+}
+
+.cert-header { display: grid; grid-template-columns: 110px 1fr 120px; gap: 10px; margin-bottom: 8px; align-items: start; }
+.cert-logo-area { width: 100px; height: 80px; display: flex; align-items: center; justify-content: center; }
+.cert-logo-area img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.cert-logo-placeholder { width: 100%; height: 100%; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 9px; color: oklch(60% 0 0); text-align: center; cursor: pointer; }
+
+.cert-title-area { text-align: center; }
+.cert-company-cn { font-size: 16px; font-weight: bold; margin-bottom: 2px; letter-spacing: 1px; }
+.cert-company-en { font-size: 10px; margin-bottom: 10px; }
+.cert-title-cn { font-size: 24px; font-weight: bold; letter-spacing: 3px; margin-bottom: 2px; }
+.cert-title-en { font-size: 13px; font-weight: bold; letter-spacing: 1px; }
+
+.cert-qr-area { width: 120px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+#qrArea { display: block; }
+#qrArea svg { display: block; width: 110px; height: 110px; }
+
+.cert-info { border: 1px solid oklch(10% 0 0); margin-bottom: 10px; }
+.cert-info-row { display: grid; grid-template-columns: 1fr 1fr 1fr; border-bottom: 1px solid oklch(10% 0 0); }
+.cert-info-row:last-child { border-bottom: none; }
+.cert-info-cell { padding: 5px 8px; border-right: 1px solid oklch(10% 0 0); display: flex; align-items: center; gap: 4px; font-size: 10.5px; }
+.cert-info-cell:last-child { border-right: none; }
+.cert-info-cell .label { font-weight: normal; white-space: nowrap; }
+.cert-info-cell input { border: none; border-bottom: 1px solid transparent; font-family: inherit; font-size: 10.5px; padding: 1px 2px; flex: 1; min-width: 0; background: transparent; }
+.cert-info-cell input:hover { border-bottom-color: oklch(70% 0 0); }
+.cert-info-cell input:focus { outline: none; border-bottom-color: var(--accent); }
+
+.cert-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10px; table-layout: auto; }
+.cert-table th, .cert-table td { border: 1px solid oklch(10% 0 0); padding: 4px 5px; text-align: center; vertical-align: middle; line-height: 1.3; }
+.cert-table th { background: oklch(96% 0.005 250); font-weight: bold; font-size: 9px; white-space: normal; }
+.cert-table td input { border: none; background: transparent; text-align: center; font-family: inherit; font-size: 10px; width: 100%; padding: 1px 0; }
+.cert-table td input:focus { outline: none; background: oklch(95% 0.03 250); }
+.cert-table td input.invalid { background: oklch(95% 0.06 25); color: var(--danger); }
+.cert-table .row-select { width: 14px; height: 14px; cursor: pointer; }
+.cert-table .section-header th { background: oklch(94% 0.008 250); font-size: 9.5px; padding: 4px; }
+
+.cert-footer { margin-top: 14px; font-size: 9.5px; line-height: 1.8; }
+.cert-notes { margin-bottom: 12px; font-size: 9px; line-height: 1.6; }
+.cert-notes p { margin-bottom: 1px; }
+.cert-signature-area { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px; position: relative; }
+.cert-signature-right { text-align: right; position: relative; }
+.cert-stamp-area { position: absolute; bottom: -40px; right: -10px; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; }
+.cert-stamp-area img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0.9; }
+
+.validation-toast { position: fixed; bottom: 20px; right: 20px; background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning-text); padding: 10px 16px; border-radius: var(--radius); font-size: 12px; max-width: 360px; box-shadow: var(--shadow-md); z-index: 1000; display: none; }
+.validation-toast.show { display: block; animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.hidden-input { display: none; }
+
+@media print { .control-panel, .btn, .cert-logo-placeholder { display: none !important; } .main-content { margin: 0; padding: 0; } .certificate-wrapper { box-shadow: none; } }
+@media (max-width: 1100px) { .certificate-wrapper { overflow-x: auto; } }
+</style>
+</head>
+<body>
+
+<div class="control-panel">
+  <div class="control-group">
+    <label>Material</label>
+    <select id="materialSelect">
+      <option value="">Select...</option>
+      <option value="304">304 Stainless Steel</option>
+      <option value="316L">316L Stainless Steel</option>
+    </select>
+  </div>
+  <div class="control-group">
+    <label>Product</label>
+    <select id="productSelect">
+      <option value="">Select...</option>
+      <option value="pipe">Stainless Steel Pipe</option>
+      <option value="box">Stainless Steel Box (Square/Rectangular Tube)</option>
+      <option value="coil">Stainless Steel Coil</option>
+    </select>
+  </div>
+  <div class="separator"></div>
+  <button class="btn" onclick="addRow()">+ Add Row</button>
+  <button class="btn btn-danger" onclick="removeSelectedRows()">− Remove Selected</button>
+  <div class="separator"></div>
+  <button class="btn btn-primary" onclick="generateQR()">QR Code</button>
+  <button class="btn" onclick="document.getElementById('logoInput').click()">Logo</button>
+  <button class="btn" onclick="document.getElementById('stampInput').click()">Stamp</button>
+  <div class="separator"></div>
+  <button class="btn btn-success" onclick="downloadPDF()">↓ PDF</button>
+</div>
+
+<input type="file" id="logoInput" class="hidden-input" accept="image/*" onchange="handleLogo(event)">
+<input type="file" id="stampInput" class="hidden-input" accept="image/*" onchange="handleStamp(event)">
+
+<div class="main-content">
+  <div class="certificate-wrapper">
+    <div class="certificate" id="certificate">
+      
+      <div class="cert-header">
+        <div class="cert-logo-area" id="logoArea">
+          <div class="cert-logo-placeholder" onclick="document.getElementById('logoInput').click()">Click to<br>add logo</div>
+        </div>
+        <div class="cert-title-area">
+          <div class="cert-company-cn" contenteditable="true">佛山市阿麦斯谱如进出口贸易有限公司</div>
+          <div class="cert-company-en" contenteditable="true">Foshan Amax Pro for Import and Export Trading Co., Ltd.</div>
+          <div class="cert-title-cn">产品质量证明书</div>
+          <div class="cert-title-en">Product Quality Certificate</div>
+        </div>
+        <div class="cert-qr-area"><div id="qrArea" style="width:110px;height:110px;"></div></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:8px;">
+        <div style="font-size:9px;">
+          <span contenteditable="true">Tel: 0757-85885700 &nbsp; Fax: 0757-85885700</span><br>
+          <span contenteditable="true">Add: Foshan, Guangdong Province, China</span>
+        </div>
+        <div style="font-size:9.5px;text-align:right;">
+          <input type="text" id="certNo" value="NO: AMP2026071401" style="font-size:9.5px;border:none;text-align:right;width:170px;font-family:inherit;">
+        </div>
+      </div>
+
+      <div class="cert-info">
+        <div class="cert-info-row">
+          <div class="cert-info-cell"><span class="label">收货单位 Purchaser:</span><input type="text" id="purchaser" value="STLIX VALLEY INTERNATIONAL"></div>
+          <div class="cert-info-cell"><span class="label">合同号 Contract No:</span><input type="text" id="contractNo" value=""></div>
+          <div class="cert-info-cell"><span class="label">发货日期 Delivery Date:</span><input type="text" id="deliveryDate" value=""></div>
+        </div>
+        <div class="cert-info-row">
+          <div class="cert-info-cell"><span class="label">牌号 Steel Species:</span><input type="text" id="steelSpecies" value="SUS304"></div>
+          <div class="cert-info-cell"><span class="label">产品名称 Product Name:</span><input type="text" id="productName" value=""></div>
+          <div class="cert-info-cell"><span class="label">交货状态 Delivery Condition:</span><input type="text" id="deliveryCondition" value="固溶酸洗 Solution & Anneal"></div>
+        </div>
+        <div class="cert-info-row">
+          <div class="cert-info-cell" style="grid-column: span 2;"><span class="label">执行标准 Executive Standard:</span><input type="text" id="standard" value="" style="flex:2;"></div>
+          <div class="cert-info-cell"><span class="label">质保书编号:</span><input type="text" id="certNoField" value=""></div>
+        </div>
+      </div>
+
+      <div id="specTableContainer"></div>
+      <div id="mechTableContainer"></div>
+
+      <div class="cert-footer">
+        <div class="cert-notes">
+          <p>说明 Notes:</p>
+          <p>1. 本证明书不得伪造，复印件需加盖经销商红章方有效。This certificate shall not be forged, copy needs stamp dealer red chapter party effectively.</p>
+          <p>2. 本产品经检测无辐射污染，未添加汞。Non-radiative contamination, No mercury is added.</p>
+          <p>3. 本产品已按上述要求制造和检验，其结果符合要求，特此证明。We hereby certify that the product described herein has been manufactured and tested with satisfactory results in accordance with above material specification.</p>
+          <p>4. ISO9001:2015 Quality Management System; ISO45001:2018 Occupational Health and Safety Management System; ISO50001:2018 Energy Management System.</p>
+        </div>
+        <div class="cert-signature-area">
+          <div class="cert-signature-left">
+            <p>质检员 Inspector: _____________</p>
+            <p style="margin-top:12px;">质保工程师 Quality Engineer: _____________</p>
+          </div>
+          <div class="cert-signature-right">
+            <p>质检部门（盖章）</p>
+            <p>Stamp of Quality Inspection Dept.</p>
+            <p style="margin-top:8px;">日期 Date: <input type="text" id="certDate" value="" style="border:none;border-bottom:1px solid #000;font-family:inherit;font-size:9.5px;width:90px;"></p>
+            <div class="cert-stamp-area" id="stampArea"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="validation-toast" id="validationToast"></div>
+
+<!-- Embedded QR Code Generator (no external dependency) -->
+<script>
+// Minimal QR Code generator - self contained
+(function(){var a={L:1,M:0,Q:3,H:2},b={NUMERIC:1,ALPHANUMERIC:2,BYTE:4};function c(d,e){var f=b.BYTE;var g=encodeUTF8(d);var h=e||'L';var i=a[h];var j=getBestVersion(g.length,f,i);var k=j*4+17;var l=[];for(var m=0;m<k;m++){l[m]=[];for(var n=0;n<k;n++)l[m][n]=null;}addFinderPatterns(l,k);addAlignmentPatterns(l,j,k);addTimingPatterns(l,k);var o=getFormatBits(i,0);addFormatBits(l,k,o);if(j>=7)addVersionBits(l,j,k);var p=encodeData(g,j,f,i);placeBits(l,k,p);var q=bestMask(l,k,i);return l;}function encodeUTF8(s){var r=[];for(var i=0;i<s.length;i++){var c=s.charCodeAt(i);if(c<128)r.push(c);else if(c<2048){r.push(192|(c>>6));r.push(128|(c&63));}else{r.push(224|(c>>12));r.push(128|((c>>6)&63));r.push(128|(c&63));}}return r;}function getBestVersion(len,mode,ecl){var capacities=[[0],[0,17,14,11,7],[0,32,26,20,14],[0,53,42,32,24],[0,78,62,46,34],[0,106,84,60,44],[0,134,106,74,58],[0,154,122,86,64],[0,192,152,108,84],[0,230,180,130,98],[0,271,213,151,119],[0,321,251,177,137],[0,367,287,203,155],[0,425,331,241,177],[0,458,362,258,194],[0,520,412,292,220],[0,586,450,322,250],[0,644,504,364,280],[0,718,560,394,310],[0,792,624,442,338],[0,858,666,482,382],[0,929,711,509,403],[0,1003,779,565,439],[0,1091,857,611,461],[0,1171,911,661,511],[0,1273,997,715,535],[0,1367,1059,751,593],[0,1465,1125,805,625],[0,1528,1190,868,658],[0,1628,1264,908,698],[0,1732,1370,982,742],[0,1840,1452,1030,790],[0,1952,1538,1112,842],[0,2068,1628,1168,898],[0,2188,1722,1228,958],[0,2303,1809,1283,983],[0,2431,1911,1351,1051],[0,2563,1989,1423,1093],[0,2699,2099,1499,1139],[0,2809,2213,1579,1219],[0,2953,2331,1663,1273]];var eclIdx=[0,1,0,3,2];var idx=eclIdx[ecl]+1;for(var v=1;v<=40;v++){if(len<=capacities[v][idx]-((mode===4)?3:0))return v;}return 40;}function addFinderPatterns(m,s){var positions=[[0,0],[s-7,0],[0,s-7]];positions.forEach(function(p){for(var r=0;r<7;r++)for(var c=0;c<7;c++){var v=(r===0||r===6||c===0||c===6||(r>=2&&r<=4&&c>=2&&c<=4));m[p[0]+r][p[1]+c]=v?1:0;}});for(var i=0;i<8;i++){if(i<s){if(m[7])m[7][i]=0;if(m[i])m[i][7]=0;if(m[7])m[7][s-1-i]=0;if(m[i])m[i][s-8]=0;if(m[s-8])m[s-8][i]=0;if(m[i+s-8])m[i+s-8][7]=0;}}}function getAlignmentPositions(v){if(v===1)return[];var positions=[6];var step=Math.ceil((v*4+4)/(Math.floor(v/7)+1)/2)*2;var last=v*4+10;for(var p=last;p>6;p-=step)positions.unshift(p);return positions;}function addAlignmentPatterns(m,v,s){var pos=getAlignmentPositions(v);for(var i=0;i<pos.length;i++)for(var j=0;j<pos.length;j++){var r=pos[i],c=pos[j];if(m[r][c]!==null)continue;for(var dr=-2;dr<=2;dr++)for(var dc=-2;dc<=2;dc++){m[r+dr][c+dc]=(Math.abs(dr)===2||Math.abs(dc)===2||(!dr&&!dc))?1:0;}}}function addTimingPatterns(m,s){for(var i=8;i<s-8;i++){if(m[6][i]===null)m[6][i]=(i%2===0)?1:0;if(m[i][6]===null)m[i][6]=(i%2===0)?1:0;}}function getFormatBits(ecl,mask){var data=(ecl<<3)|mask;var bits=data<<10;for(var i=4;i>=0;i--){if(bits&(1<<(i+10)))bits^=(0x537<<i);}return((data<<10)|bits)^0x5412;}function addFormatBits(m,s,bits){for(var i=0;i<15;i++){var b=(bits>>i)&1;if(i<6)m[8][i]=b;else if(i===6)m[8][7]=b;else if(i===7)m[8][8]=b;else m[8][s-15+i]=b;if(i<8)m[s-1-i][8]=b;else if(i===8)m[7][8]=b;else m[14-i][8]=b;}m[s-8][8]=1;}function addVersionBits(m,v,s){var d=v<<12;for(var i=5;i>=0;i--)if(d&(1<<(i+12)))d^=(0x1F25<<i);var bits=(v<<12)|d;for(var i=0;i<18;i++){var b=(bits>>i)&1;m[Math.floor(i/3)][s-11+(i%3)]=b;m[s-11+(i%3)][Math.floor(i/3)]=b;}}function getECInfo(v,ecl){var table=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16]];var eclOrder=[1,0,3,2];var idx=(v-1)*4+eclOrder[ecl];if(idx>=table.length)idx=table.length-1;return table[idx];}function encodeData(data,v,mode,ecl){var bits=[];var totalCodewords=getTotalCodewords(v);var ecInfo=getECInfo(v,ecl);bits.push(0,1,0,0);var lenBits=(v<=9)?8:(v<=26)?16:16;var len=data.length;for(var i=lenBits-1;i>=0;i--)bits.push((len>>i)&1);for(var i=0;i<data.length;i++)for(var j=7;j>=0;j--)bits.push((data[i]>>j)&1);var dataCodewords=getDataCodewords(v,ecl);var totalBits=dataCodewords*8;if(bits.length+4<=totalBits)bits.push(0,0,0,0);while(bits.length%8!==0)bits.push(0);var pad=[0xEC,0x11];var padIdx=0;while(bits.length<totalBits){for(var j=7;j>=0;j--)bits.push((pad[padIdx]>>j)&1);padIdx=(padIdx+1)%2;}var codewords=[];for(var i=0;i<bits.length;i+=8){var cw=0;for(var j=0;j<8;j++)cw=(cw<<1)|bits[i+j];codewords.push(cw);}var ecCodewords=generateEC(codewords,v,ecl);var allBits=[];for(var i=0;i<ecCodewords.length;i++)for(var j=7;j>=0;j--)allBits.push((ecCodewords[i]>>j)&1);var remainder=[0,0,7,7,7,7,7,0,0,0,0,0,0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,3,3,3,3,3,3,3,0,0,0,0,0,0];var rem=v<remainder.length?remainder[v]:0;for(var i=0;i<rem;i++)allBits.push(0);return allBits;}function getTotalCodewords(v){return Math.floor(((v*4+17)*(v*4+17)-64*3-31-((v>1)?(getAlignmentPositions(v).length*getAlignmentPositions(v).length-3)*25:0)-(v>=7?36:0)-1)/8);}function getDataCodewords(v,ecl){var total=getTotalCodewords(v);var ecPerBlock=getECPerBlock(v,ecl);var numBlocks=getNumBlocks(v,ecl);return total-ecPerBlock*numBlocks;}function getECPerBlock(v,ecl){var table=[[7,10,13,17],[10,16,22,28],[15,26,18,22],[20,18,26,16],[26,24,18,22],[18,16,24,28],[20,18,18,26],[24,22,22,26],[30,22,20,24],[18,26,24,28],[20,30,28,24],[24,22,26,28],[26,22,24,22],[30,24,20,24],[22,24,30,24],[24,28,24,30],[28,28,28,28],[30,26,28,28],[28,26,26,26],[28,26,28,28],[28,26,30,28],[28,28,24,30],[30,28,30,30],[30,28,30,30],[26,28,30,30],[28,28,28,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30],[30,28,30,30]];var eclOrder=[1,0,3,2];var idx=eclOrder[ecl];return table[v-1][idx];}function getNumBlocks(v,ecl){var table=[[1,1,1,1],[1,1,1,1],[1,1,2,2],[1,2,2,4],[1,2,2,4],[2,4,4,4],[2,4,2,4],[2,2,4,4],[2,3,4,4],[2,4,6,6],[4,1,4,3],[4,2,4,7],[4,4,8,12],[4,4,11,11],[6,4,5,11],[6,5,7,3],[6,6,10,2],[6,6,9,7],[7,7,10,10],[8,4,10,10],[8,7,11,4],[9,6,14,14],[9,8,16,14],[10,10,12,14],[12,8,15,12],[12,10,17,6],[12,8,16,13],[13,10,18,14],[14,12,21,16],[15,14,17,16],[16,12,19,18],[17,13,21,20],[18,14,23,22],[19,16,25,24],[19,17,25,25],[20,18,26,26],[21,20,28,28],[22,21,29,29],[24,22,31,31],[25,24,33,33]];var eclOrder=[1,0,3,2];return table[v-1][eclOrder[ecl]];}function generateEC(data,v,ecl){var ecPerBlock=getECPerBlock(v,ecl);var numBlocks=getNumBlocks(v,ecl);var totalData=data.length;var shortBlockLen=Math.floor(totalData/numBlocks);var longBlocks=totalData%numBlocks;var blocks=[];var offset=0;for(var i=0;i<numBlocks;i++){var len=shortBlockLen+(i>=numBlocks-longBlocks?1:0);blocks.push(data.slice(offset,offset+len));offset+=len;}var ecBlocks=[];for(var i=0;i<blocks.length;i++){ecBlocks.push(reedSolomon(blocks[i],ecPerBlock));}var result=[];var maxDataLen=shortBlockLen+(longBlocks>0?1:0);for(var i=0;i<maxDataLen;i++)for(var j=0;j<blocks.length;j++){if(i<blocks[j].length)result.push(blocks[j][i]);}for(var i=0;i<ecPerBlock;i++)for(var j=0;j<ecBlocks.length;j++)result.push(ecBlocks[j][i]);return result;}function reedSolomon(data,ecLen){var gen=getGeneratorPoly(ecLen);var msg=data.slice();for(var i=0;i<ecLen;i++)msg.push(0);for(var i=0;i<data.length;i++){var coef=msg[i];if(coef!==0){var logCoef=LOG[coef];for(var j=0;j<gen.length;j++)msg[i+j]^=EXP[(logCoef+gen[j])%255];}}return msg.slice(data.length);}var EXP=new Array(256),LOG=new Array(256);(function(){var v=1;for(var i=0;i<255;i++){EXP[i]=v;LOG[v]=i;v<<=1;if(v>=256)v^=0x11D;}EXP[255]=EXP[0];})();function getGeneratorPoly(n){var poly=[0];for(var i=0;i<n;i++){var newPoly=new Array(poly.length+1);for(var j=0;j<newPoly.length;j++)newPoly[j]=255;for(var j=0;j<poly.length;j++){newPoly[j+1]=poly[j];if(j<poly.length)newPoly[j]=(newPoly[j]===255)?poly[j]:EXP[(LOG[EXP[newPoly[j]]]+LOG[EXP[poly[j]]])%255];}for(var j=0;j<newPoly.length;j++){var a=j<poly.length?poly[j]:0;var b=EXP[(i+LOG[EXP[j<newPoly.length-1?0:0]])%255];newPoly[j]=j===newPoly.length-1?i:255;}poly=newPoly;}return poly;}function placeBits(m,s,bits){var idx=0;for(var col=s-1;col>=1;col-=2){if(col===6)col--;for(var i=0;i<s;i++){for(var j=0;j<2;j++){var c=col-j;var r=(((col+1)&2)===0)?s-1-i:i;if(m[r][c]===null){m[r][c]=(idx<bits.length)?bits[idx]:0;idx++;}}}}return idx;}function bestMask(m,s,ecl){var best=null,bestPenalty=Infinity;for(var mask=0;mask<8;mask++){var copy=[];for(var r=0;r<s;r++){copy[r]=[];for(var c=0;c<s;c++)copy[r][c]=m[r][c];}applyMask(copy,s,mask);var fmt=getFormatBits(ecl,mask);addFormatBits(copy,s,fmt);var pen=penalty(copy,s);if(pen<bestPenalty){bestPenalty=pen;best=mask;}}applyMask(m,s,best);var fmt=getFormatBits(ecl,best);addFormatBits(m,s,fmt);return best;}function applyMask(m,s,mask){for(var r=0;r<s;r++)for(var c=0;c<s;c++){if(isFunction(r,c,s))continue;var apply=false;switch(mask){case 0:apply=(r+c)%2===0;break;case 1:apply=r%2===0;break;case 2:apply=c%3===0;break;case 3:apply=(r+c)%3===0;break;case 4:apply=(Math.floor(r/2)+Math.floor(c/3))%2===0;break;case 5:apply=(r*c)%2+(r*c)%3===0;break;case 6:apply=((r*c)%2+(r*c)%3)%2===0;break;case 7:apply=((r+c)%2+(r*c)%3)%2===0;break;}if(apply)m[r][c]^=1;}}function isFunction(r,c,s){if(r<9&&c<9)return true;if(r<9&&c>=s-8)return true;if(r>=s-8&&c<9)return true;if(r===6||c===6)return true;return false;}function penalty(m,s){return 0;}window.generateQRMatrix=c;})();
+
+// Simple QR rendering to canvas
+function renderQR(canvas, text, size) {
+  size = size || 110;
+  var ctx = canvas.getContext('2d');
+  canvas.width = size;
+  canvas.height = size;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  
+  try {
+    var matrix = generateQRMatrix(text, 'L');
+    var modules = matrix.length;
+    var cellSize = Math.floor(size / (modules + 8));
+    var offset = Math.floor((size - cellSize * modules) / 2);
+    
+    ctx.fillStyle = '#000000';
+    for (var r = 0; r < modules; r++) {
+      for (var c = 0; c < modules; c++) {
+        if (matrix[r][c] === 1) {
+          ctx.fillRect(offset + c * cellSize, offset + r * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+  } catch(e) {
+    // The fallback here handed the certificate's contents to a third-party QR
+    // service — the certificate number, the contract number, the purchaser —
+    // because a local encoder threw. Silently, so nobody would know it had
+    // happened. A visible failure is the better trade: the QR is decoration,
+    // the contract number is not.
+    ctx.clearRect(0, 0, size, size);
+    ctx.fillStyle = '#b45309';
+    ctx.font = '11px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('QR failed', size / 2, size / 2);
+    console.warn('[certificate] local QR encoder failed:', e);
+  }
+}
+</script>
+
+<script>
+// ===== SPEC DATABASE =====
+const PIPE_SPECS = [
+  { od:13.7, schedules:{'10S':{wt:1.65},'40S':{wt:2.24},'80S':{wt:3.02}} },
+  { od:17.1, schedules:{'10S':{wt:1.65},'40S':{wt:2.31},'80S':{wt:3.20}} },
+  { od:21.3, schedules:{'10S':{wt:2.11},'40S':{wt:2.77},'80S':{wt:3.73}} },
+  { od:26.7, schedules:{'10S':{wt:2.11},'40S':{wt:2.87},'80S':{wt:3.91}} },
+  { od:33.4, schedules:{'10S':{wt:2.77},'40S':{wt:3.38},'80S':{wt:4.55}} },
+  { od:42.2, schedules:{'10S':{wt:2.77},'40S':{wt:3.56},'80S':{wt:4.85}} },
+  { od:48.3, schedules:{'10S':{wt:2.77},'40S':{wt:3.68},'80S':{wt:5.08}} },
+  { od:60.3, schedules:{'10S':{wt:2.77},'40S':{wt:3.91},'80S':{wt:5.54}} },
+  { od:73.0, schedules:{'10S':{wt:3.05},'40S':{wt:5.16},'80S':{wt:7.01}} },
+  { od:88.9, schedules:{'10S':{wt:3.05},'40S':{wt:5.49},'80S':{wt:7.62}} },
+  { od:101.6, schedules:{'10S':{wt:3.05},'40S':{wt:5.74},'80S':{wt:8.08}} },
+  { od:114.3, schedules:{'10S':{wt:3.05},'40S':{wt:6.02},'80S':{wt:8.56}} },
+  { od:141.3, schedules:{'10S':{wt:3.40},'40S':{wt:6.55},'80S':{wt:9.52}} },
+  { od:168.3, schedules:{'10S':{wt:3.40},'40S':{wt:7.11},'80S':{wt:10.97}} },
+  { od:219.1, schedules:{'10S':{wt:3.76},'40S':{wt:8.18},'80S':{wt:12.70}} }
+];
+
+const BOX_SPECS = [
+  { size:'10*10', thicknesses:[1.25,1.5,2,3,4] },
+  { size:'15*15', thicknesses:[1.25,1.5,2,3,4] },
+  { size:'20*10', thicknesses:[1.25,1.5,2,3,4] },
+  { size:'30*30', thicknesses:[1.25,1.5,2,3,4] },
+  { size:'40*20', thicknesses:[1.25,1.5,2,3,4] },
+  { size:'40*40', thicknesses:[1.25,1.5,2,3,4] },
+  { size:'50*50', thicknesses:[1.25,1.5,2,3,4] },
+  { size:'60*30', thicknesses:[1.25,1.5,2,3,4] },
+  { size:'100*100', thicknesses:[1.25,1.5,2,3,4] },
+  { size:'100*50', thicknesses:[1.25,1.5,2,3,4] }
+];
+
+const VALID_ODS = PIPE_SPECS.map(s => s.od);
+
+const CHEM_DEFAULTS = {
+  '304': { C:'0.04', Si:'0.45', Mn:'1.20', P:'0.028', S:'0.002', Cr:'18.30', Ni:'8.20', Mo:'/', Ti:'/', N:'/', Cu:'/' },
+  '316L': { C:'0.015', Si:'0.428', Mn:'1.16', P:'0.038', S:'0.003', Cr:'16.01', Ni:'10.01', Mo:'1.99', Ti:'/', N:'/', Cu:'/' }
+};
+
+const COIL_CHEM_DEFAULTS = {
+  '304': { C:'0.044', Mn:'0.81', Si:'0.46', P:'0.025', S:'0.0090', Ni:'8.00', Cr:'18.00', N:'0.059' },
+  '316L': { C:'0.020', Mn:'1.10', Si:'0.45', P:'0.030', S:'0.0020', Ni:'10.05', Cr:'16.50', N:'0.040' }
+};
+
+// Executive Standards: 304 = EN10204 ASTM A554, 316L = EN10204 ASTM A312
+const STANDARDS = {
+  '304': 'EN10204 ASTM A554',
+  '316L': 'EN10204 ASTM A312'
+};
+
+let currentMaterial = '';
+let currentProduct = '';
+let rowCount = 0;
+
+document.getElementById('materialSelect').addEventListener('change', onSelectionChange);
+document.getElementById('productSelect').addEventListener('change', onSelectionChange);
+
+function onSelectionChange() {
+  currentMaterial = document.getElementById('materialSelect').value;
+  currentProduct = document.getElementById('productSelect').value;
+  if (!currentMaterial || !currentProduct) return;
+
+  document.getElementById('steelSpecies').value = currentMaterial === '304' ? 'SUS304' : 'SUS316L';
+  
+  // Set standard based on material
+  if (currentProduct === 'coil') {
+    document.getElementById('standard').value = 'JIS G4305:2021';
+  } else {
+    document.getElementById('standard').value = STANDARDS[currentMaterial];
+  }
+
+  if (currentProduct === 'pipe') document.getElementById('productName').value = 'Stainless Steel Welded Pipe 不锈钢焊管';
+  else if (currentProduct === 'box') document.getElementById('productName').value = 'Stainless Steel Box Tube 不锈钢方管';
+  else document.getElementById('productName').value = 'Stainless Steel Cold Rolled Coil 冷轧不锈钢卷';
+
+  generateTables();
+}
+
+function generateTables() {
+  if (currentProduct === 'coil') generateCoilTable();
+  else { generateSpecTable(); generateMechTable(); }
+}
+
+function generateCoilTable() {
+  const container = document.getElementById('specTableContainer');
+  const mechContainer = document.getElementById('mechTableContainer');
+  const grade = currentMaterial === '304' ? 'SUS304' : 'SUS316L';
+  const chem = COIL_CHEM_DEFAULTS[currentMaterial];
+
+  const defaultRows = currentMaterial === '304' ? [
+    { coilNo:'DL5651022B', surface:'NO.2B', edge:'M', thickness:'2.85', width:'1530', length:'402', weight:'14.054' },
+    { coilNo:'DL5651066B', surface:'NO.2B', edge:'M', thickness:'1.77', width:'1530', length:'660', weight:'14.193' },
+    { coilNo:'DL5651102B', surface:'NO.2B', edge:'M', thickness:'1.41', width:'1530', length:'839', weight:'14.296' },
+    { coilNo:'DL5651094A', surface:'NO.2B', edge:'M', thickness:'1.17', width:'1530', length:'1022', weight:'14.378' }
+  ] : [
+    { coilNo:'DL5671022A', surface:'NO.2B', edge:'M', thickness:'2.00', width:'1530', length:'520', weight:'12.500' },
+    { coilNo:'DL5671033B', surface:'NO.2B', edge:'M', thickness:'1.50', width:'1530', length:'700', weight:'12.800' },
+    { coilNo:'DL5671044A', surface:'NO.2B', edge:'M', thickness:'1.20', width:'1530', length:'880', weight:'12.600' }
+  ];
+
+  let rows = '';
+  defaultRows.forEach((r, i) => {
+    rows += `<tr>
+      <td><input type="checkbox" class="row-select"></td><td>${i+1}</td>
+      <td><input value="${r.coilNo}" data-field="coilNo"></td>
+      <td><input value="${grade}" data-field="grade"></td>
+      <td><input value="${r.surface}" data-field="surface"></td>
+      <td><input value="${r.edge}" data-field="edge"></td>
+      <td><input value="${r.thickness}" data-field="thickness"></td>
+      <td><input value="${r.width}" data-field="width"></td>
+      <td><input value="${r.length}" data-field="length"></td>
+      <td><input value="${r.weight}" data-field="weight"></td>
+      <td><input value="${chem.C}" data-field="C"></td>
+      <td><input value="${chem.Mn}" data-field="Mn"></td>
+      <td><input value="${chem.Si}" data-field="Si"></td>
+      <td><input value="${chem.P}" data-field="P"></td>
+      <td><input value="${chem.S}" data-field="S"></td>
+      <td><input value="${chem.Ni}" data-field="Ni"></td>
+      <td><input value="${chem.Cr}" data-field="Cr"></td>
+      <td><input value="${chem.N}" data-field="N"></td>
+      <td><input value="52" data-field="EL"></td>
+      <td><input value="697" data-field="TS"></td>
+      <td><input value="342" data-field="YS"></td>
+      <td><input value="171" data-field="HV"></td>
+      <td><input value="" data-field="slabNo"></td>
+    </tr>`;
+  });
+
+  container.innerHTML = `<table class="cert-table" id="specTable">
+    <thead><tr>
+      <th rowspan="2" style="width:22px;">选</th><th rowspan="2" style="width:26px;">序号<br>No</th>
+      <th rowspan="2" style="width:90px;">钢卷号码<br>Coil No.</th><th rowspan="2" style="width:52px;">钢种<br>Grade</th>
+      <th rowspan="2" style="width:48px;">表面状态<br>Surface</th><th rowspan="2" style="width:28px;">边部</th>
+      <th colspan="3">规格尺寸 Specification & Dimension</th>
+      <th rowspan="2" style="width:52px;">重量<br>Weight T</th>
+      <th colspan="8">化学成分(%) Chemical Composition</th>
+      <th colspan="3">力学性能 Mechanical Property</th>
+      <th rowspan="2" style="width:34px;">硬度<br>HV</th><th rowspan="2" style="width:70px;">钢号<br>Slab No.</th>
+    </tr><tr>
+      <th style="width:48px;">厚度<br>Thick mm</th><th style="width:42px;">宽度<br>Width mm</th><th style="width:48px;">长度<br>Length m</th>
+      <th>C</th><th>Mn</th><th>Si</th><th>P</th><th>S</th><th>Ni</th><th>Cr</th><th>N</th>
+      <th style="width:32px;">EL%</th><th style="width:38px;">T.S.<br>MPa</th><th style="width:38px;">Y.S.<br>MPa</th>
+    </tr></thead>
+    <tbody id="specTableBody">${rows}</tbody></table>`;
+  mechContainer.innerHTML = '';
+  rowCount = defaultRows.length;
+}
+
+function generateSpecTable() {
+  const container = document.getElementById('specTableContainer');
+  const grade = currentMaterial === '304' ? 'TP304' : 'TP316L';
+  const chem = CHEM_DEFAULTS[currentMaterial];
+  const sizeH = currentProduct === 'pipe' ? '规格 Size<br>OD*WT*L (mm)' : '规格 Size<br>L*W*T (mm)';
+
+  let rows = '';
+  getDefaultRows().forEach((row, idx) => {
+    rows += `<tr>
+      <td><input type="checkbox" class="row-select"></td><td>${idx+1}</td>
+      <td><input value="${grade}" data-field="grade"></td>
+      <td><input value="${row.heatNo}" data-field="heatNo"></td>
+      <td><input value="${row.size}" data-field="size" onblur="validateSize(this)"></td>
+      <td><input value="${row.pieces}" data-field="pieces"></td>
+      <td><input value="${row.weight}" data-field="weight"></td>
+      <td><input value="/" data-field="meter"></td>
+      <td><input value="${chem.C}" data-field="C"></td><td><input value="${chem.Si}" data-field="Si"></td>
+      <td><input value="${chem.Mn}" data-field="Mn"></td><td><input value="${chem.P}" data-field="P"></td>
+      <td><input value="${chem.S}" data-field="S"></td><td><input value="${chem.Cr}" data-field="Cr"></td>
+      <td><input value="${chem.Ni}" data-field="Ni"></td><td><input value="${chem.Mo}" data-field="Mo"></td>
+      <td><input value="${chem.Ti}" data-field="Ti"></td><td><input value="${chem.N}" data-field="N"></td>
+      <td><input value="${chem.Cu}" data-field="Cu"></td>
+    </tr>`;
+  });
+
+  container.innerHTML = `<table class="cert-table" id="specTable">
+    <thead><tr>
+      <th rowspan="2" style="width:22px;">选</th><th rowspan="2" style="width:30px;">序号<br>No.</th>
+      <th rowspan="2" style="width:50px;">钢种<br>Grade</th><th rowspan="2" style="width:115px;">炉号<br>Heat No.</th>
+      <th rowspan="2" style="width:125px;">${sizeH}</th><th rowspan="2" style="width:42px;">支数<br>Pcs</th>
+      <th rowspan="2" style="width:60px;">重量<br>Weight(kg)</th><th rowspan="2" style="width:28px;">米<br>M</th>
+      <th colspan="11">化学成份 Chemical Component (%)</th>
+    </tr><tr><th>C</th><th>Si</th><th>Mn</th><th>P</th><th>S</th><th>Cr</th><th>Ni</th><th>Mo</th><th>Ti</th><th>N</th><th>Cu</th></tr></thead>
+    <tbody id="specTableBody">${rows}</tbody></table>`;
+  rowCount = getDefaultRows().length;
+  addValidationListeners();
+}
+
+function getDefaultRows() {
+  if (currentProduct === 'pipe' && currentMaterial === '304') return [
+    { size:'48.3*2.77*6000', pieces:300, weight:5598, heatNo:'FJHL2026052001' },
+    { size:'42.2*2.77*6000', pieces:250, weight:4035, heatNo:'FJHL2026052001' },
+    { size:'26.7*2.11*6000', pieces:200, weight:2286, heatNo:'FJHL2026052001' }
+  ];
+  if (currentProduct === 'pipe' && currentMaterial === '316L') return [
+    { size:'38*1.65*6000', pieces:400, weight:3585.69, heatNo:'FJHL2026052501' },
+    { size:'19*1.65*6000', pieces:250, weight:1110, heatNo:'FJHL2026052501' },
+    { size:'25.4*1.65*6000', pieces:300, weight:1799, heatNo:'FJHL2026052501' }
+  ];
+  if (currentProduct === 'box' && currentMaterial === '304') return [
+    { size:'100*100*2.0', pieces:350, weight:13444, heatNo:'FJHL2026052201' },
+    { size:'100*50*2.0', pieces:250, weight:7200, heatNo:'FJHL2026052201' },
+    { size:'50*50*3.0', pieces:300, weight:8640, heatNo:'FJHL2026052201' },
+    { size:'50*50*2.0', pieces:200, weight:3840, heatNo:'FJHL2026052201' }
+  ];
+  return [
+    { size:'50*50*2.0', pieces:300, weight:12000, heatNo:'FJHL2026052501' },
+    { size:'40*40*2.0', pieces:250, weight:8000, heatNo:'FJHL2026052501' },
+    { size:'30*30*1.5', pieces:200, weight:3600, heatNo:'FJHL2026052501' }
+  ];
+}
+
+function generateMechTable() {
+  const container = document.getElementById('mechTableContainer');
+  const count = document.querySelectorAll('#specTableBody tr').length;
+  const md = currentMaterial === '304' ? {y:'270/280',t:'530/540',e:'54/55'} : {y:'220/320',t:'520/680',e:'40/60'};
+  let rows = '';
+  for (let i=1;i<=count;i++) rows += `<tr><td>${i}</td><td><input value="${md.y}"></td><td><input value="${md.t}"></td><td><input value="${md.e}"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="/"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value=""></td></tr>`;
+  container.innerHTML = `<table class="cert-table" id="mechTable" style="margin-top:10px;">
+    <thead><tr class="section-header"><th rowspan="2" style="width:30px;">序号<br>No.</th><th colspan="3">力学性能 Mechanical Property</th><th colspan="4">工艺性能 Process</th><th rowspan="2">尺寸公差<br>Dimension</th><th rowspan="2">表面质量<br>Surface</th><th rowspan="2">晶间腐蚀<br>Intergranular<br>Corrosion</th><th rowspan="2">晶粒度<br>Grain Size</th><th colspan="2">无损检测 NDT</th><th rowspan="2">备注<br>Remark</th></tr>
+    <tr><th>屈服强度<br>Yield Rp0.2<br>(MPa)</th><th>抗拉强度<br>Tensile Rm<br>(MPa)</th><th>延伸率<br>Elongation<br>A(%)</th><th>水压<br>Hydraulic</th><th>扩口<br>Flaring</th><th>压扁<br>Flatten</th><th>硬度<br>Hardness</th><th>超声波<br>UT</th><th>涡流<br>ET</th></tr></thead>
+    <tbody id="mechTableBody">${rows}</tbody></table>`;
+}
+
+// ===== ROW MANAGEMENT =====
+function addRow() {
+  if (!currentMaterial || !currentProduct) { showValidation('Select Material and Product first.'); return; }
+  rowCount++;
+  const specBody = document.getElementById('specTableBody');
+  const newRow = document.createElement('tr');
+
+  if (currentProduct === 'coil') {
+    const grade = currentMaterial === '304' ? 'SUS304' : 'SUS316L';
+    const chem = COIL_CHEM_DEFAULTS[currentMaterial];
+    newRow.innerHTML = `<td><input type="checkbox" class="row-select"></td><td>${rowCount}</td><td><input value="" data-field="coilNo"></td><td><input value="${grade}" data-field="grade"></td><td><input value="NO.2B" data-field="surface"></td><td><input value="M" data-field="edge"></td><td><input value="" data-field="thickness"></td><td><input value="1530" data-field="width"></td><td><input value="" data-field="length"></td><td><input value="" data-field="weight"></td><td><input value="${chem.C}" data-field="C"></td><td><input value="${chem.Mn}" data-field="Mn"></td><td><input value="${chem.Si}" data-field="Si"></td><td><input value="${chem.P}" data-field="P"></td><td><input value="${chem.S}" data-field="S"></td><td><input value="${chem.Ni}" data-field="Ni"></td><td><input value="${chem.Cr}" data-field="Cr"></td><td><input value="${chem.N}" data-field="N"></td><td><input value="52" data-field="EL"></td><td><input value="697" data-field="TS"></td><td><input value="342" data-field="YS"></td><td><input value="171" data-field="HV"></td><td><input value="" data-field="slabNo"></td>`;
+  } else {
+    const grade = currentMaterial === '304' ? 'TP304' : 'TP316L';
+    const chem = CHEM_DEFAULTS[currentMaterial];
+    const ds = currentProduct === 'pipe' ? '48.3*2.77*6000' : '50*50*2.0';
+    newRow.innerHTML = `<td><input type="checkbox" class="row-select"></td><td>${rowCount}</td><td><input value="${grade}" data-field="grade"></td><td><input value="" data-field="heatNo"></td><td><input value="${ds}" data-field="size" onblur="validateSize(this)"></td><td><input value="" data-field="pieces"></td><td><input value="" data-field="weight"></td><td><input value="/" data-field="meter"></td><td><input value="${chem.C}" data-field="C"></td><td><input value="${chem.Si}" data-field="Si"></td><td><input value="${chem.Mn}" data-field="Mn"></td><td><input value="${chem.P}" data-field="P"></td><td><input value="${chem.S}" data-field="S"></td><td><input value="${chem.Cr}" data-field="Cr"></td><td><input value="${chem.Ni}" data-field="Ni"></td><td><input value="${chem.Mo}" data-field="Mo"></td><td><input value="${chem.Ti}" data-field="Ti"></td><td><input value="${chem.N}" data-field="N"></td><td><input value="${chem.Cu}" data-field="Cu"></td>`;
+    const md = currentMaterial === '304' ? {y:'270/280',t:'530/540',e:'54/55'} : {y:'220/320',t:'520/680',e:'40/60'};
+    const mb = document.getElementById('mechTableBody');
+    if (mb) { const mr = document.createElement('tr'); mr.innerHTML = `<td>${rowCount}</td><td><input value="${md.y}"></td><td><input value="${md.t}"></td><td><input value="${md.e}"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value="/"></td><td><input value="合格"></td><td><input value="合格"></td><td><input value=""></td>`; mb.appendChild(mr); }
+  }
+  specBody.appendChild(newRow);
+  addValidationListeners();
+}
+
+function removeSelectedRows() {
+  const cbs = document.querySelectorAll('#specTableBody .row-select:checked');
+  if (!cbs.length) { showValidation('No rows selected.'); return; }
+  const indices = []; cbs.forEach(cb => indices.push(cb.closest('tr').rowIndex - 2));
+  indices.sort((a,b) => b-a).forEach(idx => {
+    document.getElementById('specTableBody').deleteRow(idx);
+    const mb = document.getElementById('mechTableBody');
+    if (mb && mb.rows[idx]) mb.deleteRow(idx);
+  });
+  renumberRows();
+}
+
+function renumberRows() {
+  document.querySelectorAll('#specTableBody tr').forEach((r,i) => r.cells[1].textContent = i+1);
+  const mb = document.getElementById('mechTableBody');
+  if (mb) mb.querySelectorAll('tr').forEach((r,i) => r.cells[0].textContent = i+1);
+  rowCount = document.querySelectorAll('#specTableBody tr').length;
+}
+
+// ===== VALIDATION =====
+function validateSize(input) {
+  const v = input.value.trim(); if (!v) return;
+  if (currentProduct === 'pipe') validatePipeSize(input, v);
+  else if (currentProduct === 'box') validateBoxSize(input, v);
+}
+function validatePipeSize(input, value) {
+  const parts = value.split('*').map(p => parseFloat(p.trim()));
+  if (parts.length < 2) return;
+  let od = parts[0], wt = parts[1], length = parts[2] || 6000;
+  const cOD = findClosest(od, VALID_ODS);
+  if (cOD !== null && Math.abs(od-cOD) > 0 && Math.abs(od-cOD) <= 3) { showValidation(`Invalid OD: ${od}mm → ${cOD}mm`); od = cOD; flashField(input); }
+  const spec = PIPE_SPECS.find(s => s.od === od);
+  if (spec) { const vWTs = Object.values(spec.schedules).map(s => s.wt); const cWT = findClosest(wt, vWTs); if (cWT && Math.abs(wt-cWT) > 0 && Math.abs(wt-cWT) <= 0.5) { showValidation(`Invalid WT: ${wt}mm → ${cWT}mm`); wt = cWT; flashField(input); } }
+  input.value = `${od}*${wt}*${length}`;
+}
+function validateBoxSize(input, value) {
+  const parts = value.split('*').map(p => parseFloat(p.trim())); if (parts.length < 3) return;
+  const sk = `${parts[0]}*${parts[1]}`; const spec = BOX_SPECS.find(s => s.size === sk || s.size === `${parts[1]}*${parts[0]}`);
+  if (spec) { const cT = findClosest(parts[2], spec.thicknesses); if (cT && parts[2] !== cT && Math.abs(parts[2]-cT) <= 0.5) { showValidation(`Invalid thickness: ${parts[2]}mm → ${cT}mm`); input.value = `${parts[0]}*${parts[1]}*${cT}`; flashField(input); } }
+}
+function findClosest(val, arr) { if (arr.includes(val)) return val; let c=null, m=Infinity; arr.forEach(v => { if(Math.abs(val-v)<m){m=Math.abs(val-v);c=v;} }); return c; }
+function flashField(input) { input.classList.add('invalid'); setTimeout(() => input.classList.remove('invalid'), 2000); }
+function addValidationListeners() { document.querySelectorAll('#specTableBody input[data-field="size"]').forEach(input => { input.onblur = () => validateSize(input); }); }
+function showValidation(msg) { const t = document.getElementById('validationToast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 4000); }
+
+// ===== COMPACT QR GENERATOR =====
+var QR=(function(){"use strict";function C(t,e){this.typeNumber=t;this.errorCorrectLevel=e;this.modules=null;this.moduleCount=0;this.dataCache=null;this.dataList=[];}C.prototype={addData:function(t){this.dataList.push(new B(t));this.dataCache=null;},make:function(){if(this.typeNumber<1){var t;for(t=1;t<40;t++){var e=RS.getRSBlocks(t,this.errorCorrectLevel);var r=new Buf();var i=0;for(var n=0;n<e.length;n++)i+=e[n].dc;for(n=0;n<this.dataList.length;n++){var o=this.dataList[n];r.put(o.mode,4);r.put(o.getLength(),lb(o.mode,t));o.write(r);}if(r.len()<=i*8)break;}this.typeNumber=t;}this.makeImpl(false,this.getBestMask());},makeImpl:function(t,e){this.moduleCount=this.typeNumber*4+17;this.modules=[];for(var r=0;r<this.moduleCount;r++){this.modules[r]=[];for(var i=0;i<this.moduleCount;i++)this.modules[r][i]=null;}this.probe(0,0);this.probe(this.moduleCount-7,0);this.probe(0,this.moduleCount-7);this.align();this.timing();this.typeInfo(t,e);if(this.typeNumber>=7)this.typeNum(t);if(!this.dataCache)this.dataCache=C.createData(this.typeNumber,this.errorCorrectLevel,this.dataList);this.map(this.dataCache,e);},probe:function(t,e){for(var r=-1;r<=7;r++){if(t+r<0||this.moduleCount<=t+r)continue;for(var i=-1;i<=7;i++){if(e+i<0||this.moduleCount<=e+i)continue;this.modules[t+r][e+i]=(0<=r&&r<=6&&(i==0||i==6))||(0<=i&&i<=6&&(r==0||r==6))||(2<=r&&r<=4&&2<=i&&i<=4);}}},getBestMask:function(){var t=0,e=0;for(var r=0;r<8;r++){this.makeImpl(true,r);var i=lp(this);if(r==0||t>i){t=i;e=r;}}return e;},timing:function(){for(var t=8;t<this.moduleCount-8;t++){if(this.modules[t][6]==null)this.modules[t][6]=(t%2==0);if(this.modules[6][t]==null)this.modules[6][t]=(t%2==0);}},align:function(){var t=PP[this.typeNumber-1];if(!t)return;for(var e=0;e<t.length;e++)for(var r=0;r<t.length;r++){if(this.modules[t[e]][t[r]]!=null)continue;for(var o=-2;o<=2;o++)for(var a=-2;a<=2;a++)this.modules[t[e]+o][t[r]+a]=(o==-2||o==2||a==-2||a==2||(o==0&&a==0));}},typeNum:function(t){var e=bchTN(this.typeNumber);for(var r=0;r<18;r++){var i=(!t&&((e>>r)&1)==1);this.modules[Math.floor(r/3)][r%3+this.moduleCount-11]=i;this.modules[r%3+this.moduleCount-11][Math.floor(r/3)]=i;}},typeInfo:function(t,e){var r=(this.errorCorrectLevel<<3)|e,i=bchTI(r);for(var n=0;n<15;n++){var o=(!t&&((i>>n)&1)==1);if(n<6)this.modules[n][8]=o;else if(n<8)this.modules[n+1][8]=o;else this.modules[this.moduleCount-15+n][8]=o;if(n<8)this.modules[8][this.moduleCount-n-1]=o;else if(n<9)this.modules[8][15-n]=o;else this.modules[8][15-n-1]=o;}this.modules[this.moduleCount-8][8]=!t;},map:function(t,e){var r=-1,i=this.moduleCount-1,n=7,o=0;for(var a=this.moduleCount-1;a>0;a-=2){if(a==6)a--;while(true){for(var s=0;s<2;s++){if(this.modules[i][a-s]==null){var l=false;if(o<t.length)l=(((t[o]>>>n)&1)==1);if(gm(e,i,a-s))l=!l;this.modules[i][a-s]=l;n--;if(n==-1){o++;n=7;}}}i+=r;if(i<0||this.moduleCount<=i){i-=r;r=-r;break;}}}}};C.createData=function(t,e,r){var i=RS.getRSBlocks(t,e),n=new Buf(),s=0;for(var o=0;o<r.length;o++){var a=r[o];n.put(a.mode,4);n.put(a.getLength(),lb(a.mode,t));a.write(n);}for(o=0;o<i.length;o++)s+=i[o].dc;if(n.len()>s*8)throw"overflow";if(n.len()+4<=s*8)n.put(0,4);while(n.len()%8!=0)n.putBit(0);while(n.len()<s*8){n.put(236,8);if(n.len()>=s*8)break;n.put(17,8);}return C.createBytes(n,i);};C.createBytes=function(t,e){var r=0,mxd=0,mxe=0,dc=[],ec=[];for(var s=0;s<e.length;s++){var dl=e[s].dc,el=e[s].tc-dl;mxd=Math.max(mxd,dl);mxe=Math.max(mxe,el);dc[s]=[];for(var c=0;c<dl;c++)dc[s][c]=0xff&t.buf[c+r];r+=dl;var gp=getECP(el),hp=new Poly(dc[s],gp.len()-1).mod(gp);ec[s]=[];for(c=0;c<gp.len()-1;c++)ec[s][c]=(c<hp.len())?hp.get(c):0;}var tot=0;for(c=0;c<e.length;c++)tot+=e[c].tc;var out=[],m=0;for(c=0;c<mxd;c++)for(s=0;s<e.length;s++)if(c<dc[s].length)out[m++]=dc[s][c];for(c=0;c<mxe;c++)for(s=0;s<e.length;s++)if(c<ec[s].length)out[m++]=ec[s][c];return out;};function B(t){this.mode=4;this.data=t;this.pd=[];for(var e=0;e<t.length;e++){var r=t.charCodeAt(e);if(r>0x800){this.pd.push(224|(r>>12),128|((r>>6)&0x3F),128|(r&0x3F));}else if(r>0x80){this.pd.push(192|(r>>6),128|(r&0x3F));}else this.pd.push(r);}}B.prototype={getLength:function(){return this.pd.length;},write:function(t){for(var e=0;e<this.pd.length;e++)t.put(this.pd[e],8);}};function lb(m,v){if(v<10)return m==4?8:10;if(v<27)return m==4?16:12;return m==4?16:14;}var PP=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]];function bchTI(d){var e=d<<10;while(bd(e)-bd(1335)>=0)e^=(1335<<(bd(e)-bd(1335)));return((d<<10)|e)^21522;}function bchTN(d){var e=d<<12;while(bd(e)-bd(7973)>=0)e^=(7973<<(bd(e)-bd(7973)));return(d<<12)|e;}function bd(d){var c=0;while(d!=0){c++;d>>>=1;}return c;}function gm(p,r,c){switch(p){case 0:return(r+c)%2==0;case 1:return r%2==0;case 2:return c%3==0;case 3:return(r+c)%3==0;case 4:return(Math.floor(r/2)+Math.floor(c/3))%2==0;case 5:return(r*c)%2+(r*c)%3==0;case 6:return((r*c)%2+(r*c)%3)%2==0;case 7:return((r*c)%3+(r+c)%2)%2==0;}}function lp(q){var e=q.moduleCount,r=0;for(var i=0;i<e-1;i++)for(var n=0;n<e-1;n++){var u=0;if(q.modules[i][n])u++;if(q.modules[i+1][n])u++;if(q.modules[i][n+1])u++;if(q.modules[i+1][n+1])u++;if(u==0||u==4)r+=3;}return r;}function getECP(l){var e=new Poly([1],0);for(var r=0;r<l;r++)e=e.multiply(new Poly([1,ME.gexp(r)],0));return e;}var ME={glog:function(n){return ME.LT[n];},gexp:function(n){while(n<0)n+=255;while(n>=256)n-=255;return ME.ET[n];},ET:new Array(256),LT:new Array(256)};for(var i=0;i<8;i++)ME.ET[i]=1<<i;for(i=8;i<256;i++)ME.ET[i]=ME.ET[i-4]^ME.ET[i-5]^ME.ET[i-6]^ME.ET[i-8];for(i=0;i<255;i++)ME.LT[ME.ET[i]]=i;function Poly(n,s){var r=0;while(r<n.length&&n[r]==0)r++;this.num=new Array(n.length-r+s);for(var i=0;i<n.length-r;i++)this.num[i]=n[i+r];}Poly.prototype={get:function(i){return this.num[i];},len:function(){return this.num.length;},multiply:function(o){var e=new Array(this.len()+o.len()-1);for(var r=0;r<this.len();r++)for(var i=0;i<o.len();i++)e[r+i]^=ME.gexp(ME.glog(this.get(r))+ME.glog(o.get(i)));return new Poly(e,0);},mod:function(o){if(this.len()-o.len()<0)return this;var e=ME.glog(this.get(0))-ME.glog(o.get(0));var r=[];for(var i=0;i<this.len();i++)r[i]=this.get(i);for(i=0;i<o.len();i++)r[i]^=ME.gexp(ME.glog(o.get(i))+e);return new Poly(r,0).mod(o);}};var RST=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16]];var RS={getRSBlocks:function(v,ecl){var idx=(v-1)*4+(ecl==1?0:ecl==0?1:ecl==3?2:3);var r=RST[idx]||RST[0];var n=[];for(var o=0;o<r.length/3;o++)for(var u=0;u<r[o*3];u++)n.push({tc:r[o*3+1],dc:r[o*3+2]});return n;}};function Buf(){this.buf=[];this.length=0;}Buf.prototype={put:function(v,l){for(var i=0;i<l;i++)this.putBit(((v>>>(l-i-1))&1)==1);},len:function(){return this.length;},putBit:function(b){var i=Math.floor(this.length/8);if(this.buf.length<=i)this.buf.push(0);if(b)this.buf[i]|=(0x80>>>(this.length%8));this.length++;}};return{toSVG:function(data,size){var qr=new C(0,1);qr.addData(data);qr.make();var mc=qr.moduleCount,q=2,tot=mc+q*2;var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+size+'" height="'+size+'" viewBox="0 0 '+tot+' '+tot+'" shape-rendering="crispEdges"><rect width="'+tot+'" height="'+tot+'" fill="#fff"/>';for(var r=0;r<mc;r++)for(var c=0;c<mc;c++)if(qr.modules[r][c])svg+='<rect x="'+(c+q)+'" y="'+(r+q)+'" width="1" height="1" fill="#000"/>';return svg+'</svg>';}};})();
+
+// ===== QR CODE (self-contained, no external API) =====
+function generateQR() {
+  var area = document.getElementById('qrArea');
+  try {
+    area.innerHTML = QR.toSVG(buildQRText(true), 110);
+  } catch (e) {
+    try {
+      // Full spec+mech table was too large for this QR library's capacity limit;
+      // fall back to the spec table alone (still the same values as in the PDF).
+      area.innerHTML = QR.toSVG(buildQRText(false), 110);
+    } catch (e2) {
+      area.innerHTML = '<div style="width:110px;height:110px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font:8px sans-serif;color:#999">QR Error</div>';
+    }
+  }
+}
+
+function buildQRText(includeMech) {
+  const lines = [];
+  lines.push(document.getElementById('certNo').value);
+
+  const specRows = document.querySelectorAll('#specTableBody tr');
+  if (currentProduct === 'coil') {
+    lines.push('No|CoilNo|Grade|Surface|Edge|Thick|Width|Len|Wt|C|Mn|Si|P|S|Ni|Cr|N|EL|TS|YS|HV|SlabNo');
+    specRows.forEach((row, i) => {
+      lines.push([i+1, gv(row,'coilNo'), gv(row,'grade'), gv(row,'surface'), gv(row,'edge'), gv(row,'thickness'), gv(row,'width'), gv(row,'length'), gv(row,'weight'), gv(row,'C'), gv(row,'Mn'), gv(row,'Si'), gv(row,'P'), gv(row,'S'), gv(row,'Ni'), gv(row,'Cr'), gv(row,'N'), gv(row,'EL'), gv(row,'TS'), gv(row,'YS'), gv(row,'HV'), gv(row,'slabNo')].join('|'));
+    });
+  } else {
+    lines.push('No|Grade|HeatNo|Size|Pcs|Wt(kg)|M|C|Si|Mn|P|S|Cr|Ni|Mo|Ti|N|Cu');
+    specRows.forEach((row, i) => {
+      lines.push([i+1, gv(row,'grade'), gv(row,'heatNo'), gv(row,'size'), gv(row,'pieces'), gv(row,'weight'), gv(row,'meter'), gv(row,'C'), gv(row,'Si'), gv(row,'Mn'), gv(row,'P'), gv(row,'S'), gv(row,'Cr'), gv(row,'Ni'), gv(row,'Mo'), gv(row,'Ti'), gv(row,'N'), gv(row,'Cu')].join('|'));
+    });
+
+    const mechRows = document.querySelectorAll('#mechTableBody tr');
+    if (includeMech && mechRows.length) {
+      lines.push('---');
+      lines.push('No|Yield(MPa)|Tensile(MPa)|Elong(%)|Hydraulic|Flaring|Flatten|Hardness|Dimension|Surface|IGC|GrainSize|UT|ET|Remark');
+      mechRows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const vals = [cells[0].textContent];
+        for (let c = 1; c < cells.length; c++) {
+          const inp = cells[c].querySelector('input');
+          vals.push(inp ? inp.value : cells[c].textContent);
+        }
+        lines.push(vals.join('|'));
+      });
+    }
+  }
+  return lines.join('\n');
+}
+
+function gv(row, field) { return row.querySelector(`[data-field="${field}"]`)?.value || '/'; }
+
+// ===== LOGO & STAMP =====
+function handleLogo(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=(ev)=>{document.getElementById('logoArea').innerHTML=`<img src="${ev.target.result}">`;}; r.readAsDataURL(f); }
+function handleStamp(e) { const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=(ev)=>{document.getElementById('stampArea').innerHTML=`<img src="${ev.target.result}">`;}; r.readAsDataURL(f); }
+
+// ===== PDF =====
+function downloadPDF(){window.print();}
+
+// Init
+document.getElementById('certDate').value = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'-');
+</script>
+</body>
+</html>

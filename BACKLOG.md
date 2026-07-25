@@ -207,6 +207,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | LG7 | Cargo | new | ⚪ |
 | LG8 | نافذة / Nafeza (national single window) | external portal | ⚪ |
 | LG9 | **CargoX Document Creator & Validator** — إنشاء مستندات الشحن (فاتورة · قائمة تعبئة · شهادة منشأ · B/L) والتحقق منها **قبل** الرفع على CargoX/ACID، + شات بوت بيسأل عن الناقص ويكمّله. الرفض بعد الرفع بيكلّف وقت ورسوم — الفحص محلّه قبل الإرسال | Nama / external portal / ai | ⚪ |
+| LG10 | **شهادة الجودة للاستيراد** — مولّد شهادة جودة للصلب (Foshan Amax Pro): رقم الشهادة والعقد · المشتري · شروط التسليم · المواصفة ونوع الصلب · جداول المواصفات والخواص الميكانيكية · لوجو وختم وQR | front-end | 🟢 شغّال أوفلاين على `/tools/certificate` — البيانات بتتكتب بالإيد، مش متربطة بنما لسه |
 
 ## Safety / HSE (السلامة)
 | # | Item | Source | Status |

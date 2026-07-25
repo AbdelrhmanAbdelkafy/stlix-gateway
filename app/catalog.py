@@ -158,6 +158,7 @@ _ROUTES: tuple[Endpoint, ...] = (
     # pages
     Endpoint("/tools/platform", "الهَب", "front-end", kind="page"),
     Endpoint("/tools/platform/public", "الهَب — العرض العام", "front-end", kind="page"),
+    Endpoint("/tools/certificate", "شهادة الجودة (استيراد)", "front-end", kind="page"),
     Endpoint("/tools/ideas", "لوحة الأفكار", "front-end", kind="page"),
     Endpoint("/tools/finance-reports", "التقارير المالية", "front-end", kind="page"),
     Endpoint("/tools/finance-os", "Finance OS", "front-end", kind="page"),

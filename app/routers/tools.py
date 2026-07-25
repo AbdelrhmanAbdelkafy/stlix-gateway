@@ -88,6 +88,22 @@ async def platform_hub(settings: Settings = Depends(get_settings)) -> HTMLRespon
     return _serve("platform/hub.html", settings)
 
 
+@router.get("/certificate", response_class=HTMLResponse)
+async def quality_certificate(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """Product quality certificate for imported steel — Foshan Amax Pro.
+
+    Offline, like the engineer's assistant: it holds no credentials and calls
+    nothing. The QR is encoded in the page. Its fallback used to hand the
+    certificate number, contract number and purchaser to a third-party QR
+    service whenever the local encoder threw, without saying so; that path is
+    gone and a failed QR now says it failed.
+
+    Not yet reading Nama. The purchaser, contract and product all exist there,
+    so the next step is filling them from the ERP instead of by hand (LG10).
+    """
+    return _serve("import/certificate.html", settings)
+
+
 @router.get("/platform/public", response_class=HTMLResponse)
 async def platform_hub_public(settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """The wide-audience view of the hub — same figures, fewer internals.

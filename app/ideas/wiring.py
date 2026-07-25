@@ -255,6 +255,10 @@ WIRING: dict[str, Wire] = {
     "LG8": _w("portal", "overview", "", "كونكتور بوابة نافذة Nafeza الجمركية"),
     # المستند نفسه مبني من داتا موجودة في نما (الفاتورة وسطورها والطرف)، فالناقص
     # مش الداتا — الناقص الطرف اللي بيستقبلها والتحقق قبل الرفع.
+    # The certificate is built and served; what it still lacks is the ERP behind
+    # its fields. Purchaser, contract and product are all in Nama already.
+    "LG10": _w("nama portal", "nama", "nama ent1",
+               "الشهادة شغّالة بس بتتكتب بالإيد — الناقص تعبئة المشتري والعقد والصنف من نما"),
     # --- Nama Expert (Layer 4) — طلب المالك 2026-07-25 ------------------------
     # الخبير بيقرا من الخريطة والوثائق، فمصادره endpoints موجودة فعلًا؛ الناقص
     # طبقة الذكاء نفسها.
