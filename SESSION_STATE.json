@@ -84,12 +84,12 @@
       "/api/v1/ideas/{id}"
     ],
     "counts_2026-07-25": {
-      "total": 198,
+      "total": 204,
       "domains": 26,
       "done": 2,
-      "ready": 114,
-      "partial": 46,
-      "blocked": 36
+      "ready": 107,
+      "partial": 63,
+      "blocked": 32
     },
     "readiness_meaning": "ready = every connector it needs already exists, so it only needs a report built",
     "top_missing_connectors": {
@@ -154,7 +154,7 @@
       "systems": 23,
       "connectors": 22,
       "endpoints": 58,
-      "ideas": 198
+      "ideas": 204
     },
     "systems_without_ideas": []
   },
@@ -210,5 +210,17 @@
       "item_count": "8,346 (count app) vs 8,384 (Nama REST) vs 17,439 (InvItem in SQL) — three numbers, unexplained",
       "platform_claim": "REP D-01 says REP is the platform; the gateway says it is the integration layer. Resolved as front-end vs integration."
     }
+  },
+  "nama_expert": {
+    "what": "Owner's request 2026-07-25: an AI expert chat that solves problems — ask it about Nama or the platform, upload a screenshot of an error, talk to it by voice. Backlog A4-A9. This is Layer 4 made concrete.",
+    "sources_that_already_exist": [
+      "/api/v1/map — the platform describes itself: systems x connectors x endpoints x requirements",
+      "/tools/library — the repo's own docs, already served from inside the platform",
+      "Nama OpenAPI, 599 entities at /erp/browseapi/openapi/{Entity}.json",
+      "REP's measured Nama write rules (docs/rep-integration.md)",
+      "the live read-only connectors"
+    ],
+    "governing_rule": "Every answer names its source — endpoint, document or entity — and 'I do not know' is a valid answer. An answer without a source is the conversational form of the hand-typed 20.0M this session spent its time removing. It matters more here than anywhere else: a confident wrong answer about a Nama write rule destroys records — addRecord:true replaces silently, re-saving a draft commits it permanently.",
+    "boundaries": "Read-only, through the gateway only, keys server-side. Anything it proposes to write goes through the audited workflow plus human approval (Layer 5), with REP's ECDSA signature as that approval mechanism."
   }
 }

@@ -306,6 +306,12 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | A1 | Enterprise platform, AI-based | Layer 4 AI Orchestrator over the gateway: query/act across all connectors via natural language; the unifying vision. |
 | A2 | Nama NameBuilder | Use Nama's NameBuilder to define custom entities/screens → new connectors read them via the same REST (enabler for custom modules: maintenance, custody, forms…). |
 | A3 | مدير مبيعات ذكي (AI sales manager) | AI agent over CRM+Nama: prioritize leads, nudge follow-ups, forecast — part of the enterprise platform. |
+| A4 | **Nama Expert** — شات خبير بيحلّ المشاكل: تسأله عن نما أو عن المنصّة، يجاوب من الخريطة والوثائق والعقود، مش من حفظه | ai / gateway / nama | ⚪ |
+| A5 | **مصادر معرفة الخبير** — `/api/v1/map` (المنصّة بتوصف نفسها) · `/tools/library` (وثائق الريبو) · OpenAPI الـ599 كيان · قواعد الكتابة المقيسة من REP · مشاريعنا هنا | ai / gateway / nama / REP | ⚪ |
+| A6 | **صوّر واسأل** — ترفع سكرين شوت من نما فيه الإرور، الخبير يقراه ويقول السبب والحل | ai / gateway | ⚪ |
+| A7 | **كلّمه بالصوت** — سؤال وجواب بالعربي المصري صوتيًا (نفس قدرة UX3) | ai / voice / gateway | ⚪ |
+| A8 | **كل إجابة بمصدرها** — الخبير يقول جوابه جه منين (endpoint · وثيقة · كيان)، و«مش عارف» إجابة مقبولة. إجابة من غير مصدر = نفس فخّ الرقم المكتوب بالإيد | ai / gateway | ⚪ |
+| A9 | **الخبير يقترح ولا ينفّذ** — أي كتابة يقترحها تعدّي على workflow مدقّق + توقيع بشري (Layer 5 + توقيع REP) | ai / gateway / REP | ⚪ |
 
 ## Platform UX & Input (تجربة الاستخدام والإدخال — عابر لكل الموديولات)
 Cross-cutting front-end helpers — apply to every module's text inputs, not one screen.
