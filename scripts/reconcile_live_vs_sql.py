@@ -36,7 +36,8 @@ Read-only throughout: REST `/list` and SQL `SELECT`. Neither can write.
 Usage
 -----
     .venv/Scripts/python.exe scripts/reconcile_live_vs_sql.py --rest local
-    .venv/Scripts/python.exe scripts/reconcile_live_vs_sql.py --rest cloud --period 202606
+    .venv/Scripts/python.exe scripts/reconcile_live_vs_sql.py --rest cloud --period 202606 \
+        --allow-reversal FP22026060000105
     .venv/Scripts/python.exe scripts/reconcile_live_vs_sql.py --rest cloud --all --json out.json
 """
 from __future__ import annotations
@@ -316,7 +317,7 @@ def main() -> int:
                         "(strict); cloud = the live tenant (later settlements allowed)")
     p.add_argument("--local-base", default="http://localhost:8080/erp/rest/v1",
                    help="REST base used when --rest local")
-    p.add_argument("--period", default="202606", help="fiscalPeriod, e.g. 202606")
+    p.add_argument("--period", default="202606", help="issue-date month, e.g. 202606")
     p.add_argument("--all", action="store_true",
                    help="every period (full sweep — minutes, thousands of documents)")
     p.add_argument("--json", help="also write the full report to this file")

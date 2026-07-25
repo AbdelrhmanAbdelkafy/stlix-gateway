@@ -10,11 +10,11 @@ documents, and the balance can be rebuilt from them:
 
 That reconstruction was checked against SQL document by document over June 2026:
 302 invoices, **zero** differences in gross, 2 differences in net totalling 1.49
-EGP of rounding, and 20 differences in paid — every one of which is an invoice
-settled after the backup was taken, in the right direction and to the cent. The
-one that moved backwards (FP22026060000105, -230,500) is a payment voucher that
-was cancelled in Nama after the backup; the PaymentVoucher sweep found the same
-document missing on the live side. Nothing was left unexplained.
+EGP of rounding, and 20 differences in paid. Nineteen are later settlements;
+the one that moved backwards (`FP22026060000105`, -230,500) is a reviewed
+payment-voucher cancellation after the backup and must be explicitly
+allow-listed by the reconciliation command. The full-population residual after
+explaining post-backup movement was 0.17 EGP for AR and 0.16 EGP for AP.
 
 Cost is the reason this is a snapshot and not a per-request query: a full sweep
 of both invoice entities is ~14,000 documents over 14 pages at ~36 s a page, so
