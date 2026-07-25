@@ -83,8 +83,15 @@ def cited_ids(text: str) -> list[str]:
 
 
 async def compose(question: str, hits: list[Hit], settings: Settings,
-                  image: str = "") -> dict:
+                  image: str = "", system: str = "",
+                  no_match_note: str = "") -> dict:
     """Answer `question` from `hits`, or hand back the evidence.
+
+    `system` overrides the instructions the model works under, so a second
+    advisor with a different discipline — the legal counsel, whose rule about
+    never citing an unloaded article is stricter than anything here — can reuse
+    this one path to the model instead of forking a second, subtly different
+    copy of the request, the error handling and the degradation.
 
     Never raises on an upstream failure: a model that is down produces
     `mode="sources_only"` with the reason attached, because the passages are
@@ -97,7 +104,8 @@ async def compose(question: str, hits: list[Hit], settings: Settings,
     }
     if not hits:
         return {**base, "mode": "no_match", "grounded": False, "answer": "",
-                "note": "مالقيتش أي مقطع في المصادر يخصّ السؤال ده. "
+                "note": no_match_note or
+                        "مالقيتش أي مقطع في المصادر يخصّ السؤال ده. "
                         "جرّب صيغة تانية، أو ضيف الوثيقة الناقصة للريبو "
                         "وشغّل /api/v1/expert/reindex."}
 
@@ -123,7 +131,7 @@ async def compose(question: str, hits: list[Hit], settings: Settings,
                          "content-type": "application/json"},
                 json={"model": settings.expert_model,
                       "max_tokens": settings.expert_max_tokens,
-                      "system": SYSTEM,
+                      "system": system or SYSTEM,
                       "messages": [{"role": "user", "content": content}]},
             )
         if r.status_code != 200:

@@ -21,6 +21,7 @@ from .integrations.banks.router import router as banks_router
 from .integrations.crm.router import router as crm_router
 from .integrations.expert.router import router as expert_router
 from .integrations.finance.live import refresh_loop
+from .integrations.legal.router import router as legal_router
 from .integrations.finance.router import router as finance_router
 from .integrations.inventory.router import router as inventory_router
 from .integrations.nama.router import router as nama_router
@@ -123,6 +124,7 @@ def create_app() -> FastAPI:
     app.include_router(inventory_router, prefix=API_PREFIX)
     app.include_router(finance_router, prefix=API_PREFIX)
     app.include_router(expert_router, prefix=API_PREFIX)
+    app.include_router(legal_router, prefix=API_PREFIX)
     app.include_router(workspace_router, prefix=API_PREFIX)
     app.include_router(ideas_router, prefix=API_PREFIX)
     app.include_router(graph_router, prefix=API_PREFIX)

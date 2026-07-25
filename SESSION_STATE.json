@@ -28,6 +28,7 @@
     "banks",
     "inventory",
     "expert",
+    "legal",
     "gateway",
     "front-end",
     "all-connectors"
@@ -75,7 +76,8 @@
     "/tools/library": "the repo's own markdown docs, readable from inside the platform",
     "/tools/engineer": "Engineer's assistant (PD2): tanks/vessels with ASME UG-27 shell thickness, sanitary piping, laser & forming, heat exchangers, BOQ. OFFLINE - holds no credentials, calls nothing; its BOM is copied by hand rather than checked against Nama's item master.",
     "/tools/platform/public": "the wide-audience hub. Was an unrouted file holding hand-typed AR/AP totals and a hand-typed as-of date; now reads the same /api/v1/map and /api/v1/finance/kpis the main hub reads, so the two cannot disagree.",
-    "/tools/expert": "Nama Expert — the chat. Answers about Nama and about this platform from the repo's documents and the gateway's own map, with [S#] citations back to the passage. Screenshot (paste/drag/pick) and Arabic voice (browser Web Speech API). With no ANTHROPIC_API_KEY it returns the retrieved passages and says no model is attached, rather than paraphrasing them into something that reads like knowledge."
+    "/tools/expert": "Nama Expert — the chat. Answers about Nama and about this platform from the repo's documents and the gateway's own map, with [S#] citations back to the passage. Screenshot (paste/drag/pick) and Arabic voice (browser Web Speech API). With no ANTHROPIC_API_KEY it returns the retrieved passages and says no model is attached, rather than paraphrasing them into something that reads like knowledge.",
+    "/tools/legal": "المستشار القانوني — ask, draft (6 contract templates), review a document, or verify the article numbers in any text. Every «مادة N» in every answer is checked against the statutes on disk before the page receives it; unconfirmed ones arrive struck out in the body of the sentence. The corpus ships empty and says exactly which of 24 expected laws are missing."
   },
   "ideas": {
     "source_of_truth": "BACKLOG.md (add a markdown row -> appears on the board, no code change)",
@@ -233,6 +235,24 @@
       "conversation memory — each question is independent today",
       "calling a live endpoint at answer time (that is Layer 4 / ai-layer, not this)",
       "PA5 signing so A9's approval mechanism actually exists"
+    ]
+  },
+  "legal_counsel": {
+    "status": "BUILT 2026-07-25. app/integrations/legal/{corpus,manifest,citations,templates,router}.py + modules/legal/counsel.html. Page /tools/legal, API /api/v1/legal/{'',coverage,search,law/{slug},templates,ask,draft,review,verify,reindex}. 33 tests. Design note: docs/legal-counsel.md.",
+    "what": "Owner's request 2026-07-25: a smart-lawyer chatbot sourced from constitutions and Egyptian/international law (especially Chinese, commercial, civil, civil-service, labour, criminal) that writes contracts, reviews bylaws and checks drafts. Backlog L2-L10.",
+    "the_whole_point": "Article numbers. A model produces them as fluently as any other token, and «المادة 147 من القانون المدني» is four words a non-lawyer cannot check and has every reason to trust — a wrong one voids a clause or loses a case. So the module does not ask the model to behave; citations.py CHECKS. confirmed (in a loaded statute) passes; unverifiable (law not loaded) is marked, neither confirmed nor denied; fabricated (law IS loaded, article is NOT in it — the only verdict with no innocent reading) is struck out. Redaction happens in the body of the sentence, not a footnote: a legal answer gets copied into an email and the qualification at the bottom does not travel with it. answer_raw keeps the original for audit.",
+    "tiers": "statute = authority, the only tier an article is confirmed against. precedent = our own signed contracts, which prove what we agreed and never what the law says. internal = our 18 bylaws, binding on us only — and zero are certified by the directorate (from REP), so the penalties bylaw is not in force at all. The separation is enforced in code because the two collapse into each other in the mind of anyone reading at speed, including the model.",
+    "empty_corpus_is_designed": "manifest.py lists 24 expected sources; each is loaded or NAMED AS MISSING. «مالقيتش حاجة» is useless; «ده محكوم بقانون العمل ونصّه مش عندي — حمّله وأنا أجاوب بالمادة» is useful on day one. Deliberately absent from the manifest: law numbers and years — those get read out of a loaded text. Typing them from memory would be the same act deleted from the finance pages, in the domain where wrong costs most.",
+    "four_modes": "ask (needs a model for prose) · draft (6 templates, NO model needed) · review · verify (NO model, NO network). /verify is the cleanest part: same answer every time, works unconfigured, and works on text we did not write — the other side's draft, an old contract, a clause sent on WhatsApp.",
+    "templates_cite_no_article": "A template is not model output, so it would sail past the guard — the one remaining path by which an invented article could reach a SIGNED document. A test renders every template with every clause and fails on a single article reference. Templates name the governing law (safe, checkable) and warn where a statutory limit belongs: «الشرط المخالف باطل ولو وقّع عليه العامل». Unfilled blanks stay visible as ⟨label⟩.",
+    "corpus_dir": "corpus/legal/ — .txt or .md with a 4-line front matter (slug/title/tier/jurisdiction), articles headed «مادة 12» or «المادة (12)» or «المادة ١٢ مكرر». Arabic-Indic digits accepted: scanned Egyptian statutes are typeset with them. Then POST /api/v1/legal/reindex.",
+    "boundary": "Not a lawyer and not a substitute for one — every answer and every draft closes with that line, and so does the page. Read-only. Key server-side; a test asserts the page has no fetch to any external host.",
+    "still_missing": [
+      "L6 🟡 load the statute texts — the one gap that opens the whole domain",
+      "L7 upload our signed contracts as tier: precedent (they are in Drive)",
+      "L8 the 18 bylaws as tier: internal, with the fact that none is certified",
+      "bind template clauses to articles from a loaded text instead of the law's name alone",
+      "no conversation memory — each question is independent"
     ]
   }
 }

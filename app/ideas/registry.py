@@ -47,6 +47,10 @@ _ENGINE_KEYWORDS = (
 # Checked in order, so specific tokens come before generic ones.
 _CONNECTOR_MAP: tuple[tuple[str, str], ...] = (
     # (substring in source, catalog connector key)
+    # `legal` is the counsel connector (live: files on disk), NOT the unbuilt
+    # Layer 4 orchestrator. Checked before the generic tokens so a legal row
+    # does not fall through to something vaguer.
+    ("legal", "legal"),
     ("vtiger", "crm"),
     ("sql", "sql"),
     ("nama", "nama"),

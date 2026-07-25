@@ -66,6 +66,15 @@ SYSTEMS: list[System] = [
     System("rep", "REP Operations", "REP التشغيلية", Status.PLANNED,
            "Operational front-ends for what the ERP does not own: custody, movement, "
            "meals, people/dictionary, policies, academy, alerts, signed documents."),
+    # LIVE since the counsel: /api/v1/legal/* reads real files and, more to the
+    # point, /api/v1/legal/verify checks article citations against them with no
+    # model in the path. Live means the code exists; the corpus starts empty and
+    # says so, the way `nama` is live-but-unconfigured without credentials.
+    System("legal", "Legal Counsel", "المستشار القانوني", Status.LIVE,
+           "Grounded legal Q&A, contract drafting and document review over loaded "
+           "statutes, company contracts and internal bylaws. Every article number is "
+           "verified against the loaded text; unverified ones are struck out.",
+           url="/tools/legal"),
     System("regulations", "Regulations", "اللوائح", Status.PLANNED,
            "Internal policies & bylaws (the document store itself is `archive`)."),
     System("surveillance", "Surveillance & Alarm", "المراقبة والإنذار", Status.PLANNED,

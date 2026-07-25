@@ -121,6 +121,20 @@ async def nama_expert(settings: Settings = Depends(get_settings)) -> HTMLRespons
     return _serve("expert/chat.html", settings)
 
 
+@router.get("/legal", response_class=HTMLResponse)
+async def legal_counsel(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """المستشار القانوني — ask, draft a contract, or review a document.
+
+    Same credential story as every other page here: the gateway key, nothing
+    else. What is specific to this one is that every article number in every
+    answer has already been checked against the statutes on disk before the
+    page receives it, and the ones that could not be confirmed arrive struck
+    out. A legal answer gets copied into an email; the qualification has to
+    travel inside the sentence, not under it.
+    """
+    return _serve("legal/counsel.html", settings)
+
+
 @router.get("/platform/public", response_class=HTMLResponse)
 async def platform_hub_public(settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """The wide-audience view of the hub — same figures, fewer internals.

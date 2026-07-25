@@ -75,6 +75,14 @@ CONNECTORS: tuple[Connector, ...] = (
               "repo docs + gateway map (+ Anthropic when configured)", True,
               "expert_grounded", "",
               note="من غير مفتاح بيرجّع المقاطع ومصادرها — ما بيخترعش إجابة."),
+    # The corpus is files on disk, so this is live with no credential at all —
+    # `/api/v1/legal/verify` in particular runs with no model and no network.
+    # `configured_attr` points at the Anthropic key because that is what turns
+    # retrieved provisions into a composed opinion.
+    Connector("legal", "المستشار القانوني", "Legal counsel", "legal",
+              "corpus/legal on disk (+ Anthropic when configured)", True,
+              "expert_grounded", "",
+              note="رقم المادة بيتأكَّد من النصّ المحمّل — واللي مش متأكَّد منه بيتشال."),
     # --- not built yet: these are what `blocked`/`partial` readiness points at ---
     # Distinct from `expert`: this is the orchestrator that would *act* — call
     # tools, chain steps, propose writes. The expert only reads and cites.
@@ -171,11 +179,23 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/api/v1/expert/ask", "اسأل الخبير (نص + سكرين شوت)", "expert",
              method="POST"),
     Endpoint("/api/v1/expert/reindex", "إعادة فهرسة الوثائق", "expert", method="POST"),
+    # legal counsel
+    Endpoint("/api/v1/legal", "حالة المستشار والنصوص المحمّلة", "legal"),
+    Endpoint("/api/v1/legal/coverage", "تغطية القوانين — المحمّل والناقص", "legal"),
+    Endpoint("/api/v1/legal/search", "بحث في النصوص (من غير موديل)", "legal"),
+    Endpoint("/api/v1/legal/law/{slug}", "نصّ قانون واحد بمواده", "legal"),
+    Endpoint("/api/v1/legal/templates", "صيغ المستندات", "legal"),
+    Endpoint("/api/v1/legal/ask", "اسأل المستشار", "legal", method="POST"),
+    Endpoint("/api/v1/legal/draft", "اكتب مسودة من صيغة", "legal", method="POST"),
+    Endpoint("/api/v1/legal/review", "راجع مستند", "legal", method="POST"),
+    Endpoint("/api/v1/legal/verify", "افحص أرقام المواد في أي نص", "legal", method="POST"),
+    Endpoint("/api/v1/legal/reindex", "إعادة قراءة مجلد النصوص", "legal", method="POST"),
     # pages
     Endpoint("/tools/platform", "الهَب", "front-end", kind="page"),
     Endpoint("/tools/platform/public", "الهَب — العرض العام", "front-end", kind="page"),
     Endpoint("/tools/certificate", "شهادة الجودة (استيراد)", "front-end", kind="page"),
     Endpoint("/tools/expert", "Nama Expert — الشات", "front-end", kind="page"),
+    Endpoint("/tools/legal", "المستشار القانوني", "front-end", kind="page"),
     Endpoint("/tools/ideas", "لوحة الأفكار", "front-end", kind="page"),
     Endpoint("/tools/finance-reports", "التقارير المالية", "front-end", kind="page"),
     Endpoint("/tools/finance-os", "Finance OS", "front-end", kind="page"),
