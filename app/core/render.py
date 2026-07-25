@@ -115,6 +115,11 @@ _PAGE = """<!doctype html>
 <details><summary>عرض JSON الخام / raw JSON</summary>
 <pre>{raw}</pre></details>
 <p class="links">Tip: أضف <code>?format=json</code> لأي رابط للحصول على JSON مباشرة.</p>
+<!-- The platform-wide voice layer. There are two HTML renderers here — this one
+     and `_serve()` in routers/tools.py — and voice belongs to the platform, not
+     to whichever of the two someone remembered. Injected in both; a page cannot
+     opt out by being generated rather than authored. -->
+<script src="/tools/voice.js" defer></script>
 </body></html>"""
 
 

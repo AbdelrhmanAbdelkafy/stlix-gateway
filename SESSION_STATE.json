@@ -29,6 +29,7 @@
     "inventory",
     "expert",
     "legal",
+    "voice",
     "gateway",
     "front-end",
     "all-connectors"
@@ -254,5 +255,21 @@
       "bind template clauses to articles from a loaded text instead of the law's name alone",
       "no conversation memory — each question is independent"
     ]
+  },
+  "voice_layer": {
+    "status": "BUILT 2026-07-25. modules/platform/voice.js served at /tools/voice.js, injected by BOTH renderers: _serve() in routers/tools.py and html_page() in core/render.py. 10 tests. Doc: docs/voice-layer.md. UX3 and PA4 done.",
+    "what": "Owner: «OS يدعم البحث الصوتي في كل مراحله» — voice search at every stage of the OS.",
+    "one_button_not_one_per_field": "A mic inside every text box means wrapping every text box in a positioned element, and these fields live in flex rows, grids and sticky bars with working sizing (flex:1 on the hub search, a max-height textarea in the chat composer). One floating mic dictates into the focused field, or into the page's own search box which it focuses first. Nothing on the page moves.",
+    "injected_in_two_places_not_per_page": "Voice belongs to the platform, not to whichever screen someone remembered. A new page gets it without a decision, and tests/test_voice.py fails if a served page loses it — the requirement fails by being on three screens and missing on the fourth, because people then stop trying it.",
+    "what_makes_it_search": "It dispatches an `input` event after writing. The hub and the ideas board filter on input; without it they show results for text they never saw, which reads as the search being broken. On a type=search field it also fires Enter on stop.",
+    "no_vendor": "Browser Web Speech API — no key, no credential, no per-minute bill. The backlog had UX3/PA4 waiting on an external Arabic STT API; they did not need one. On a browser without it the script renders nothing: a mic that does nothing when pressed is worse than no mic.",
+    "deliberate_limits": [
+      "never dictates into a password field",
+      "data-no-voice opts any field or section out",
+      "a page with its own mic (data-voice-local on the expert chat) suppresses the global one — two mics on one screen is worse than either",
+      "errors are named: permission denied != no microphone != network down"
+    ],
+    "usage": "Mic bottom-start on every page · Ctrl+M toggles, Esc stops · language button ar-EG <-> en-US · writes into the focused field, else the page's search box.",
+    "verified_in_a_real_browser": "Playwright with a stubbed recogniser: mic renders, dictation lands in the hub's #q, exactly one input event fires, focus is on the right field, language toggles."
   }
 }

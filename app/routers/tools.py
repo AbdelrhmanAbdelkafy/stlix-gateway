@@ -11,7 +11,7 @@ import html as _html
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 
 from ..config import Settings, get_settings
 from ..core.render import html_page
@@ -23,12 +23,23 @@ _ROOT = Path(__file__).resolve().parent.parent.parent
 _MODULES = _ROOT / "modules"
 
 
+#: One line, injected into every page below. Voice belongs to the platform, not
+#: to whichever screen someone remembered to add it to — so it goes in here,
+#: where a new page gets it without anyone deciding to, and `tests/test_voice.py`
+#: fails if a served page ever loses it.
+_VOICE = '<script src="/tools/voice.js" defer></script>'
+
+
 def _serve(rel_path: str, settings: Settings) -> HTMLResponse:
     """Read a module page and inject the gateway key so the browser can call the
     protected API. Sensitive upstream creds (Nama/Vtiger/Anthropic) stay server-side."""
     html = (_MODULES / rel_path).read_text(encoding="utf-8")
     key = next(iter(settings.api_keys), "")
-    resp = HTMLResponse(html.replace("__GATEWAY_API_KEY__", key))
+    html = html.replace("__GATEWAY_API_KEY__", key)
+    if "/tools/voice.js" not in html:
+        html = (html.replace("</body>", _VOICE + "\n</body>", 1)
+                if "</body>" in html else html + _VOICE)
+    resp = HTMLResponse(html)
     if key:
         # A page full of links into /api/v1/* is useless if every click 401s:
         # a plain <a> cannot send X-API-Key. Hand the browser the same key it
@@ -119,6 +130,25 @@ async def nama_expert(settings: Settings = Depends(get_settings)) -> HTMLRespons
     around them.
     """
     return _serve("expert/chat.html", settings)
+
+
+@router.get("/voice.js")
+async def voice_layer() -> Response:
+    """The platform-wide Arabic voice layer, served as a static asset.
+
+    One floating mic that dictates into whatever field has focus — or into the
+    page's own search box, which it focuses first. It is a single button rather
+    than one per field because a mic inside every text box means wrapping every
+    text box in a positioned element, and these fields live in flex rows, grids
+    and sticky bars that already lay out correctly.
+
+    The browser's own recogniser, so there is no key, no vendor and no bill; on
+    a browser without it the script renders nothing, because a mic that does
+    nothing when pressed is worse than no mic.
+    """
+    body = (_MODULES / "platform" / "voice.js").read_text(encoding="utf-8")
+    return Response(body, media_type="application/javascript; charset=utf-8",
+                    headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/legal", response_class=HTMLResponse)

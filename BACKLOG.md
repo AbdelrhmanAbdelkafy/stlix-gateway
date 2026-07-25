@@ -330,7 +330,7 @@ Cross-cutting front-end helpers — apply to every module's text inputs, not one
 | UX1 | Autocomplete + تصحيح تلقائي في textboxes — أول تطبيق: بحث النوع/الوصف في **name-builder** (اقتراح أثناء الكتابة + تصحيح أخطاء إملائية) | front-end / KB | 🟡 خانة بحث النوع: ✅ (fuzzy/Levenshtein + تطبيع عربي + منسدل بالكيبورد). باقي: خانة الوصف الحر + مدخلات باقي الموديولات |
 | UX1b | **name-builder — إدخال الاسم الكامل**: المستخدم يكتب الاسم كله → validator يعمل autocorrect + autocomplete على كل جزء → بناء الكود → فحص التكرار في نما → **رفض لو مكرر** (end-to-end من نص حر لصنف مقبول أو مرفوض) | front-end + `/nama/invitem/exists` | ⚪ (الأساس جاهز: المحلّل المحلي + dedup endpoint) |
 | UX2 | Transcript — خيار تفريغ نصّي في أي مدخل كتابة (لصق/تحرير نص طويل) | front-end | ⚪ |
-| UX3 | صوت → كتابة + **بحث صوتي بالعربي** (voice-to-text / dictation + voice search, Arabic) في كل مدخلات النص والبحث | front-end / Arabic STT API | ⚪ |
+| UX3 | صوت → كتابة + **بحث صوتي بالعربي** في كل مدخلات النص والبحث · **مبني**: `/tools/voice.js` بيتحقن في كل صفحة من الاتنين رِندرر — مايك واحد بيكتب في الحقل اللي معاه الفوكس، أو في مربع البحث بتاع الصفحة | front-end / voice | 🟢 |
 | UX4 | Widgets — عناصر لوحة قابلة للتخصيص والإطلاق على الـ Unified Workspace ("طلعلي") | gateway workspace | ⚪ |
 
 ## Platform & Access (منصّة وصلاحيات — عابر للمنصّة كلها)
@@ -340,7 +340,7 @@ Cross-cutting platform capabilities — apply everywhere, not one screen. **Ever
 | PA1 | **Omnichannel comms** — المنصّة بتتواصل بكل القنوات: واتساب · وي شات · وغيرها (send/receive عبر الجيتواي) | WhatsApp/WeChat APIs + gateway | ⚪ |
 | PA2 | **SSO** — دخول موحّد (Single Sign-On) | IdP (Google Workspace / OAuth) | ⚪ |
 | PA3 | **RBAC** — صلاحيات المستخدم الداخل + احترام صلاحيات كل connector (بوابة مزدوجة) | gateway auth + connectors | ⚪ |
-| PA4 | بحث/كتابة بالصوت بالعربي عبر كل المنصّة → see UX3 | front-end / Arabic STT | ⚪ |
+| PA4 | بحث/كتابة بالصوت بالعربي عبر كل المنصّة · **مبني** — نفس الطبقة، Web Speech API بتاعة المتصفح: مافيش مفتاح ومافيش مورّد ومافيش فاتورة. Ctrl+M · ar-EG/en-US | front-end / voice | 🟢 |
 | PA5 | **التوقيع الرقمي كآلية HITL** — ECDSA P-256 · `extractable:false` · المفتاح الخاص مايسيبش الجهاز · اختُبر بـ4 هجمات كلها مرفوضة (من REP) — دي آلية الموافقة البشرية اللي Layer 5 محتاجها | REP / gateway | ⚪ |
 | PA6 | **الدور يُحسَب لا يُعطَى** — «مين انت» × «حالة الحاجة» = دورك، بدون شاشة إدارة أدوار (من REP D-07) | REP / idp | ⚪ |
 | PA7 | **ثلاثة أسطح — السطح يتبع البيئة مش الهوية** — داكن للمكتب · فاتح للمخزن (الداكن مش مقروء في الشمس) · ورقي للطباعة (من REP D-06) | REP / front-end | ⚪ |

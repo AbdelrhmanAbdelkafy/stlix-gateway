@@ -98,7 +98,8 @@ textarea:focus{outline:2px solid var(--ac);outline-offset:1px}
     <button type="button" class="x" id="pendx" title="شيل الصورة">✕</button>
   </div>
   <div class="bar">
-    <button type="button" class="ib hidden" id="mic" title="اتكلّم (عربي مصري)">🎙</button>
+    <button type="button" class="ib hidden" id="mic" data-voice-local
+            title="اتكلّم (عربي مصري)">🎙</button>
     <button type="button" class="ib" id="clip" title="أرفق سكرين شوت">📎</button>
     <input type="file" id="file" accept="image/*" class="hidden">
     <textarea id="q" rows="1" placeholder="اكتب سؤالك… (Enter يبعت · Shift+Enter سطر جديد)"></textarea>
@@ -277,7 +278,10 @@ window.addEventListener("paste", e => {
   if(ev === "drop") readImage(e.dataTransfer?.files?.[0]);
 }));
 
-/* ---- voice: the browser's own recogniser, so no key and no vendor ------- */
+/* ---- voice: the browser's own recogniser, so no key and no vendor -------
+   `data-voice-local` on the button tells the platform-wide voice layer
+   (/tools/voice.js, injected into every page) to stay out of this one.
+   Two microphones on one screen is worse than either of them alone. */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 if(SR){
   const mic = document.getElementById("mic");

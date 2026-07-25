@@ -37,10 +37,24 @@ from ..expert.retrieve import normalize
 from . import corpus
 from .manifest import EXPECTED
 
-#: `مادة 147` · `المادة ١٤٧` · `م. 147` · `مادة (147) مكرر`
+#: `مادة 147` · `المادة ١٤٧` · `للمادة 147` · `م. 147` · `مادة (147) مكرر`
+#:
+#: The attached prefix is part of the match on purpose. Arabic glues its
+#: prepositions and its article onto the noun — «للمادة», «بالمادة», «والمادة» —
+#: and matching only from «مادة» left the orphan letters behind when the
+#: citation was struck out: «ده مخالف لل[مادة محذوفة]». A redaction that leaves
+#: broken Arabic behind reads like a rendering bug, and a reader who thinks the
+#: page is glitching does not read the warning in it.
 _CITE = re.compile(
-    r"(?:الماده|المادة|ماده|مادة|م\.)\s*[\(\[]?\s*([0-9٠-٩]{1,4})\s*[\)\]]?"
-    r"(\s*مكرر(?:\s*[0-9٠-٩]+)?)?"
+    # Not glued to the end of another word: the prefix must start a token.
+    r"(?<![\u0621-\u064A])"
+    r"(?:[\u0648\u0641\u0643\u0628]?(?:\u0644\u0644|\u0627\u0644|\u0644))?"  # و/ف/ك/ب + لل|ال|ل
+    r"(?:\u0645\u0627\u062F\u0647|\u0645\u0627\u062F\u0629|\u0645\.)"        # ماده | مادة | م.
+    # The closing bracket takes its own whitespace only if it is actually
+    # there. Otherwise `مادة 9999 من` swallows the space after the number and
+    # the redaction marker ends up glued to the next word.
+    r"\s*[\(\[]?\s*([0-9\u0660-\u0669]{1,4})(?:\s*[\)\]])?"
+    r"(\s*\u0645\u0643\u0631\u0631(?:\s*[0-9\u0660-\u0669]+)?)?"
 )
 
 #: How a law gets named in running Arabic text. Matched on normalised text, so

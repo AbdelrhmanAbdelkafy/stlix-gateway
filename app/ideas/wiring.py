@@ -401,13 +401,17 @@ WIRING: dict[str, Wire] = {
     "UX1": _w("nama", "nama", "nama", "نفس ودجت الاقتراح والتصحيح على باقي حقول الإدخال"),
     "UX1b": _w("nama", "nama", "dup nama", "محلّل يحوّل الاسم المكتوب لأجزاء الكود"),
     "UX2": _w("website", "overview", "", "مكوّن إدخال نص طويل لصق وتعديل في الواجهة", "frontend"),
-    "UX3": _w("ai", "overview", "", "API خارجي لتحويل الكلام العربي لنص STT"),
+    # Shipped without the external STT this row assumed it needed: the browser
+    # has a recogniser, and it costs nothing.
+    "UX3": _w("ai", "overview", "",
+              "مبني — الناقص بس إن التعرّف بيعتمد على المتصفح، فالمتصفح اللي "
+              "مش مدعّم Web Speech ما بيشوفش المايك أصلًا"),
     "UX4": _w("website", "overview", "ws", "مخزن إعدادات الودجتات فوق workspace API", "frontend"),
     # --- Platform & Access · منصّة وصلاحيات — عابر للمنصّة كلها --
     "PA1": _w("omnichannel", "overview", "", "كونكتور WhatsApp وWeChat Business API"),
     "PA2": _w("idp", "overview", "", "كونكتور دخول موحد SSO مع Google Workspace"),
     "PA3": _w("idp", "overview", "", "طبقة صلاحيات وأدوار على مستوى المنصة"),
-    "PA4": _w("ai", "overview", "", "API خارجي لتحويل الكلام العربي لنص STT"),
+    "PA4": _w("ai", "overview", "", "مبني — نفس طبقة UX3، بتتحقن في كل صفحة"),
 }
 
 

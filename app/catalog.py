@@ -67,6 +67,13 @@ CONNECTORS: tuple[Connector, ...] = (
               note="Browser-side helpers: autocomplete, validators, widgets."),
     Connector("all-connectors", "كل الكنكتورات", "All connectors", "", "fan-out", True,
               note="Reads across every live connector at once."),
+    # Live since the platform-wide voice layer. The recogniser is the browser's
+    # own Web Speech API, so this connector carries no credential and no vendor
+    # at all — which is also why it could ship without the external Arabic STT
+    # the backlog had assumed it would have to wait for.
+    Connector("voice", "الصوت العربي", "Arabic voice", "ai",
+              "browser Web Speech API (ar-EG / en-US)", True, "", "",
+              note="طبقة واحدة بتتحقن في كل صفحة — مافيش مفتاح ومافيش فاتورة."),
     # Nama Expert. Live with no credential at all: the index is built from the
     # repo and from this catalogue, so retrieval works offline. `configured_attr`
     # points at the Anthropic key because that is what upgrades an answer from
@@ -93,9 +100,6 @@ CONNECTORS: tuple[Connector, ...] = (
     Connector("email", "الإيميل", "Email", "email", "IMAP / SMTP", False),
     Connector("omnichannel", "واتساب / وي شات", "Omnichannel", "omnichannel",
               "WhatsApp / WeChat APIs", False),
-    # Arabic STT is the same vendor class as the LLM endpoints — a capability of
-    # `ai`, not a system of its own.
-    Connector("voice", "الصوت العربي", "Arabic voice", "ai", "Arabic STT", False),
     Connector("marketdata", "أسعار السوق", "Market data", "marketdata",
               "FX / gold / oil quote feeds", False),
     Connector("sso", "الدخول الموحّد", "SSO", "idp", "Google Workspace / OAuth IdP", False),
@@ -196,6 +200,8 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/tools/certificate", "شهادة الجودة (استيراد)", "front-end", kind="page"),
     Endpoint("/tools/expert", "Nama Expert — الشات", "front-end", kind="page"),
     Endpoint("/tools/legal", "المستشار القانوني", "front-end", kind="page"),
+    Endpoint("/tools/voice.js", "طبقة البحث الصوتي — تتحقن في كل صفحة", "voice",
+             kind="page"),
     Endpoint("/tools/ideas", "لوحة الأفكار", "front-end", kind="page"),
     Endpoint("/tools/finance-reports", "التقارير المالية", "front-end", kind="page"),
     Endpoint("/tools/finance-os", "Finance OS", "front-end", kind="page"),
