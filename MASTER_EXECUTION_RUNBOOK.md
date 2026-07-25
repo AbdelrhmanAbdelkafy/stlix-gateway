@@ -20,7 +20,7 @@
 stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --reload)
 ```
 - **أعِد التشغيل بعد أي تعديل Python / registry / config.** ملفات HTML/JS في `modules/` بتتقري fresh كل طلب (مش محتاجة restart).
-- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **83 passing**.
+- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **89 passing**.
 - الأسرار في `.env` (gitignored). نسخة احتياطية للمفاتيح: `secrets/gates-keys.backup.md`.
 
 ## 2) الصفحات (افتحها في المتصفح)
@@ -32,6 +32,7 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
 | `/tools/finance-reports` | **التقارير المالية الحقيقية** (100% من SQL) — الواجهة المالية الإنتاجية |
 | `/tools/finance-os` | الكوكبيت بالأدوار (Demo prototype) — KPIs + عملاء/موردين حقيقي، الباقي ديمو |
 | `/tools/name-builder` | إنشاء الأصناف (قراءة) |
+| `/tools/engineer` | **مساعد المهندس** — خزانات (سُمك ASME) · مواسير · ليزر · مبادلات · حصر BOM (أوفلاين) |
 | `/tools/library` | وثائق المشروع نفسها (الرَنبوك · القرارات · الرؤية) من جوّه المنصّة |
 | `/systems` · `/systems/{key}` | خريطة الأنظمة — وكل نظام بيقول كام متطلب مستنيه |
 | `/connectors` · `/connectors/{key}` | كل كنكتور + وضعه + **اللي مستنيه** |
@@ -52,6 +53,12 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
 > مايبقاش فيه endpoint شغّال ومش على الخريطة، ولا خريطة بتوعد بحاجة مش موجودة.
 
 ## 5) 🎯 الأرصدة الحقيقية (المحور المهم)
+> **إيه اللي لحظي فعلًا؟** نما REST **حيّة**: الموظفين · العملاء · الفواتير كمستندات · البنوك ·
+> الـ CRM · الجرد · و**التحصيلات والمدفوعات** (`ReceiptVoucher`/`PaymentVoucher`).
+> اللي **مش لحظي** = أي **رصيد محسوب** (AR/AP/KPIs) — دي من نسخة مُرستَرة.
+> **ليه:** REST مابتدّيش أرصدة، و**SQL السحابي مقفول** (tcp/1433 و1434 timeout — مقيس).
+> **عمر البيانات ظاهر دلوقتي** في كل رد مالي (`freshness.as_of` / `age_days` / `stale`).
+
 - **نما REST مابيدّيش أرصدة** (CRUD كيانات فقط — اتأكد من OpenAPI). الحل: **SQL مباشر**.
 - **الجيتواي بيقرأ من نما SQL**: connector `app/integrations/finance/` (pyodbc, read-only).
   - الاتصال في `.env`: `NAMA_SQL_SERVER=localhost` · `NAMA_SQL_DATABASE=NAMA_TEST` · `NAMA_SQL_USER=stlix_gw` · `NAMA_SQL_PASSWORD=***` · driver `ODBC Driver 17 for SQL Server` (Encrypt=yes;TrustServerCertificate=yes).
@@ -68,7 +75,13 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
 
 ## 7) حقائق نما (gotchas)
 - API = CRUD فقط (`/{Entity}/{list,findByIdOrCode,save,delete}`). عقد كل كيان: `/erp/browseapi/openapi/{Entity}.json` (فيه trailing commas — parse بتساهل).
-- **zero-result filtered list = HTTP 400 body فاضي** → `NamaClient.find_first`.
+- **الـ400 معناها حاجتين مختلفتين** — والخلط بينهم كان بيضيّع داتا حيّة:
+  - **بودي فاضي** = فلتر صحيح مالوش نتيجة → `find_first` بترجّع None.
+  - **بودي فيه records** = **نجاح جزئي**: بعض السجلات فشلت والباقي راجع فعلًا.
+    `_handle()` بتحتفظ بيه وبتوسمه `_partial{returned, failed}`.
+    ده اللي كان مخفي `ReceiptVoucher` و`PaymentVoucher` (التحصيلات والمدفوعات اللحظية).
+- **`records_count` بتاع الصفحة مش الإجمالي.** paging: `startPage` (يبدأ من 1) + `pageSize` (لحد 1000).
+- **`@draft`** في آخر كود المستند = **غير مُرحَّل**. لازم يتفلتر قبل أي مجموع فلوس.
 - `textCriteria`: `field,Equal,value,AND;` — operator case-sensitive (`Equal` بس). التواريخ `DD-MM-YYYY`.
 - أرصدة العملاء/الموردين من `SalesInvoice`/`PurchaseInvoice` (`total`/`totalPaid`/`remaining`) JOIN `Customer`/`Supplier` على `customer_id`/`supplier_id`.
 

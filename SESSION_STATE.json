@@ -10,7 +10,7 @@
     "how": ".claude/launch.json name 'stlix-gateway' -> uvicorn app.main:app on 127.0.0.1:8000 (no --reload)",
     "restart_after": "python code / registry / config changes (HTML/JS in modules/ is read fresh per request)",
     "venv": ".venv (Python 3.14; deps need current pins)",
-    "tests": "83 passing (.venv/Scripts/python.exe -m pytest -q)"
+    "tests": "89 passing (.venv/Scripts/python.exe -m pytest -q)"
   },
   "architecture_6_layers": {
     "1_gateway": "done",
@@ -68,7 +68,8 @@
     "/api/v1/map": "THE unified graph — systems x connectors x endpoints x ideas x engines; every other view slices this same join so counts cannot disagree",
     "/systems/{key}": "one system: its connectors, endpoints and the requirements waiting on it",
     "/connectors/{key}": "one connector: what it reads and exactly which ideas it blocks",
-    "/tools/library": "the repo's own markdown docs, readable from inside the platform"
+    "/tools/library": "the repo's own markdown docs, readable from inside the platform",
+    "/tools/engineer": "Engineer's assistant (PD2): tanks/vessels with ASME UG-27 shell thickness, sanitary piping, laser & forming, heat exchangers, BOQ. OFFLINE - holds no credentials, calls nothing; its BOM is copied by hand rather than checked against Nama's item master."
   },
   "ideas": {
     "source_of_truth": "BACKLOG.md (add a markdown row -> appears on the board, no code change)",
@@ -79,9 +80,9 @@
       "/api/v1/ideas/{id}"
     ],
     "counts_2026-07-25": {
-      "total": 181,
+      "total": 182,
       "domains": 26,
-      "done": 1,
+      "done": 2,
       "ready": 107,
       "partial": 44,
       "blocked": 29,
@@ -147,13 +148,41 @@
     "counts": {
       "systems": 22,
       "connectors": 21,
-      "endpoints": 56,
-      "ideas": 181
+      "endpoints": 57,
+      "ideas": 182
     },
     "systems_without_ideas": []
   },
   "auth": {
     "header": "X-API-Key (apps, scripts, AI clients)",
     "cookie": "sg_key — set when serving a /tools/* page, HttpOnly + SameSite=lax, accepted for GET/HEAD ONLY so ambient credentials can never write. Without it every <a> into /api/v1/* 401s once a key is configured."
+  },
+  "what_is_actually_live": {
+    "live_now_via_nama_rest": [
+      "employees",
+      "customers",
+      "invoices as DOCUMENTS",
+      "banks",
+      "CRM (Vtiger)",
+      "stocktake",
+      "ReceiptVoucher (customer collections)",
+      "PaymentVoucher (supplier payments)",
+      "JournalEntry"
+    ],
+    "not_live": "every computed BALANCE (AR/AP/KPIs) - served from a restored backup",
+    "why": "Nama REST exposes no computed balances, AND direct SQL to the Namasoft cloud tenant is unreachable: tcp/1433 and 1434 to stlixvalley.namasoft.net both time out (measured, not assumed).",
+    "freshness_is_visible": "every finance response carries freshness{as_of, age_days, live, stale}; shown on the hub and /tools/finance-reports, which previously badged 11-day-old figures as 'حيّ'.",
+    "local_backups_on_disk": "D:/hardsteel20260715.bak - only ONE day newer than what is restored (2026-07-14). Not worth a restore."
+  },
+  "nama_400_semantics": {
+    "finding": "Nama answers HTTP 400 for TWO different things and the client conflated them.",
+    "empty_400": "a valid filter matching zero rows -> empty body -> 'no match' (find_first).",
+    "partial_400": "SOME records failed to serialise; the successful ones ARE in the body. This was being raised as an error, which is why ReceiptVoucher and PaymentVoucher looked unreadable. Now kept and tagged `_partial` so a sum built from an incomplete set can never look like a true total.",
+    "traps_for_any_live_aggregate": [
+      "records_count is PER PAGE, not a total - it counts only rows serialised in that response",
+      "paging is startPage (1-based) + pageSize (max 1000)",
+      "'@draft' suffix on a document code = UNPOSTED draft; must be filtered or drafts get summed with posted documents"
+    ],
+    "open_question": "can AR/AP be computed live from ReceiptVoucher + PaymentVoucher + invoices, and does it reconcile with SQL for the same period? Under investigation - no money figure ships before it matches."
   }
 }
