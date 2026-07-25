@@ -1,6 +1,9 @@
 """FastAPI app factory - mounts every integration router under /api/v1."""
 from __future__ import annotations
 
+import asyncio
+from contextlib import asynccontextmanager, suppress
+
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -16,6 +19,7 @@ from .ideas.router import router as ideas_router
 from .integrations.attendance.router import router as attendance_router
 from .integrations.banks.router import router as banks_router
 from .integrations.crm.router import router as crm_router
+from .integrations.finance.live import refresh_loop
 from .integrations.finance.router import router as finance_router
 from .integrations.inventory.router import router as inventory_router
 from .integrations.nama.router import router as nama_router
@@ -60,6 +64,30 @@ def _placeholder_router(key: str, name_en: str) -> APIRouter:
     return r
 
 
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    """Keep the live AR/AP snapshot warm while the app is up.
+
+    The sweep is ~14,000 Nama documents and takes minutes, so it can never run
+    inside a request; running it here means a snapshot already exists by the time
+    anyone asks for `?source=live`, instead of the first visitor paying for it.
+    Read-only — `/list` calls only. Off unless `LIVE_FINANCE_REFRESH_SECONDS` is
+    set, so importing the app (as the test suite does) never touches the ERP.
+    """
+    settings = get_settings()
+    task = None
+    if settings.live_finance_refresh_seconds > 0:
+        task = asyncio.create_task(
+            refresh_loop(settings, settings.live_finance_refresh_seconds))
+    try:
+        yield
+    finally:
+        if task:
+            task.cancel()
+            with suppress(asyncio.CancelledError):
+                await task
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
     configure_logging(settings.log_level, settings.log_json)
@@ -67,6 +95,7 @@ def create_app() -> FastAPI:
         title=settings.app_name,
         version=__version__,
         summary="نقطة تكامل واحدة لكل الأنظمة - single integration point for all systems.",
+        lifespan=_lifespan,
     )
     # Middleware runs outermost-first in reverse add order: add rate-limit first
     # (inner), then observability (outer) so every request gets an id + metrics.

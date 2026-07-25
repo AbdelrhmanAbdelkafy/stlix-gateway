@@ -27,6 +27,10 @@ tr:last-child td{border-bottom:0}.out{color:var(--red)}.paid{color:var(--ok)}
 .note{background:var(--card2);border:1px solid var(--ln);border-radius:12px;padding:13px 15px;font-size:12.5px;color:var(--sub);margin-top:14px}
 .note b{color:var(--tx)}
 .load{padding:30px;text-align:center;color:var(--sub)}
+.srcpick{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--sub);margin:-6px 0 18px}
+.srcpick button{font:inherit;font-weight:600;cursor:pointer;padding:5px 12px;border-radius:999px;border:1px solid var(--ln);background:var(--card);color:var(--sub)}
+.srcpick button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.srcpick button:disabled{opacity:.5;cursor:progress}
 .foot{margin-top:28px;padding-top:14px;border-top:1px solid var(--ln);font-size:11px;color:var(--sub);text-align:center}
 </style></head><body><div class="wrap">
 
@@ -36,23 +40,31 @@ tr:last-child td{border-bottom:0}.out{color:var(--red)}.paid{color:var(--ok)}
   <div class="src" id="src">⏳ بتحميل من نما SQL…</div>
 </div>
 
+<div class="srcpick">
+  <span>المصدر:</span>
+  <button id="btn-sql" class="on" onclick="pick('sql')">نسخة مُرستَرة · كاملة</button>
+  <button id="btn-live" onclick="pick('live')">حيّ من نما · لقطة</button>
+  <button id="btn-refresh" onclick="refreshLive()" title="سحب كامل من نما، بياخد دقايق">↻ حدّث اللقطة</button>
+  <span id="pickNote"></span>
+</div>
+
 <div id="app" style="display:none">
   <h2>المؤشرات التنفيذية · KPIs</h2>
   <div class="kpis" id="kpis"></div>
 
   <h2>الموردون · Accounts Payable</h2>
   <div class="h2ar">أكبر الموردين بالمستحق علينا</div>
-  <div class="card"><table id="supTbl"><thead><tr><th>الكود</th><th>المورد</th><th>فواتير</th><th>المشتريات</th><th>المدفوع</th><th>المستحق علينا</th></tr></thead><tbody id="supBody"></tbody></table></div>
+  <div class="card"><table id="supTbl"><thead><tr><th>الكود</th><th>المورد</th><th>فواتير</th><th>قيمة الفواتير</th><th>المدفوع</th><th>المستحق علينا</th></tr></thead><tbody id="supBody"></tbody></table></div>
 
   <h2>العملاء · Accounts Receivable</h2>
   <div class="h2ar">المدينون بالرصيد المستحق</div>
-  <div class="card"><table id="cusTbl"><thead><tr><th>الكود</th><th>العميل</th><th>المبيعات</th><th>المحصّل</th><th>المستحق</th></tr></thead><tbody id="cusBody"></tbody></table></div>
+  <div class="card"><table id="cusTbl"><thead><tr><th>الكود</th><th>العميل</th><th>قيمة الفواتير</th><th>المحصّل</th><th>المستحق</th></tr></thead><tbody id="cusBody"></tbody></table></div>
   <div class="note" id="arNote"></div>
 </div>
 
 <div id="load" class="load">⏳ بتحميل التقارير الحقيقية من نما…</div>
 
-<div class="foot">Stlix Gateway · التقارير المالية · أرقام حيّة من نما عبر SQL (قراءة فقط) — تتحدّث تلقائيًا مع أحدث نسخة مُرستَرة.</div>
+<div class="foot">Stlix Gateway · التقارير المالية · SQL مُرستَر أو لقطة حيّة من مستندات نما REST — المصدر والعُمر ظاهرين دايمًا · قراءة فقط.</div>
 
 <script>
 const H={"X-API-Key":"__GATEWAY_API_KEY__"};
@@ -61,33 +73,88 @@ const fmt=n=>n==null?"—":new Intl.NumberFormat("en-US").format(n);
 const M=n=>n==null?"—":(Math.abs(n)>=1e6?(n/1e6).toFixed(1)+" M":fmt(n));
 async function gw(p){const r=await fetch("/api/v1/finance/"+p,{headers:H});if(!r.ok)throw new Error(p+" "+r.status);return r.json();}
 function kpi(l,v,cls){return `<div class="kpi ${cls||''}"><div class="l">${l}</div><div class="v">${v}</div></div>`;}
+
+// Two sources answer the same questions. Neither is hidden behind the other:
+// the restored backup is complete but days old, the live sweep is current to the
+// minute but is a snapshot that may be mid-rebuild. The page always says which.
+let SRC=new URLSearchParams(location.search).get("source")==="live"?"live":"sql";
+$("btn-sql").className=SRC==="sql"?"on":"";
+$("btn-live").className=SRC==="live"?"on":"";
+const q=p=>p+(p.includes("?")?"&":"?")+"source="+SRC;
+function pick(s){
+  if(SRC===s)return;
+  SRC=s;
+  document.getElementById("btn-sql").className=s==="sql"?"on":"";
+  document.getElementById("btn-live").className=s==="live"?"on":"";
+  $("app").style.display="none";$("load").style.display="block";
+  $("load").innerHTML="⏳ بتحميل…";
+  load();
+}
+async function refreshLive(){
+  const b=document.getElementById("btn-refresh");
+  b.disabled=true;b.textContent="↻ بيسحب…";
+  try{
+    const r=await fetch("/api/v1/finance/live/refresh",{method:"POST",headers:H});
+    const j=await r.json();
+    $("pickNote").textContent=j.started?"السحب بدأ — بياخد دقايق، جرّب «حيّ» بعد شوية":(j.reason||"");
+  }catch(e){$("pickNote").textContent="فشل بدء السحب: "+e.message;}
+  b.disabled=false;b.textContent="↻ حدّث اللقطة";
+}
 async function load(){
  try{
-  const [k,sup,cus]=await Promise.all([gw("kpis"),gw("suppliers?limit=12"),gw("customers?limit=200")]);
+  const [k,sup,cus]=await Promise.all([gw(q("kpis")),gw(q("suppliers?limit=12")),gw(q("customers?limit=200"))]);
+  if(k.available===false){
+    $("load").innerHTML="⏳ <b>مافيش لقطة لحظية لسه.</b> "+(k.reason||"")+
+      "<br><small>السحب الكامل بياخد دقايق. دوس «↻ حدّث اللقطة» أو ارجع للنسخة المُرستَرة.</small>";
+    $("load").style.display="block";$("app").style.display="none";return;
+  }
   $("kpis").innerHTML=[
     kpi("عدد العملاء",fmt(k.customers)),
     kpi("عدد الموردين",fmt(k.suppliers)),
     kpi("إجمالي المبيعات",M(k.salesTotal)+' <small>ج</small>',"ok"),
     kpi("مستحق لنا (AR)",M(k.arOutstanding)+' <small>ج</small>',"red"),
+    kpi("منها على عملاء",M(k.arFromCustomers)+' <small>ج</small>',"red"),
     kpi("إجمالي المشتريات",M(k.purchaseTotal)+' <small>ج</small>'),
     kpi("مستحق علينا (AP)",M(k.apOutstanding)+' <small>ج</small>',"warn"),
+    kpi("منها لموردين",M(k.apToSuppliers)+' <small>ج</small>',"warn"),
     kpi("فواتير بيع",fmt(k.salesInvoices)),
     kpi("فواتير شراء",fmt(k.purchaseInvoices)),
   ].join("");
-  $("supBody").innerHTML=(sup.records||[]).map(s=>`<tr><td>${s.code}</td><td>${s.name1||"—"}</td><td class="n">${fmt(s.invoices)}</td><td class="n">${fmt(s.purchaseTotal)}</td><td class="n paid">${fmt(s.paid)}</td><td class="n out">${fmt(s.outstanding)}</td></tr>`).join("");
+  // Show `invoicedNet`, not `salesTotal`. The balance is netValue − totalPaid, so
+  // printing the pre-tax gross next to it produced rows where the outstanding
+  // exceeded the invoiced amount (e.g. C1000397: 155,005 billed vs 176,705 due).
+  $("supBody").innerHTML=(sup.records||[]).map(s=>`<tr><td>${s.code}</td><td>${s.name1||"—"}</td><td class="n">${fmt(s.invoices)}</td><td class="n">${fmt(s.invoicedNet)}</td><td class="n paid">${fmt(s.paid)}</td><td class="n out">${fmt(s.outstanding)}</td></tr>`).join("");
   const debtors=(cus.records||[]).filter(c=>c.outstanding>0).sort((a,b)=>b.outstanding-a.outstanding);
-  $("cusBody").innerHTML=debtors.map(c=>`<tr><td>${c.code}</td><td>${c.name1||"—"}</td><td class="n">${fmt(c.salesTotal)}</td><td class="n paid">${fmt(c.collected)}</td><td class="n out">${fmt(c.outstanding)}</td></tr>`).join("")||'<tr><td colspan="5" style="color:var(--sub)">لا يوجد مدينون بأرصدة على عملاء بالاسم</td></tr>';
+  $("cusBody").innerHTML=debtors.map(c=>`<tr><td>${c.code}</td><td>${c.name1||"—"}</td><td class="n">${fmt(c.invoicedNet)}</td><td class="n paid">${fmt(c.collected)}</td><td class="n out">${fmt(c.outstanding)}</td></tr>`).join("")||'<tr><td colspan="5" style="color:var(--sub)">لا يوجد مدينون بأرصدة على عملاء بالاسم</td></tr>';
   const attributed=debtors.reduce((s,c)=>s+c.outstanding,0);
-  $("arNote").innerHTML=`⚠️ <b>ملاحظة بيانات:</b> إجمالي المستحق (AR) = <b>${fmt(k.arOutstanding)} ج</b>، لكن المنسوب منه لعملاء بالاسم = <b>${fmt(attributed)} ج</b> (${debtors.length} عميل). الباقي على فواتير غير مربوطة بعميل مُسمّى — يستحق مراجعة بيانات.`;
+  // The old note said the balance was "unattributed" and asked for a data review.
+  // It was not a data problem: the join used SalesInvoice.customer_id, which is
+  // NULL on 5,263 of 6,845 invoices. Joined on the real party (subsidiaryId) the
+  // customers below now add up. What is left over is genuinely not customer money —
+  // sales invoices raised on suppliers and employees.
+  const other=(k.arOutstanding||0)-(k.arFromCustomers||0);
+  $("arNote").innerHTML=`<b>قراءة الرقم:</b> إجمالي فواتير البيع المفتوحة = <b>${fmt(k.arOutstanding)} ج</b>، `+
+    `منها <b>${fmt(k.arFromCustomers)} ج</b> على عملاء (الجدول تحت: ${fmt(attributed)} ج على ${debtors.length} عميل)`+
+    ` و<b>${fmt(other)} ج</b> على أطراف تانية (موردين/موظفين) — دي مش مديونية عملاء.`;
   // This used to badge the numbers "حيّ" while showing an 11-day-old restore.
   // The figures are real, but they are as-of a backup — say which, and how old.
   const f=k.freshness||{}, age=f.age_days;
-  const warn=age==null?"":(age<=1?"":' style="color:var(--warn)"');
-  $("src").innerHTML='<span class="badge">نما SQL · أرقام حقيقية</span><br>'+
-    'بيانات حتى: <b'+warn+'>'+(k.asOf||f.as_of||"—")+'</b>'+
-    (age==null?"":'<br><span'+warn+'>'+(age<=1?"محدّثة":"عُمرها "+age+" يوم — نسخة مُرستَرة، مش لحظي")+'</span>');
+  if(f.live){
+    const mins=f.age_minutes;
+    const w=mins>90?' style="color:var(--warn)"':'';
+    const miss=k.excludedDocuments|0;
+    $("src").innerHTML='<span class="badge">نما REST · لقطة حيّة</span><br>'+
+      'اتسحبت: <b'+w+'>'+(mins==null?"—":(mins<60?Math.round(mins)+" دقيقة":(mins/60).toFixed(1)+" ساعة"))+' فاتت</b>'+
+      (miss?'<br><span style="color:var(--warn)">'+miss+' مستند مستبعد/غير مقروء — تفاصيله في حالة اللقطة</span>':'')+
+      (f.building?'<br><span>⏳ في سحب شغّال دلوقتي</span>':'');
+  }else{
+    const warn=age==null?"":(age<=1?"":' style="color:var(--warn)"');
+    $("src").innerHTML='<span class="badge">نما SQL · أرقام حقيقية</span><br>'+
+      'بيانات حتى: <b'+warn+'>'+(k.asOf||f.as_of||"—")+'</b>'+
+      (age==null?"":'<br><span'+warn+'>'+(age<=1?"محدّثة":"عُمرها "+age+" يوم — نسخة مُرستَرة، مش لحظي")+'</span>');
+  }
   $("load").style.display="none";$("app").style.display="block";
- }catch(e){$("load").innerHTML="❌ فشل التحميل: "+e.message+" — اتأكد إن NAMA_SQL مظبوط في .env والسيرفر شغّال.";}
+ }catch(e){$("load").innerHTML="❌ فشل التحميل: "+e.message+" — اتأكد إن المصدر المختار متاح والسيرفر شغّال.";}
 }
 load();
 </script>

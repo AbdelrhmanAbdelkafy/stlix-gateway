@@ -11,6 +11,28 @@
         "--app-dir", "D:\\Nama Code project\\stlix-gateway"
       ],
       "port": 8000
+    },
+    {
+      "name": "stlix-gateway-alt",
+      "runtimeExecutable": "D:\\Nama Code project\\stlix-gateway\\.venv\\Scripts\\python.exe",
+      "runtimeArgs": [
+        "-m", "uvicorn", "app.main:app",
+        "--host", "127.0.0.1",
+        "--port", "8010",
+        "--app-dir", "D:\\Nama Code project\\stlix-gateway"
+      ],
+      "port": 8010
+    },
+    {
+      "name": "stlix-gateway-c",
+      "runtimeExecutable": "D:\\Nama Code project\\stlix-gateway\\.venv\\Scripts\\python.exe",
+      "runtimeArgs": [
+        "-m", "uvicorn", "app.main:app",
+        "--host", "127.0.0.1",
+        "--port", "8020",
+        "--app-dir", "D:\\Nama Code project\\stlix-gateway"
+      ],
+      "port": 8020
     }
   ]
 }

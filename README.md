@@ -16,7 +16,7 @@ after both went live. The running service is the map:
 | `GET /connectors` · `GET /connectors/{key}` | every connector, its mode, its routes, and what it unblocks |
 | `GET /api/v1/map` | the whole graph: systems × connectors × endpoints × ideas × engines |
 | `GET /tools/platform` | the hub — the human entry point |
-| `GET /tools/ideas` | all 181 owner requirements, each wired to its data |
+| `GET /tools/ideas` | all 182 owner requirements, each wired to its data |
 
 Planned systems answer at `/api/v1/<key>` with `501` **and name what building
 them would unlock**, so the whole surface is visible and nothing is a dead end.

@@ -20,39 +20,76 @@ except Exception:  # pragma: no cover
     pyodbc = None
 
 
+# --- how the party is stored, and why the obvious join is wrong -------------
+#
+# `SalesInvoice.customer_id` is NULL on 5,263 of 6,845 posted invoices — it is
+# only filled on the minority of documents raised through the customer-order
+# route. Joining on it silently dropped 19,843,457 of the 20,021,266 open AR,
+# which is why the customer report used to add up to ~178K and the KPI to 20M.
+#
+# The party every document actually carries is the polymorphic *subsidiary*
+# (`subsidiaryId` + `subsidiaryEntityType`), and it resolves against
+# Customer.id with zero misses on all 5,806 customer-typed sales invoices.
+# `subsidiaryCode` is NOT usable: 4,950 of those rows carry a legacy code that
+# no longer matches Customer.code.
+#
+# Two more rules hold for every figure below:
+#   * `documentFileStatus = 'Stable'` — unposted drafts are ordinary rows here
+#     and would otherwise be summed with posted documents.
+#   * `remaining = netValue - totalPaid` (6,829 of 6,848 rows), NOT
+#     `total - totalPaid` — `total` is the gross before tax. So each row's
+#     invoicedNet / collected / outstanding tie out; `salesTotal` is kept
+#     alongside for continuity but is not the basis of the balance.
+
 _CUSTOMERS = """
 SELECT TOP (?) c.code, c.name1,
        COUNT(*) AS invoices,
-       CAST(SUM(s.total)     AS BIGINT) AS salesTotal,
-       CAST(SUM(s.totalPaid) AS BIGINT) AS collected,
-       CAST(SUM(s.remaining) AS BIGINT) AS outstanding,
+       CAST(SUM(s.total)     AS FLOAT) AS salesTotal,
+       CAST(SUM(s.netValue)  AS FLOAT) AS invoicedNet,
+       CAST(SUM(s.totalPaid) AS FLOAT) AS collected,
+       CAST(SUM(s.remaining) AS FLOAT) AS outstanding,
        CONVERT(varchar(10), MAX(s.issueDate), 120) AS lastInvoiceDate
-FROM SalesInvoice s JOIN Customer c ON c.id = s.customer_id
+FROM SalesInvoice s JOIN Customer c ON c.id = s.subsidiaryId
+WHERE s.documentFileStatus = 'Stable' AND s.subsidiaryEntityType = 'Customer'
 GROUP BY c.code, c.name1
-ORDER BY SUM(s.total) DESC
+ORDER BY SUM(s.remaining) DESC
 """
 
 _SUPPLIERS = """
 SELECT TOP (?) sup.code, sup.name1,
        COUNT(*) AS invoices,
-       CAST(SUM(p.total)     AS BIGINT) AS purchaseTotal,
-       CAST(SUM(p.totalPaid) AS BIGINT) AS paid,
-       CAST(SUM(p.remaining) AS BIGINT) AS outstanding,
+       CAST(SUM(p.total)     AS FLOAT) AS purchaseTotal,
+       CAST(SUM(p.netValue)  AS FLOAT) AS invoicedNet,
+       CAST(SUM(p.totalPaid) AS FLOAT) AS paid,
+       CAST(SUM(p.remaining) AS FLOAT) AS outstanding,
        CONVERT(varchar(10), MAX(p.issueDate), 120) AS lastInvoiceDate
-FROM PurchaseInvoice p JOIN Supplier sup ON sup.id = p.supplier_id
+FROM PurchaseInvoice p JOIN Supplier sup ON sup.id = p.subsidiaryId
+WHERE p.documentFileStatus = 'Stable' AND p.subsidiaryEntityType = 'Supplier'
 GROUP BY sup.code, sup.name1
 ORDER BY SUM(p.remaining) DESC
 """
 
+# arOutstanding counts every open sales invoice; arFromCustomers is the slice the
+# customer report can name. They differ by ~9.5M because 1,016 sales invoices are
+# raised against a Supplier and 23 against an Employee — real documents, just not
+# customer receivables. Publishing only the total made the report look broken.
 _KPIS = """
-SELECT (SELECT COUNT(*) FROM Customer)                        AS customers,
-       (SELECT COUNT(*) FROM Supplier)                        AS suppliers,
-       (SELECT COUNT(*) FROM SalesInvoice)                    AS salesInvoices,
-       CAST((SELECT SUM(total)     FROM SalesInvoice) AS BIGINT)    AS salesTotal,
-       CAST((SELECT SUM(remaining) FROM SalesInvoice) AS BIGINT)    AS arOutstanding,
-       (SELECT COUNT(*) FROM PurchaseInvoice)                 AS purchaseInvoices,
-       CAST((SELECT SUM(total)     FROM PurchaseInvoice) AS BIGINT) AS purchaseTotal,
-       CAST((SELECT SUM(remaining) FROM PurchaseInvoice) AS BIGINT) AS apOutstanding,
+SELECT (SELECT COUNT(*) FROM Customer) AS customers,
+       (SELECT COUNT(*) FROM Supplier) AS suppliers,
+       (SELECT COUNT(*) FROM SalesInvoice WHERE documentFileStatus='Stable') AS salesInvoices,
+       CAST((SELECT SUM(total)    FROM SalesInvoice WHERE documentFileStatus='Stable') AS FLOAT) AS salesTotal,
+       CAST((SELECT SUM(netValue) FROM SalesInvoice WHERE documentFileStatus='Stable') AS FLOAT) AS salesNet,
+       CAST((SELECT SUM(remaining) FROM SalesInvoice
+             WHERE documentFileStatus='Stable') AS FLOAT) AS arOutstanding,
+       CAST((SELECT SUM(remaining) FROM SalesInvoice
+             WHERE documentFileStatus='Stable' AND subsidiaryEntityType='Customer') AS FLOAT) AS arFromCustomers,
+       (SELECT COUNT(*) FROM PurchaseInvoice WHERE documentFileStatus='Stable') AS purchaseInvoices,
+       CAST((SELECT SUM(total)    FROM PurchaseInvoice WHERE documentFileStatus='Stable') AS FLOAT) AS purchaseTotal,
+       CAST((SELECT SUM(netValue) FROM PurchaseInvoice WHERE documentFileStatus='Stable') AS FLOAT) AS purchaseNet,
+       CAST((SELECT SUM(remaining) FROM PurchaseInvoice
+             WHERE documentFileStatus='Stable') AS FLOAT) AS apOutstanding,
+       CAST((SELECT SUM(remaining) FROM PurchaseInvoice
+             WHERE documentFileStatus='Stable' AND subsidiaryEntityType='Supplier') AS FLOAT) AS apToSuppliers,
        (SELECT CONVERT(varchar(10), MAX(issueDate), 120) FROM SalesInvoice) AS asOf
 """
 

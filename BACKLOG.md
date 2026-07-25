@@ -197,6 +197,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | LG6 | مخلّصين (customs clearance agents) | new | ⚪ |
 | LG7 | Cargo | new | ⚪ |
 | LG8 | نافذة / Nafeza (national single window) | external portal | ⚪ |
+| LG9 | **CargoX Document Creator & Validator** — إنشاء مستندات الشحن (فاتورة · قائمة تعبئة · شهادة منشأ · B/L) والتحقق منها **قبل** الرفع على CargoX/ACID، + شات بوت بيسأل عن الناقص ويكمّله. الرفض بعد الرفع بيكلّف وقت ورسوم — الفحص محلّه قبل الإرسال | Nama / external portal / ai | ⚪ |
 
 ## Safety / HSE (السلامة)
 | # | Item | Source | Status |

@@ -17,3 +17,6 @@ venv/
 .DS_Store
 .idea/
 .vscode/
+
+# Runtime scratch written by the hub
+.tmp_hubdata.json

@@ -190,6 +190,7 @@ is already queryable.
 | `LG6` | movement *(+customs?)* | — | موديول تخليص جمركي بالمخلصين وشغل كل شحنة | The backlog source is `new`: clearance-agent jobs, fees per shipment and agent performance exist nowhere queryable, so attaching any Nama endpoint would be dishonest. |
 | `LG7` | movement | — | كونكتور حجز شحن تحت نظام movement | Cargo bookings are a pure `new` source with no Nama footprint; the registered `movement` system already describes itself as logistics, so no new system key is needed — only the connector. |
 | `LG8` | portal | — | كونكتور بوابة نافذة Nafeza الجمركية | Nafeza is an external government portal with no local data at all, so no endpoint applies; it is a customs-domain integration that `movement` only approximates. |
+| `LG9` | portal · nama · ai | `/api/v1/nama/lists/{entity}` · `/api/v1/nama/{entity}/{code}` | كونكتور CargoX/ACID للتحقق والرفع + Layer 4 للشات بوت — داتا المستندات نفسها موجودة في نما | Unlike LG8, this one is not data-less: a commercial invoice, packing list and certificate of origin are assembled from documents Nama already holds, which is why the Nama endpoints are named as its raw source. What is missing is the receiving end (CargoX/ACID) and the Layer 4 chatbot that asks for the fields the documents do not carry. Validation belongs *before* upload — a rejection after it costs both time and fees. |
 
 ## Safety / HSE · السلامة (`SF`)
 

@@ -45,8 +45,8 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
   <!-- Every number here is read from the running platform. Hardcoded counts
        went stale silently (the strip claimed 5 connectors and 44 tests long
        after both had changed). -->
-  <div class="kpis" id="kpis"><div class="kpi"><div class="v" id="k-conn">—</div><div class="l">كنكتور حيّ</div></div><div class="kpi"><div class="v" id="k-sys">—</div><div class="l">نظام على الخريطة</div></div><div class="kpi"><div class="v" id="k-ideas">—</div><div class="l">متطلب</div></div><div class="kpi"><div class="v" id="k-ready">—</div><div class="l">جاهز للبناء</div></div><div class="kpi"><div class="v">20.0M</div><div class="l">مستحق لنا AR</div></div><div class="kpi"><div class="v">186.7M</div><div class="l">مستحق علينا AP</div></div></div>
-  <div id="freshness" style="margin-top:10px;font-size:11.5px;color:#9fb4b4"></div>
+    <div class="kpis" id="kpis"><div class="kpi"><div class="v" id="k-conn">…</div><div class="l">كنكتور حيّ</div></div><div class="kpi"><div class="v" id="k-sys">…</div><div class="l">نظام على الخريطة</div></div><div class="kpi"><div class="v" id="k-ideas">…</div><div class="l">متطلب</div></div><div class="kpi"><div class="v" id="k-ready">…</div><div class="l">جاهز للبناء</div></div><div class="kpi"><div class="v" id="k-ar">…</div><div class="l">مستحق لنا AR</div></div><div class="kpi"><div class="v" id="k-ap">…</div><div class="l">مستحق علينا AP</div></div></div>
+  <div id="freshness" style="margin-top:10px;font-size:11.5px;color:#9fb4b4">بيحمّل أرقام المالية…</div>
 </div></div>
 
 <div class="wrap">
@@ -54,23 +54,23 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
   <h2>شغّال دلوقتي · Live</h2>
   <div class="h2ar">الموديولات والأنظمة الموصّلة على المنصّة</div>
   <div class="grid">
-    <a class="mod" href="http://localhost:8000/tools/finance-os"><div class="ic">💼</div><div class="t">Finance OS</div><div class="d">كوكبيت مالي بأدوار · خزينة · عملاء/موردين بأرصدة حقيقية · شات فريق</div><span class="s s-read">حيّ · SQL</span></a>
-    <a class="mod" href="http://localhost:8000/tools/finance-reports"><div class="ic">📊</div><div class="t">التقارير المالية</div><div class="d">AR · AP · KPIs · أعمار ديون — أرقام نما الحقيقية من SQL</div><span class="s s-live">حيّ · SQL</span></a>
-    <a class="mod" href="http://localhost:8000/tools/name-builder"><div class="ic">🏷️</div><div class="t">إنشاء الأصناف</div><div class="d">نص حر → كود وصفي + اسم · تصحيح إملائي + autocomplete · فحص تكرار</div><span class="s s-read">حيّ · قراءة</span></a>
-    <a class="mod" href="http://localhost:8000/tools/engineer"><div class="ic">🛢️</div><div class="t">مساعد المهندس</div><div class="d">خزانات وأوعية (سُمك ASME) · مواسير صحية · ليزر وتشكيل · مبادلات · حصر BOM</div><span class="s s-read">حيّ · أوفلاين</span></a>
-    <a class="mod" href="http://localhost:8000/tools/ideas"><div class="ic">💡</div><div class="t">الأفكار والمتطلبات</div><div class="d">كل فكرة قلتها — لينك تفتحه · فلتر بالكنكتور: جاهز / ناقص / محتاج تكامل</div><span class="s s-live" id="ideas-badge">حيّ</span></a>
-    <a class="mod" href="http://localhost:8000/api/v1/map"><div class="ic">🗺️</div><div class="t">الخريطة الموحّدة</div><div class="d">الأنظمة × الكنكتورات × الـ endpoints × المتطلبات — كلها مربوطة في رسم واحد</div><span class="s s-live" id="map-badge">حيّ</span></a>
-    <a class="mod" href="http://localhost:8000/api/v1/workspace"><div class="ic">🗂️</div><div class="t">اللوحة الموحّدة</div><div class="d">تجميع لحظي لكل الأقسام (نما · CRM · بنوك · جرد · مالية · مراقبة)</div><span class="s s-live">حيّ</span></a>
-    <a class="mod" href="http://localhost:8000/systems"><div class="ic">🧭</div><div class="t">الأنظمة</div><div class="d">خريطة كل أنظمة الشركة — وكل نظام بيقول كام متطلب مستنيه</div><span class="s s-live" id="sys-badge">حيّ</span></a>
-    <a class="mod" href="http://localhost:8000/connectors"><div class="ic">🔌</div><div class="t">الكنكتورات</div><div class="d">كل كنكتور: وضعه · endpoints بتاعته · وبيفكّ كام فكرة</div><span class="s s-live" id="conn-badge">حيّ</span></a>
-    <a class="mod" href="http://localhost:8000/tools/library"><div class="ic">📚</div><div class="t">مكتبة الوثائق</div><div class="d">الرَنبوك · القرارات · المهام · الرؤية — من جوّه المنصّة نفسها</div><span class="s s-live">حيّ</span></a>
-    <a class="mod" href="http://localhost:8000/metrics"><div class="ic">📈</div><div class="t">المراقبة</div><div class="d">Prometheus · JSON · HTML — كل الطلبات والأخطاء</div><span class="s s-live">حيّ</span></a>
-    <a class="mod" href="http://localhost:8000/health"><div class="ic">❤️</div><div class="t">الصحة</div><div class="d">حالة الجيتواي + الكنكتورات + وصول نما</div><span class="s s-live">حيّ</span></a>
+    <a class="mod" href="/tools/finance-os"><div class="ic">💼</div><div class="t">Finance OS</div><div class="d">كوكبيت مالي بأدوار · خزينة · عملاء/موردين بأرصدة حقيقية · شات فريق</div><span class="s s-read">حيّ · SQL</span></a>
+    <a class="mod" href="/tools/finance-reports"><div class="ic">📊</div><div class="t">التقارير المالية</div><div class="d">AR · AP · KPIs · أعمار ديون — أرقام نما الحقيقية من SQL</div><span class="s s-live">حيّ · SQL</span></a>
+    <a class="mod" href="/tools/name-builder"><div class="ic">🏷️</div><div class="t">إنشاء الأصناف</div><div class="d">نص حر → كود وصفي + اسم · تصحيح إملائي + autocomplete · فحص تكرار</div><span class="s s-read">حيّ · قراءة</span></a>
+    <a class="mod" href="/tools/engineer"><div class="ic">🛢️</div><div class="t">مساعد المهندس</div><div class="d">خزانات وأوعية (سُمك ASME) · مواسير صحية · ليزر وتشكيل · مبادلات · حصر BOM</div><span class="s s-read">حيّ · أوفلاين</span></a>
+    <a class="mod" href="/tools/ideas"><div class="ic">💡</div><div class="t">الأفكار والمتطلبات</div><div class="d">كل فكرة قلتها — لينك تفتحه · فلتر بالكنكتور: جاهز / ناقص / محتاج تكامل</div><span class="s s-live" id="ideas-badge">…</span></a>
+    <a class="mod" href="/api/v1/map"><div class="ic">🗺️</div><div class="t">الخريطة الموحّدة</div><div class="d">الأنظمة × الكنكتورات × الـ endpoints × المتطلبات — كلها مربوطة في رسم واحد</div><span class="s s-live" id="map-badge">…</span></a>
+    <a class="mod" href="/api/v1/workspace"><div class="ic">🗂️</div><div class="t">اللوحة الموحّدة</div><div class="d">تجميع لحظي لكل الأقسام (نما · CRM · بنوك · جرد · مالية · مراقبة)</div><span class="s s-live">حيّ</span></a>
+    <a class="mod" href="/systems"><div class="ic">🧭</div><div class="t">الأنظمة</div><div class="d">خريطة كل أنظمة الشركة — وكل نظام بيقول كام متطلب مستنيه</div><span class="s s-live" id="sys-badge">…</span></a>
+    <a class="mod" href="/connectors"><div class="ic">🔌</div><div class="t">الكنكتورات</div><div class="d">كل كنكتور: وضعه · endpoints بتاعته · وبيفكّ كام فكرة</div><span class="s s-live" id="conn-badge">…</span></a>
+    <a class="mod" href="/tools/library"><div class="ic">📚</div><div class="t">مكتبة الوثائق</div><div class="d">الرَنبوك · القرارات · المهام · الرؤية — من جوّه المنصّة نفسها</div><span class="s s-live">حيّ</span></a>
+    <a class="mod" href="/metrics"><div class="ic">📈</div><div class="t">المراقبة</div><div class="d">Prometheus · JSON · HTML — كل الطلبات والأخطاء</div><span class="s s-live">حيّ</span></a>
+    <a class="mod" href="/health"><div class="ic">❤️</div><div class="t">الصحة</div><div class="d">حالة الجيتواي + الكنكتورات + وصول نما</div><span class="s s-live">حيّ</span></a>
   </div>
 
   <h2>الدومينات · Domains</h2>
   <div class="h2ar">كل دومين — وكام متطلب فيه جاهز نبنيه دلوقتي</div>
-  <div class="grid" id="domains"><div class="ph"><div class="t">بيحمّل…</div></div></div>
+  <div class="grid" id="domains"><div class="ph"><div class="t">بيحمّل الدومينات…</div></div></div>
 
   <h2>قيد التخطيط · Placeholders</h2>
   <div class="h2ar">المتطلبات المتبقية — بتترّكب على نفس النمط</div>
@@ -87,9 +87,62 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
 
   <div class="foot">
     قراءة أولًا · مفاتيح server-side · بوابة مزدوجة · HTML+JSON لكل endpoint · سجلّ تدقيق
-    <div>الأرقام حقيقية من نما SQL حتى 2026-07-14 · الروابط بتفتح الجيتواي المحلي (لازم يكون شغّال على :8000)</div><div>أرصدة حقيقية من نما SQL (قراءة فقط) · النسخة تتحدّث مع أحدث backup مُرستَر</div>
+    <div>كل رقم هنا مقروء من <a href="/api/v1/map" style="color:var(--ac)">/api/v1/map</a> — نفس الوصلة اللي بتغذّي كل صفحة تانية، فمستحيل رقم يختلف بينهم</div>
   </div>
 </div>
 
 
+<script>
+// Every number on this page is read from the running platform. This file used
+// to hold its own copies of the AR and AP totals, typed in with an as-of date
+// typed in beside them, so it reported one day's position permanently and
+// nothing about it looked wrong. It now reads the same graph /tools/platform
+// reads, which is what makes the two hubs unable to disagree.
+var KEY="__GATEWAY_API_KEY__",H={headers:{"X-API-Key":KEY}};
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v}
+
+fetch("/api/v1/finance/kpis",H).then(function(r){return r.json()}).then(function(k){
+  var el=document.getElementById("freshness");
+  if(!k||!k.available){if(el)el.textContent="أرقام المالية مش متاحة دلوقتي";return}
+  var M=function(n){return n==null?"—":(Math.abs(n)>=1e6?(n/1e6).toFixed(1)+"M":n)};
+  set("k-ar",M(k.arOutstanding));set("k-ap",M(k.apOutstanding));
+  // A money figure with no as-of reads as today's position. State the age, always.
+  var f=k.freshness||{};
+  if(!el)return;
+  if(f.live){
+    el.innerHTML="أرقام المالية <b>لحظية</b> من مستندات نما"+
+      (f.age_minutes!=null?" · آخر مسح من "+f.age_minutes+" دقيقة":"");
+  }else if(f.as_of){
+    el.innerHTML="أرقام المالية بتاريخ <b>"+esc(f.as_of)+"</b>"+
+      (f.age_days>1?' · <span style="color:var(--warn)">عُمرها '+f.age_days+' يوم (نسخة مُرستَرة)</span>':" · محدّثة");
+  }
+}).catch(function(){});
+
+// One call feeds the strip and every badge: same join as /systems and the board.
+fetch("/api/v1/map?format=json",H).then(function(r){return r.json()}).then(function(g){
+  var c=g.coverage,live=g.connectors.filter(function(x){return x.live});
+  set("k-conn",live.length);set("k-sys",c.systems);
+  set("k-ideas",c.ideas);set("k-ready",g.ideas.filter(function(i){return i.readiness==="ready"}).length);
+  set("ideas-badge",c.ideas+" متطلب · "+c.ideas_with_data+" داتاه موجودة");
+  set("map-badge",c.systems+" نظام × "+c.ideas+" متطلب");
+  set("sys-badge",c.systems_live+" حيّ من "+c.systems);
+  set("conn-badge",live.length+" حيّ من "+g.connectors.length);
+}).catch(function(){});
+
+fetch("/api/v1/ideas/domains",H).then(function(r){return r.json()}).then(function(d){
+  var doms=(d.domains||[]).slice().sort(function(a,b){return b.total-a.total});
+  document.getElementById("domains").innerHTML=doms.map(function(x){
+    return '<a class="mod" href="/tools/ideas?dom='+esc(x.prefix)+'">'+
+      '<div class="ic">'+x.icon+'</div>'+
+      '<div class="t">'+esc(x.domain)+'</div>'+
+      '<div class="d">'+x.total+' متطلب · '+x.with_data+' داتاه موجودة · '+
+        esc((x.systems||[]).slice(0,3).join(" · "))+'</div>'+
+      '<span class="s '+(x.ready?"s-live":"s-read")+'">'+x.ready+' جاهز للبناء</span></a>'
+  }).join("");
+}).catch(function(){
+  document.getElementById("domains").innerHTML='<div class="ph"><div class="t">تعذّر تحميل الدومينات</div></div>';
+});
+</script>
 </body></html>
+

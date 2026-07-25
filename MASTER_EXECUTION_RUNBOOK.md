@@ -20,13 +20,14 @@
 stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --reload)
 ```
 - **أعِد التشغيل بعد أي تعديل Python / registry / config.** ملفات HTML/JS في `modules/` بتتقري fresh كل طلب (مش محتاجة restart).
-- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **89 passing**.
+- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **105 passing**.
 - الأسرار في `.env` (gitignored). نسخة احتياطية للمفاتيح: `secrets/gates-keys.backup.md`.
 
 ## 2) الصفحات (افتحها في المتصفح)
 | الرابط | إيه هو |
 |---|---|
 | `/tools/platform` | **الهَب الموحّد** — نقطة الدخول · أرقامه كلها حيّة من `/api/v1/map` · 26 كارت دومين بيوصّلوا للوحة مفلترة |
+| `/tools/platform/public` | **الهَب — العرض العام** — نفس الأرقام بالظبط من نفس الوصلة، بتفاصيل داخلية أقل |
 | `/api/v1/map` | **الخريطة الموحّدة** — أنظمة × كنكتورات × endpoints × متطلبات × محرّكات في رد واحد |
 | `/tools/ideas` | **لوحة الأفكار** — كل متطلب مربوط بنظامه وكنكتوره و**الـ endpoints اللي فيها داتاه الخام** · فلاتر بالـ URL |
 | `/tools/finance-reports` | **التقارير المالية الحقيقية** (100% من SQL) — الواجهة المالية الإنتاجية |
@@ -65,6 +66,13 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
   - login `stlix_gw` = read-only (db_datareader). أُنشئ عبر SSMS: `CREATE LOGIN stlix_gw ... ; CREATE USER ... ; ALTER ROLE db_datareader ADD MEMBER stlix_gw`.
   - Endpoints: `/api/v1/finance/kpis` · `/customers` · `/suppliers` → أرقام حقيقية.
 - **الأرقام (as-of 2026-07-14):** 549 عميل · 586 مورد · مبيعات 329.9M · AR 20.0M · مشتريات 320.0M · AP 186.7M.
+- **الأرقام اللحظية (`?source=live`):** بتتبني من مستندات نما REST — الصافي من `details[].price.netValue`
+  والمحصّل من `externalPaymentLines[].paymentValue`. اللقطة بتتبني في الخلفية (~8 دقايق / ~14,000 مستند):
+  `POST /api/v1/finance/live/refresh` ثم `GET /api/v1/finance/live`.
+- **`FINANCE_DEFAULT_SOURCE`** (في `.env`) بيحدّد مصدر `/api/v1/finance/*` لما مافيش `?source=`.
+  بينزل `sql`. **ماتقلبهاش `live` قبل ما `scripts/reconcile_live_vs_sql.py` يعدّي على الجهاز ده.**
+- **`scripts/reconcile_live_vs_sql.py`** — المطابقة مستند بمستند، وبترجّع exit 1 لو فيه فرق مش مفسَّر:
+  `--rest local` (نفس الداتا → صفر فرق مسموح) · `--rest cloud` (السداد بعد النسخة مفسَّر، غيره لأ).
 - **أرصدة البنوك مؤجّلة** (محتاجة GL — مش مُرحّل بالكامل في الـ backup الحالي).
 - **التحديث (freshness):** البيانات = آخر `.bak` مُرستَر. نسخ يومية على Google Drive folder `1yvCI6unRWALtzf1yiU9kiHAPaBB56Xtt/full` (`hardsteel<date>.bak`). **مفيش قراءة للـ .bak وهو على الدرايف** — لازم download + `RESTORE DATABASE`. الأتمتة = سكربت ليلي (شوف NEXT_STEP).
 - بديل رسمي (اختياري): تقرير من نماسوفت — `docs/nama-balance-report-spec.md`.
@@ -94,8 +102,11 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
 ## 8b) الأفكار والمتطلبات (181 بند) — والخريطة اللي بتربطهم
 - **مصدر الحقيقة `BACKLOG.md`** — سطر markdown لكل فكرة. `app/ideas/registry.py` بيقراه ويطلّع:
   الدومين · المصدر · الحالة · المحرّك · **جاهزية الكنكتور**. **ضيف سطر → يظهر في اللوحة فورًا** (مفيش كود).
+  > ⚠️ **بس الاختبارات بتطلب سطر في `app/ideas/wiring.py` كمان.** اللوحة بتشتغل من غيره (بيرث
+  > `DOMAIN_DEFAULTS`)، لكن `test_graph.py` بيقع لحد ما الفكرة تقول *بالظبط* إيه اللي ناقصها.
+  > ده مقصود: فكرة على اللوحة من غير "ناقص إيه" واضحة بتفضل قاعدة من غير ما حد يعرف يبدأ منين.
 - **الجاهزية:** `done` اتعمل · `ready` كل كنكتوراته موجودة (محتاج تقرير بس) · `partial` ناقص جزء · `blocked` محتاج تكامل جديد.
-- **الأرقام دلوقتي:** 1 اتعمل · **107 كنكتورها جاهز** · 44 ناقص جزء · 29 محتاج تكامل جديد · **135 داتاها الخام موجودة دلوقتي**.
+- **الأرقام دلوقتي (183 متطلب):** 2 اتعملوا · **107 كنكتورها جاهز** · 45 ناقص جزء · 29 محتاج تكامل جديد.
 - أكتر الكنكتورات الناقصة طلبًا: نظام جديد (47) · API خارجي (15) · **طبقة الذكاء Layer 4 (10)**.
 - `/api/v1/ideas?readiness=ready` = اللي نقدر نبنيه النهاردة.
 

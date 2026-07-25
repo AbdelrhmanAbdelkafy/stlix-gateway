@@ -88,6 +88,19 @@ async def platform_hub(settings: Settings = Depends(get_settings)) -> HTMLRespon
     return _serve("platform/hub.html", settings)
 
 
+@router.get("/platform/public", response_class=HTMLResponse)
+async def platform_hub_public(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """The wide-audience view of the hub — same figures, fewer internals.
+
+    It existed as an unrouted file carrying its own hand-typed copies of the AR
+    and AP totals and a hand-typed as-of date beside them, so it reported one
+    day's position permanently. Serving it from the same `/api/v1/map` and
+    `/api/v1/finance/kpis` the main hub uses is what stops the two from ever
+    disagreeing — the point of having a single graph in the first place.
+    """
+    return _serve("platform/hub.public.html", settings)
+
+
 # --- the project's own documents ------------------------------------------
 # `BACKLOG.md` was the only file in the repo the running platform could see;
 # the runbook, the decision log and the vision were unreachable from inside the
