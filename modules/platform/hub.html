@@ -32,6 +32,15 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
 .ph .subs{margin:7px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:5px}
 .ph .subs li{font-size:10.5px;color:var(--sub);background:var(--card);border:1px solid var(--ln);border-radius:6px;padding:2px 7px}
 .ph .s{font-size:9.5px;color:var(--plan);text-transform:uppercase;letter-spacing:.5px;margin-top:8px}
+.search{margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.search input{flex:1;min-width:240px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
+ border-radius:11px;padding:10px 14px;color:#eaf2f2;font-family:inherit;font-size:13.5px}
+.search input::placeholder{color:#7f9797}
+.search input:focus{outline:2px solid var(--ac);outline-offset:1px;background:rgba(255,255,255,.1)}
+#qhint{font-size:11.5px;color:#9fb4b4}
+#qhint a{color:#7ee3e3;text-decoration:none;font-weight:700}
+.hidden{display:none !important}
+h2.hidden,.h2ar.hidden{display:none !important}
 .foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--ln);font-size:11px;color:var(--sub);text-align:center;line-height:1.8}
 </style></head><body>
 
@@ -47,6 +56,16 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
        after both had changed). -->
   <div class="kpis" id="kpis"><div class="kpi"><div class="v" id="k-conn">—</div><div class="l">كنكتور حيّ</div></div><div class="kpi"><div class="v" id="k-sys">—</div><div class="l">نظام على الخريطة</div></div><div class="kpi"><div class="v" id="k-ideas">—</div><div class="l">متطلب</div></div><div class="kpi"><div class="v" id="k-ready">—</div><div class="l">جاهز للبناء</div></div><div class="kpi"><div class="v" id="k-ar">—</div><div class="l">مستحق لنا AR</div></div><div class="kpi"><div class="v" id="k-ap">—</div><div class="l">مستحق علينا AP</div></div></div>
   <div id="freshness" style="margin-top:10px;font-size:11.5px;color:#9fb4b4"></div>
+  <!-- The hub listed everything and let you find nothing: twelve modules, 26
+       domains, 204 requirements, and no way in but scrolling. This filters what
+       is already on the page as you type, and hands anything longer to the ideas
+       board, which searches all 204. -->
+  <div class="search">
+    <input id="q" type="search" autocomplete="off" spellcheck="false"
+           placeholder="دوّر — موديول · دومين · نظام · كنكتور · أو أي كلمة في المتطلبات"
+           aria-label="بحث">
+    <span id="qhint"></span>
+  </div>
 </div></div>
 
 <div class="wrap">
@@ -67,6 +86,14 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
     <a class="mod" href="/metrics"><div class="ic">📈</div><div class="t">المراقبة</div><div class="d">Prometheus · JSON · HTML — كل الطلبات والأخطاء</div><span class="s s-live">حيّ</span></a>
     <a class="mod" href="/health"><div class="ic">❤️</div><div class="t">الصحة</div><div class="d">حالة الجيتواي + الكنكتورات + وصول نما</div><span class="s s-live">حيّ</span></a>
   </div>
+
+  <!-- The systems were named on this page and nowhere linked, so the CRM's own
+       address lived in a config file while the card that mentioned it was dead
+       text. Built from the map's `url`, so a system that gains an address gains
+       a link here without anyone editing this file. -->
+  <h2>الأنظمة الخارجية · Systems</h2>
+  <div class="h2ar">الأنظمة نفسها — تفتح في تبويب جديد</div>
+  <div class="grid" id="extsys"><div class="ph"><div class="t">بيحمّل…</div></div></div>
 
   <h2>الدومينات · Domains</h2>
   <div class="h2ar">كل دومين — وكام متطلب فيه جاهز نبنيه دلوقتي</div>
@@ -140,7 +167,52 @@ fetch("/api/v1/map?format=json",H).then(r=>r.json()).then(function(g){
   set("map-badge",c.systems+" نظام × "+c.ideas+" متطلب");
   set("sys-badge",c.systems_live+" حيّ من "+c.systems);
   set("conn-badge",live.length+" حيّ من "+g.connectors.length);
+  // Only systems that actually have somewhere to open. A card linking to a host
+  // that is not up yet is the same lie as a number with no date.
+  var withUrl=g.systems.filter(function(s){return s.url});
+  var box=document.getElementById("extsys");
+  if(box){
+    box.innerHTML=withUrl.length?withUrl.map(function(s){
+      return '<a class="mod" href="'+esc(s.url)+'" target="_blank" rel="noopener noreferrer">'+
+        '<div class="ic">🔗</div><div class="t">'+esc(s.name_ar)+'</div>'+
+        '<div class="d">'+esc(s.description||s.name_en)+'</div>'+
+        '<span class="s '+(s.status==="live"?"s-live":"s-read")+'">'+esc(s.url.replace(/^https?:\/\//,""))+'</span></a>'
+    }).join(""):'<div class="ph"><div class="t">مافيش نظام ليه عنوان مسجّل لسه</div></div>';
+    runSearch();
+  }
 }).catch(function(){});
+
+/* Filter the cards already rendered. Nothing is fetched to search — the hub
+   holds twelve modules and 26 domains, and a round trip to filter thirty-eight
+   things you can already see is latency for its own sake. The 204 requirements
+   are a different question, so that one goes to the board that indexes them. */
+function runSearch(){
+  var q=(document.getElementById("q").value||"").trim().toLowerCase();
+  var hint=document.getElementById("qhint");
+  var cards=document.querySelectorAll(".grid .mod, .grid .ph");
+  var shown=0;
+  cards.forEach(function(c){
+    var hit=!q||c.textContent.toLowerCase().indexOf(q)>=0;
+    c.classList.toggle("hidden",!hit); if(hit)shown++;
+  });
+  // A section whose every card is hidden should not leave its heading floating.
+  document.querySelectorAll(".grid").forEach(function(g){
+    var any=g.querySelector(".mod:not(.hidden), .ph:not(.hidden)");
+    g.classList.toggle("hidden",!any);
+    var t=g.previousElementSibling, hh=t&&t.previousElementSibling;
+    if(t&&t.classList.contains("h2ar"))t.classList.toggle("hidden",!any);
+    if(hh&&hh.tagName==="H2")hh.classList.toggle("hidden",!any);
+  });
+  if(!q){hint.textContent="";return}
+  hint.innerHTML=shown+" نتيجة هنا · "+
+    '<a href="/tools/ideas?q='+encodeURIComponent(q)+'">دوّر في كل المتطلبات ←</a>';
+}
+document.getElementById("q").addEventListener("input",runSearch);
+document.getElementById("q").addEventListener("keydown",function(e){
+  if(e.key==="Escape"){e.target.value="";runSearch()}
+  if(e.key==="Enter"){var v=e.target.value.trim();
+    if(v)location.href="/tools/ideas?q="+encodeURIComponent(v)}
+});
 
 fetch("/api/v1/ideas/domains",H).then(r=>r.json()).then(function(d){
   var doms=(d.domains||[]).slice().sort(function(a,b){return b.total-a.total});
@@ -152,6 +224,7 @@ fetch("/api/v1/ideas/domains",H).then(r=>r.json()).then(function(d){
         esc((x.systems||[]).slice(0,3).join(" · "))+'</div>'+
       '<span class="s '+(x.ready?"s-live":"s-read")+'">'+x.ready+' جاهز للبناء</span></a>'
   }).join("");
+  runSearch();   // the domain cards arrive after the first keystroke may have
 }).catch(function(){
   document.getElementById("domains").innerHTML='<div class="ph"><div class="t">تعذّر تحميل الدومينات</div></div>';
 });

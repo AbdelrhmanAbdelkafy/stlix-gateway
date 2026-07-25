@@ -78,6 +78,7 @@ def systems() -> list[dict]:
             "name_ar": s.name_ar,
             "status": s.status.value,
             "description": s.description,
+            "url": s.url,
             "connectors": [c.key for c in conns],
             "connectors_live": [c.key for c in conns if c.live],
             "endpoints": eps,

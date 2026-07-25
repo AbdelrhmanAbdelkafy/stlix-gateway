@@ -24,10 +24,39 @@ def wants_html(request: Request) -> bool:
     return "text/html" in request.headers.get("accept", "")
 
 
+def _link(target: str) -> str:
+    label = target if len(target) <= 64 else target[:61] + "…"
+    external = target.startswith("http")
+    rel = ' target="_blank" rel="noopener noreferrer"' if external else ""
+    return f'<a href="{html.escape(target, quote=True)}"{rel}>{html.escape(label)}</a>'
+
+
+def _is_target(s: str) -> bool:
+    """A URL or an in-app path — something a person can open."""
+    return (s.startswith(("http://", "https://")) or s.startswith("/")) and " " not in s
+
+
 def _cell(v: Any) -> str:
+    """Render one cell — and if it is somewhere you can go, make it go there.
+
+    Every table on the platform runs through here, so an address printed as dead
+    text was dead in all of them at once: the CRM's own URL, a system's home, the
+    endpoints beside a requirement. One rule fixes the lot, and new rows inherit
+    it without anyone remembering to.
+    """
     if v is None:
         return '<span class="muted">—</span>'
-    return html.escape(str(v))
+    s = str(v)
+    if not s:
+        return '<span class="muted">—</span>'
+    if _is_target(s):
+        return _link(s)
+    # `data_endpoints` and friends arrive joined: link each part, not the blob.
+    if ", " in s:
+        parts = [p.strip() for p in s.split(",")]
+        if len(parts) > 1 and all(_is_target(p) for p in parts if p):
+            return " · ".join(_link(p) for p in parts if p)
+    return html.escape(s)
 
 
 def table(rows: list[dict], columns: list[str] | None = None) -> str:

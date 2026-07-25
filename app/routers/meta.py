@@ -83,7 +83,7 @@ async def systems(request: Request):
     badges = f'<span class="badge">{live} live</span><span class="badge ro">{len(items) - live} planned</span>'
     return respond(
         request, data, title="Systems", rows=rows, badges=badges,
-        columns=["key", "name_en", "name_ar", "status", "connectors",
+        columns=["key", "name_en", "name_ar", "status", "url", "connectors",
                  "ideas_total", "ideas_ready", "ideas_owned", "board"],
     )
 

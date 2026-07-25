@@ -23,14 +23,19 @@ class System:
     name_ar: str
     status: Status
     description: str = ""
+    #: Where a human opens this system. Empty when there is nothing to open yet —
+    #: an address that 404s is worse than none, same rule as everywhere else here.
+    url: str = ""
 
 
 # Order roughly reflects rollout priority.
 SYSTEMS: list[System] = [
-    System("nama", "Nama ERP", "نما", Status.LIVE, "ERP: employees, attendance, documents."),
+    System("nama", "Nama ERP", "نما", Status.LIVE, "ERP: employees, attendance, documents.",
+           url="https://stlixvalley.namasoft.net/erp"),
     System("attendance", "Attendance & Fingerprint", "البصمة والحضور", Status.LIVE,
            "Punch push/read (routes to Nama TimeAttendance)."),
-    System("crm", "CRM", "سي آر إم", Status.LIVE, "Vtiger: contacts, leads, accounts (read-only)."),
+    System("crm", "CRM", "سي آر إم", Status.LIVE, "Vtiger: contacts, leads, accounts (read-only).",
+           url="https://crm.stlixvalley.com"),
     System("callcenter", "Call Center", "الكول سنتر", Status.PLANNED, "Calls, tickets, IVR."),
     System("email", "Email", "الإيميل", Status.PLANNED, "Send/receive, templates."),
     System("website", "Website", "الويب سايت", Status.PLANNED,
@@ -40,8 +45,10 @@ SYSTEMS: list[System] = [
     System("archive", "Archive", "الأرشيف", Status.PLANNED,
            "Document & record store: contracts, licenses, certificates, Form 4."),
     System("inventory", "Inventory / Stocktaking", "الجرد", Status.LIVE,
-           "Stlix stocktake counting app (count/sync.php): counts, manual items, progress (read-only)."),
-    System("academy", "Academy", "الأكاديمية", Status.PLANNED, "Training / LMS."),
+           "Stlix stocktake counting app (count/sync.php): counts, manual items, progress (read-only).",
+           url="https://crm.stlixvalley.com/count/count.html"),
+    System("academy", "Academy", "الأكاديمية", Status.PLANNED, "Training / LMS.",
+           url="https://www.notion.so/39ffe2ccb2ed81a98be7d522a0779b49"),
     # REP is the operational front-end layer for everything Nama and the CRM do
     # not own — 11 built modules (custody, movement, meals, people, policies,
     # academy, banks, stocktake, alerts, documents, home). PLANNED here because
