@@ -76,6 +76,24 @@ class Settings(BaseSettings):
     # it the first visitor after every restart pays eight minutes for the page.
     live_finance_refresh_seconds: int = Field(default=0)
 
+    # --- drift guard -------------------------------------------------------
+    # After each sweep, one closed month is re-reconciled against SQL. It is
+    # what turns "the figure is current" into "the figure is current AND still
+    # adds up" — a sweep can succeed and still come back short if Nama renames a
+    # field or the credential loses reach on some documents.
+    finance_guard_enabled: bool = Field(default=True)
+    # Blank = a month far enough back that no new invoice will be issued into it.
+    # Pin it (YYYYMM) only to investigate a specific window.
+    finance_guard_period: str = Field(default="")
+    # Documents whose payment legitimately moved BACKWARDS, i.e. a voucher
+    # cancelled after the backup was taken. There is no benign reading of that,
+    # so each one is named by hand — the guard must not learn to shrug.
+    finance_allowed_reversals: str = Field(default="FP22026060000105")
+
+    @property
+    def allowed_reversals(self) -> set[str]:
+        return {c.strip() for c in self.finance_allowed_reversals.split(",") if c.strip()}
+
     finance_customer_entity: str = Field(default="StlixCustomerBalance")
     finance_supplier_entity: str = Field(default="StlixSupplierBalance")
     finance_statement_entity: str = Field(default="StlixCustomerStatement")

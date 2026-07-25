@@ -110,9 +110,13 @@ fetch("/api/v1/finance/kpis",H).then(function(r){return r.json()}).then(function
   // A money figure with no as-of reads as today's position. State the age, always.
   var f=k.freshness||{};
   if(!el)return;
+  var g=f.guard||{};
+  var gtxt=g.status==="drift"
+    ? ' · <span style="color:#e05a5a">⚠ انحراف — رجعنا لـ SQL</span>'
+    : g.status==="pass" ? ' · <span style="color:var(--ok)">✔ متطابقة</span>' : '';
   if(f.live){
     el.innerHTML="أرقام المالية <b>لحظية</b> من مستندات نما"+
-      (f.age_minutes!=null?" · آخر مسح من "+f.age_minutes+" دقيقة":"");
+      (f.age_minutes!=null?" · آخر مسح من "+f.age_minutes+" دقيقة":"")+gtxt;
   }else if(f.as_of){
     el.innerHTML="أرقام المالية بتاريخ <b>"+esc(f.as_of)+"</b>"+
       (f.age_days>1?' · <span style="color:var(--warn)">عُمرها '+f.age_days+' يوم (نسخة مُرستَرة)</span>':" · محدّثة");

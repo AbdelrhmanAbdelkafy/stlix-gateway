@@ -145,6 +145,8 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/api/v1/finance/suppliers", "أرصدة الموردين (AP)", "sql"),
     # the same three, rebuilt from live Nama documents (?source=live)
     Endpoint("/api/v1/finance/live", "حالة اللقطة اللحظية للأرصدة", "nama"),
+    Endpoint("/api/v1/finance/live/guard", "حارس الانحراف — يفحص شهر مقفول", "nama",
+             method="POST"),
     Endpoint("/api/v1/finance/live/refresh", "تحديث اللقطة اللحظية (سحب كامل)", "nama"),
     # pages
     Endpoint("/tools/platform", "الهَب", "front-end", kind="page"),

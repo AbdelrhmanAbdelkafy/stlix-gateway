@@ -10,7 +10,7 @@
     "how": ".claude/launch.json name 'stlix-gateway' -> uvicorn app.main:app on 127.0.0.1:8000 (no --reload)",
     "restart_after": "python code / registry / config changes (HTML/JS in modules/ is read fresh per request)",
     "venv": ".venv (Python 3.14; deps need current pins)",
-    "tests": "115 passing (.venv/Scripts/python.exe -m pytest -q)"
+    "tests": "130 passing (.venv/Scripts/python.exe -m pytest -q)"
   },
   "architecture_6_layers": {
     "1_gateway": "done",
@@ -58,7 +58,9 @@
     },
     "freshness": "as-of = latest restored .bak (2026-07-14). Newer daily backups (hardsteel<date>.bak, ~5.7GB) on Google Drive folder 1yvCI6unRWALtzf1yiU9kiHAPaBB56Xtt. Refresh = download+RESTORE (can't read .bak in place). Automate as nightly job.",
     "default_source": "FINANCE_DEFAULT_SOURCE=live as of 2026-07-25 (owner's decision). /api/v1/finance/* answers from Nama PRODUCTION REST documents (https://stlixvalley.namasoft.net/erp/rest/v1) unless ?source=sql is asked for. Background sweep hourly (LIVE_FINANCE_REFRESH_SECONDS=3600). Going back is the same single line. NOTE: for ~8 minutes after each restart the finance pages report 'no snapshot yet' rather than falling back to SQL — deliberate, chosen by the owner over an ambiguous source.",
-    "party_join": "Join on subsidiaryId, NOT customer_id (NULL on 5,263 of 6,845 posted invoices) and NOT subsidiaryCode (4,950 rows carry a legacy code; 226 distinct values do not exist in Customer at all). Nama's REST resolves subsidiary.code to the CURRENT code — measured on SV00001: SQL holds C00002, REST returns C2000001 — so the live path is immune to this."
+    "party_join": "Join on subsidiaryId, NOT customer_id (NULL on 5,263 of 6,845 posted invoices) and NOT subsidiaryCode (4,950 rows carry a legacy code; 226 distinct values do not exist in Customer at all). Nama's REST resolves subsidiary.code to the CURRENT code — measured on SV00001: SQL holds C00002, REST returns C2000001 — so the live path is immune to this.",
+    "drift_guard": "app/integrations/finance/guard.py re-reconciles ONE CLOSED month against SQL after every sweep. What is invariant for a closed month is the document SET and each document's gross and net; paid legitimately grows (a May invoice settles in July), so growth is explained, not drift. Catches: a renamed Nama field (net reads short), a narrowed credential (documents vanish), a posting-convention change (extra documents). freshness.guard carries {status, reason, period, checked_at} on every finance response; full per-document detail at GET /api/v1/finance/live; on-demand POST /api/v1/finance/live/guard. `drift` reverts the DEFAULT to sql and says so, while an explicit ?source=live still works. `unknown` never diverts — being unable to check is not evidence of a wrong figure. Settings: FINANCE_GUARD_ENABLED, FINANCE_GUARD_PERIOD (blank = two months back), FINANCE_ALLOWED_REVERSALS (default FP22026060000105).",
+    "shared_core": "app/integrations/finance/reconcile.py holds the comparison; scripts/reconcile_live_vs_sql.py and guard.py both call it, so the release gate and the production watchdog cannot disagree about what counts as a difference."
   },
   "pages_served": {
     "/tools/platform": "unified hub (entry point) — live modules + placeholders + SSO placeholder",

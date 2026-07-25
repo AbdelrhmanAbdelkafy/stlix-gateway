@@ -20,7 +20,7 @@
 stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --reload)
 ```
 - **أعِد التشغيل بعد أي تعديل Python / registry / config.** ملفات HTML/JS في `modules/` بتتقري fresh كل طلب (مش محتاجة restart).
-- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **115 passing**.
+- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **130 passing**.
 - الأسرار في `.env` (gitignored). نسخة احتياطية للمفاتيح: `secrets/gates-keys.backup.md`.
 
 ## 2) الصفحات (افتحها في المتصفح)
@@ -73,6 +73,18 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
   بينزل `sql`. **ماتقلبهاش `live` قبل ما `scripts/reconcile_live_vs_sql.py` يعدّي على الجهاز ده.**
 - **`scripts/reconcile_live_vs_sql.py`** — المطابقة مستند بمستند، وبترجّع exit 1 لو فيه فرق مش مفسَّر:
   `--rest local` (نفس الداتا → صفر فرق مسموح) · `--rest cloud` (السداد بعد النسخة مفسَّر، غيره لأ).
+- **حارس الانحراف** — بعد كل مسح، شهر **مقفول** بيتطابق تاني مع SQL. الثابت في الشهر المقفول
+  = **مجموعة المستندات + إجمالي وصافي كل مستند**؛ المحصّل بيكبر طبيعي (فاتورة مايو بتتسدّد
+  في يوليو) فمابيتعدّش انحراف. يعني الحارس بيمسك: حقل نما اتغيّر · صلاحية ضاقت · مسودّة
+  دخلت المُرحَّل — وماينرّش على الفاضي.
+  - `freshness.guard{status, reason, period, checked_at}` في كل رد مالي · التفاصيل الكاملة
+    في `GET /api/v1/finance/live` · فحص فوري `POST /api/v1/finance/live/guard`.
+  - **`drift`** بيرجّع الافتراضي لـ`sql` **وبيقول إنه عمل كده وليه**. `?source=live` الصريح
+    بيفضل شغّال — دي الطريقة اللي بيها تبصّ على اللي باظ.
+  - **`unknown` مابيحوّلش** (مافيش SQL / أول إقلاع / انقطاع). إنك مش قادر تفحص ≠ الرقم غلط.
+  - الإعدادات: `FINANCE_GUARD_ENABLED` · `FINANCE_GUARD_PERIOD` · `FINANCE_ALLOWED_REVERSALS`.
+- **قلب المقارنة في `app/integrations/finance/reconcile.py`** — السكربت والحارس بيستدعوا
+  نفس الكود. نسختين من «إيه اللي يعتبر فرق» كانوا هيختلفوا، واللي يهم منهم هو اللي محدش بيقراه.
 - **أرصدة البنوك مؤجّلة** (محتاجة GL — مش مُرحّل بالكامل في الـ backup الحالي).
 - **التحديث (freshness):** البيانات = آخر `.bak` مُرستَر. نسخ يومية على Google Drive folder `1yvCI6unRWALtzf1yiU9kiHAPaBB56Xtt/full` (`hardsteel<date>.bak`). **مفيش قراءة للـ .bak وهو على الدرايف** — لازم download + `RESTORE DATABASE`. الأتمتة = سكربت ليلي (شوف NEXT_STEP).
 - بديل رسمي (اختياري): تقرير من نماسوفت — `docs/nama-balance-report-spec.md`.

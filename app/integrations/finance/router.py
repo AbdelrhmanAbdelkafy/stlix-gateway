@@ -21,6 +21,7 @@ from ...config import Settings, get_settings
 from ...core.render import respond
 from ...core.security import require_api_key
 from .connector import FinanceConnector
+from .guard import DriftGuard
 from .live import LiveFinance
 
 router = APIRouter(prefix="/finance", tags=["finance"], dependencies=[Depends(require_api_key)])
@@ -42,11 +43,23 @@ SOURCE = Query(None, pattern="^(sql|live)$",
 def _source(explicit: str | None, settings: Settings) -> str:
     """Which source answers this request.
 
-    The default is configuration, not a constant, so moving the whole platform
-    onto live figures is one env var once the reconciliation script passes —
-    and moving back is the same one env var if a sweep ever looks wrong.
+    Two rules, in order:
+
+    * An explicit `?source=` always wins. Someone asking for the live figure by
+      name is entitled to it, drift and all — that is how you look at the thing
+      that broke.
+    * Otherwise the configured default, **unless the drift guard has failed**, in
+      which case the default becomes `sql`. The guard only diverts on an actual
+      `drift`; being unable to run is not evidence of a wrong number.
+
+    The divert is never silent: `freshness.guard` carries the status and the
+    reason on the response that gets served instead.
     """
-    return explicit or settings.finance_default_source
+    if explicit:
+        return explicit
+    if settings.finance_default_source == "live" and DriftGuard.drifted():
+        return "sql"
+    return settings.finance_default_source
 
 
 @router.get("/live")
@@ -55,7 +68,10 @@ async def live_status(request: Request, live: LiveFinance = Depends(get_live)):
     snap = LiveFinance.snapshot()
     data = {"freshness": LiveFinance.freshness(),
             "swept": (snap or {}).get("swept"),
-            "excludes": (snap or {}).get("excludes")}
+            "excludes": (snap or {}).get("excludes"),
+            # The full verdict, per document, lives here rather than on every
+            # KPI response — this is the page you open when the badge goes red.
+            "guard": DriftGuard.state()}
     return respond(request, data, title="Live finance snapshot",
                    rows=[{"field": k, "value": v} for k, v in data["freshness"].items()],
                    columns=["field", "value"])
@@ -121,3 +137,13 @@ async def supplier_balances(
     return respond(request, data, title="Supplier Balances", rows=data.get("records", []),
                    columns=["code", "name1", "outstanding", "invoicedNet", "paid",
                             "purchaseTotal", "lastInvoiceDate"])
+
+
+@router.post("/live/guard")
+async def run_guard(settings: Settings = Depends(get_settings)):
+    """Re-run the drift check now instead of waiting for the next sweep.
+
+    One closed month, a few hundred documents — seconds, not the eight minutes a
+    full sweep costs. Read-only: `/list` and `SELECT`.
+    """
+    return await DriftGuard(settings).check()

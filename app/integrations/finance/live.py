@@ -33,34 +33,12 @@ from typing import Any
 
 from ...config import Settings
 from ..nama.client import NamaClient, is_draft
+from .reconcile import document_money  # noqa: F401 — re-exported; callers import it from here
 
 SALES = "SalesInvoice"
 PURCHASE = "PurchaseInvoice"
 CUSTOMER = "Customer"
 SUPPLIER = "Supplier"
-
-
-def document_money(record: dict) -> tuple[float, float, float]:
-    """(gross, net, paid) for one invoice, in local currency.
-
-    Nama omits zero-valued fields from its JSON entirely rather than sending 0,
-    so every read has to tolerate an absent key — `price.netValue` is missing on
-    a line worth nothing, not present-and-zero.
-    """
-    gross = net = 0.0
-    for line in record.get("details") or []:
-        price = line.get("price") or {}
-        g, n = price.get("price"), price.get("netValue")
-        if isinstance(g, (int, float)):
-            gross += g
-        if isinstance(n, (int, float)):
-            net += n
-    paid = 0.0
-    for pay in record.get("externalPaymentLines") or []:
-        v = pay.get("paymentValue")
-        if isinstance(v, (int, float)):
-            paid += v
-    return gross, net, paid
 
 
 def _party(record: dict) -> tuple[str, str]:
@@ -203,7 +181,8 @@ class LiveFinance:
         snap = cls._snapshot
         if not snap:
             return {"available": False, "live": True, "building": cls._building,
-                    "reason": "no live snapshot yet — POST /api/v1/finance/live/refresh"}
+                    "reason": "no live snapshot yet — POST /api/v1/finance/live/refresh",
+                    "guard": _guard_state()}
         age = time.time() - snap["computed_at_epoch"]
         return {
             "available": True,
@@ -215,6 +194,10 @@ class LiveFinance:
             "stale": age > 6 * 3600,
             "excludes": snap["excludes"],
             "building": cls._building,
+            # Age was made visible long before correctness was. Both travel with
+            # the number now, because "current" and "complete" are not the same
+            # claim and only one of them was ever being made.
+            "guard": _guard_state(),
         }
 
     # --- building ---
@@ -356,12 +339,37 @@ async def refresh_loop(settings: Settings, every: int = REFRESH_EVERY_SECONDS) -
     previous snapshot — whose `age_minutes` then simply keeps growing, which is
     the honest signal — and tries again next hour.
     """
+    from .guard import DriftGuard  # deferred: guard imports this module
+
+    log = logging.getLogger("stlix.finance.live")
     live = LiveFinance(settings)
     if not live.configured:
         return
+    guard = DriftGuard(settings)
     while True:
         try:
             await live.refresh()
         except Exception as exc:  # noqa: BLE001 - a refresher must outlive its errors
-            logging.getLogger("stlix.finance.live").warning("live sweep failed: %s", exc)
+            log.warning("live sweep failed: %s", exc)
+        # Checked after the sweep, not before: the verdict has to describe the
+        # snapshot that is about to be served, not the one it replaced. Its own
+        # failures are contained — a watchdog that can take down the thing it
+        # watches is a liability.
+        try:
+            await guard.check()
+        except Exception as exc:  # noqa: BLE001
+            log.warning("drift check failed: %s", exc)
         await asyncio.sleep(every)
+
+
+def _guard_state() -> dict[str, Any]:
+    """The drift verdict, flattened for the response.
+
+    Imported here rather than at module scope because `guard` reads this module.
+    The full state — the per-document differences — stays behind
+    `GET /api/v1/finance/live`, so a KPI response does not have to carry a diff.
+    """
+    from .guard import DriftGuard
+
+    state = DriftGuard.state()
+    return {k: state.get(k) for k in ("status", "reason", "period", "checked_at")}

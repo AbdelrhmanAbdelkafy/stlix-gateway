@@ -108,11 +108,20 @@ fetch("/api/v1/finance/live?format=json",H).then(r=>r.json()).catch(function(){r
   if(!k||!k.available)return;const M=n=>n==null?"—":(Math.abs(n)>=1e6?(n/1e6).toFixed(1)+"M":n);
   set("k-ar",M(k.arOutstanding));set("k-ap",M(k.apOutstanding));
   var f=k.freshness||{},el=document.getElementById("freshness");
+  // A fresh timestamp says the number is current. It does not say the sum still
+  // sums everything — a renamed field or a narrowed credential comes back short
+  // with the timestamp looking perfect. The guard's verdict goes next to it.
+  var g=f.guard||{},gtxt="";
+  if(g.status==="drift"){gtxt=' · <span style="color:#e05a5a">⚠ انحراف: '+esc(g.reason||"")+
+    ' — رجعنا لـ SQL</span>';}
+  else if(g.status==="pass"){gtxt=' · <span style="color:var(--ok)">✔ المطابقة عدّت على '+
+    esc(g.period||"")+'</span>';}
+  else if(g.status){gtxt=' · <span style="color:var(--sub)">المطابقة لسه ماتفحصتش</span>';}
   if(result.live){
     set("finance-badge","حيّ · Nama REST");
     if(el)el.innerHTML='لقطة نما الحيّة اتسحبت من <b>'+
       (f.age_minutes<60?Math.round(f.age_minutes)+" دقيقة":(f.age_minutes/60).toFixed(1)+" ساعة")+
-      '</b> · <a href="/tools/finance-reports?source=live" style="color:var(--ac)">التفاصيل والمصدر</a>';
+      '</b>'+gtxt+' · <a href="/tools/finance-reports?source=live" style="color:var(--ac)">التفاصيل والمصدر</a>';
   }else if(el&&f.as_of){
     set("finance-badge","SQL · نسخة مُرستَرة");
     el.innerHTML="أرقام المالية بتاريخ <b>"+esc(f.as_of)+"</b>"+

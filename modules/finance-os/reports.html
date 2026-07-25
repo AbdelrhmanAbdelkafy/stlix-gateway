@@ -143,8 +143,18 @@ async function load(){
     const mins=f.age_minutes;
     const w=mins>90?' style="color:var(--warn)"':'';
     const miss=k.excludedDocuments|0;
+    // Freshness answers "when". This answers "does it still add up" — the
+    // question a sweep that succeeds while coming back short never raises.
+    const g=f.guard||{};
+    const gline=g.status==="drift"
+      ? '<br><span style="color:#e05a5a">⚠ انحراف على شهر '+(g.period||"")+': '+(g.reason||"")+
+        ' — الأرقام رجعت لـ SQL</span>'
+      : g.status==="pass"
+      ? '<br><span style="color:var(--ok)">✔ اتطابقت مع SQL على شهر '+(g.period||"")+' مقفول</span>'
+      : '<br><span>المطابقة لسه ماتفحصتش '+(g.reason?'('+g.reason+')':'')+'</span>';
     $("src").innerHTML='<span class="badge">نما REST · لقطة حيّة</span><br>'+
       'اتسحبت: <b'+w+'>'+(mins==null?"—":(mins<60?Math.round(mins)+" دقيقة":(mins/60).toFixed(1)+" ساعة"))+' فاتت</b>'+
+      gline+
       (miss?'<br><span style="color:var(--warn)">'+miss+' مستند مستبعد/غير مقروء — تفاصيله في حالة اللقطة</span>':'')+
       (f.building?'<br><span>⏳ في سحب شغّال دلوقتي</span>':'');
   }else{
