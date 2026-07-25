@@ -1,479 +1,260 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Finance OS — النسخة الكاملة (Demo)</title>
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Finance OS — كوكبيت مالي</title>
+<!--
+  Every figure on this page comes from a gateway endpoint. Nothing is typed in
+  and nothing is summed in the browser.
+
+  This used to be a prototype carrying its own data: four bank accounts with
+  invented balances, five AP invoices, three customers with invented ledgers,
+  three journal entries, five AI recommendations. When the gateway answered,
+  real numbers were laid over part of it — but every section without an endpoint
+  kept rendering its invented rows while the banner read "connected ✅". Real
+  money beside invented money is what makes the invented money look real, and
+  this is a page someone makes decisions in.
+
+  Two rules hold it together now:
+
+  * A section with no live endpoint states what it is waiting for. It does not
+    show a number. The treasury already did this correctly — "قيد الترحيل"
+    instead of a figure — and that is now the standard everywhere here.
+  * The browser never sums money. Totals come from /api/v1/finance/*, which is
+    reconciled against SQL and carries the drift verdict with it. A second money
+    implementation in JavaScript would be a second answer, and the one that
+    disagreed would be whichever nobody was reading.
+-->
 <style>
-  :root{
-    --bg:#f4f6fb;--surface:#fff;--surface-2:#fafbfe;--line:#e8edf5;
-    --ink:#0f1b2d;--ink-2:#3d4b60;--muted:#8091a7;
-    --primary:#2f5bd0;--primary-d:#2447a8;--primary-soft:#eaf0fd;
-    --teal:#0ea5a5;--teal-soft:#e5f7f7;--green:#15a34a;--green-soft:#e7f6ec;
-    --amber:#d98a09;--amber-soft:#fdf1dc;--red:#dc2b3d;--red-soft:#fdeaec;
-    --blue:#2563eb;--blue-soft:#e8f0fe;--violet:#7c3aed;--violet-soft:#f1e9fe;
-    --r:16px;--sh:0 1px 2px rgba(16,30,54,.05),0 10px 30px -12px rgba(16,30,54,.14);--sh-sm:0 1px 2px rgba(16,30,54,.06);
-  }
-  *{box-sizing:border-box}html,body{margin:0;height:100%}
-  body{font-family:"Segoe UI",Tahoma,"Noto Sans Arabic",system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
-  .app{display:grid;grid-template-columns:248px 1fr;grid-template-rows:auto 1fr;grid-template-areas:"side top" "side main";height:100vh}
-  /* sidebar */
-  .side{grid-area:side;background:#0d1b2e;color:#c3d0e0;display:flex;flex-direction:column;padding:16px 12px}
-  .brand{display:flex;gap:11px;align-items:center;padding:6px 8px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
-  .brand .m{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--primary),var(--teal));display:grid;place-items:center;color:#fff;font-weight:800}
-  .brand b{font-size:15px;color:#fff}.brand small{display:block;color:#7d90a8;font-size:11px}
-  .nav{margin-top:12px;display:flex;flex-direction:column;gap:2px;overflow:auto}
-  .nav .sec{font-size:10px;color:#61748c;font-weight:700;letter-spacing:.6px;margin:12px 10px 5px}
-  .nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:#b9c7da;font-size:13.5px}
-  .nav button .i{width:18px;text-align:center;font-size:15px}
-  .nav button:hover{background:rgba(255,255,255,.06);color:#fff}
-  .nav button.on{background:linear-gradient(90deg,rgba(47,91,208,.35),rgba(14,165,165,.16));color:#fff;font-weight:600}
-  .nav .badge{margin-inline-start:auto;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:999px;padding:1px 7px}
-  .side .foot{margin-top:auto;font-size:10.5px;color:#61748c;padding:10px;border-top:1px solid rgba(255,255,255,.07)}
-  /* topbar */
-  .top{grid-area:top;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 22px;height:58px}
-  .top h1{font-size:17px;margin:0}.top h1 small{display:block;color:var(--muted);font-size:11.5px;font-weight:400}
-  .top .sp{margin-inline-start:auto}
-  .rolesel{padding:8px 11px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);font:inherit;font-size:13px;font-weight:700;color:var(--primary-d)}
-  .who{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-2)}
-  .who .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#26334a,#16233a);color:#fff;display:grid;place-items:center;font-weight:700}
-  /* main */
-  .main{grid-area:main;overflow:auto;padding:22px 24px}
-  .view{display:none}.view.on{display:block}
-  .row{display:grid;gap:16px}
-  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-  @media(max-width:1150px){.kpis{grid-template-columns:repeat(2,1fr)}.g2,.g3{grid-template-columns:1fr!important}}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh-sm);overflow:hidden}
-  .card .hd{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
-  .card .hd h3{margin:0;font-size:14.5px}.card .hd .sub{color:var(--muted);font-size:11.5px;font-weight:500;margin-inline-start:auto}
-  .kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh-sm);padding:16px}
-  .kpi .top{display:flex;align-items:center}
-  .kpi .lab{font-size:12px;color:var(--muted);font-weight:600}
-  .kpi .ic{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;margin-inline-start:auto;font-size:15px}
-  .kpi .val{font-size:24px;font-weight:800;margin-top:8px;letter-spacing:-.5px}
-  .kpi .d{font-size:11.5px;margin-top:3px;font-weight:600}
-  .up{color:var(--green)}.dn{color:var(--red)}
-  .g2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;align-items:start}
-  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{padding:10px 16px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
-  th{font-size:11px;color:var(--muted);background:var(--surface-2);font-weight:700}
-  tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:var(--surface-2)}
-  .amt{font-variant-numeric:tabular-nums;font-weight:700}
-  .badge2{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700}
-  .b-DRAFT{background:#eef1f6;color:#5b6b82}.b-SUBMITTED{background:var(--amber-soft);color:#9a6206}
-  .b-APPROVED{background:var(--blue-soft);color:#1d4ed8}.b-POSTED{background:var(--green-soft);color:#0f7a37}.b-REJECTED{background:var(--red-soft);color:#b41b2c}
-  .st{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
-  .st.paid{background:var(--green-soft);color:#0f7a37}.st.over{background:var(--red-soft);color:#b41b2c}
-  .st.open{background:var(--blue-soft);color:#1d4ed8}.st.part{background:var(--amber-soft);color:#9a6206}.st.rcpt{background:var(--teal-soft);color:#0a7d7d}
-  .btn{all:unset;cursor:pointer;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:9px;display:inline-flex;gap:6px;align-items:center}
-  .btn.pr{background:var(--primary);color:#fff}.btn.pr:hover{background:var(--primary-d)}
-  .btn.ap{background:var(--green-soft);color:#0f7a37;border:1px solid #c3ecd0}.btn.ap:hover{background:#15803d;color:#fff}
-  .btn.rj{background:var(--red-soft);color:#b41b2c;border:1px solid #f6c9c9}.btn.rj:hover{background:#b41b2c;color:#fff}
-  .btn.gh{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}.btn.gh:hover{background:#eef2f9}
-  .btn:disabled{opacity:.4;cursor:not-allowed}.acts{display:flex;gap:6px}
-  .lock{background:#fff7ed;border:1px dashed #fdba74;color:#b45309;padding:13px 15px;border-radius:12px;font-size:13px}
-  .hint{font-size:11.5px;color:var(--muted);padding:6px 18px 14px}.denied{font-size:12px;color:var(--red)}
-  .pillrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-  .chip{background:var(--teal-soft);color:#0a6f6f;border:1px solid #cdeeee;padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:600}
-  /* chat */
-  .chat{display:flex;flex-direction:column;height:calc(100vh - 250px);min-height:340px}
-  .thread{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-  .msg{display:flex;gap:9px;max-width:82%}.msg .a{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;flex:0 0 auto}
-  .msg .b{background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:9px 13px}.msg .nm{font-size:11px;color:var(--muted);font-weight:700;margin-bottom:2px}
-  .msg.me{margin-inline-start:auto;flex-direction:row-reverse}.msg.me .b{background:var(--primary);color:#fff;border-color:var(--primary)}.msg.me .a{background:#26334a}
-  .cbar{display:flex;gap:8px;flex-wrap:wrap;padding:0 16px 8px}
-  .cbar button{all:unset;cursor:pointer;background:var(--primary-soft);color:var(--primary-d);border:1px solid #d4e0fb;padding:5px 10px;border-radius:999px;font-size:11.5px;font-weight:600}
-  .comp{border-top:1px solid var(--line);padding:11px 14px;display:flex;gap:9px}
-  .comp input{flex:1;padding:10px 13px;border:1px solid var(--line);border-radius:11px;font:inherit}
-  .comp .snd{all:unset;cursor:pointer;background:var(--primary);color:#fff;font-weight:800;padding:10px 16px;border-radius:11px}
-  .agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:14px}
-  .agc{border:1px solid var(--line);border-radius:12px;padding:11px;text-align:center;background:var(--surface-2)}
-  .agc .a{width:38px;height:38px;border-radius:50%;margin:0 auto 6px;display:grid;place-items:center;color:#fff;font-weight:800}
-  .agc .nm{font-weight:700;font-size:12.5px}.agc .tt{font-size:10.5px;color:var(--muted)}
-  .rec{border:1px solid var(--line);border-radius:12px;padding:13px;margin:0 16px 11px;display:flex;gap:11px}
-  .rec .sv{width:6px;border-radius:6px}.rec .tl{font-weight:800;font-size:13.5px}.rec .dt{font-size:12px;color:#475569;margin-top:2px}
-  .rec .mt{display:flex;gap:8px;align-items:center;margin-top:7px;flex-wrap:wrap}
-  .tag{font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px}
-  .t-PENDING_APPROVAL{background:var(--amber-soft);color:#9a6206}.t-AUTO_DECIDED{background:var(--blue-soft);color:#1d4ed8}
-  .t-APPROVED{background:var(--green-soft);color:#0f7a37}.t-DISMISSED{background:#eef1f6;color:#5b6b82}
-  /* aging bar / mini charts */
-  .agebar{display:flex;height:12px;border-radius:8px;overflow:hidden;margin:6px 18px 10px}.agebar i{display:block;height:100%}
-  .leg{display:flex;flex-wrap:wrap;gap:12px;padding:0 18px 14px}.leg .li{display:flex;gap:7px;align-items:center;font-size:12px;color:var(--ink-2)}.leg .sw{width:11px;height:11px;border-radius:3px}
-  .bars{display:flex;align-items:flex-end;gap:12px;height:150px;padding:16px 18px}
-  .bars .bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
-  .bars .bar i{width:70%;background:linear-gradient(180deg,var(--primary),#5b82e0);border-radius:6px 6px 0 0}
-  .bars .bar span{font-size:10.5px;color:var(--muted)}
-  .list360{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
-  @media(max-width:1000px){.list360{grid-template-columns:1fr}}
-  .crow{display:flex;gap:10px;align-items:center;padding:10px;border-radius:11px;cursor:pointer;border:1px solid transparent}
-  .crow:hover{background:var(--surface-2)}.crow.sel{background:var(--primary-soft);border-color:#d4e0fb}
-  .crow .cv{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:800;flex:0 0 auto}
-  .crow .nm{font-weight:700;font-size:13px}.crow .mt{font-size:11px;color:var(--muted)}.crow .bl{margin-inline-start:auto;font-size:12px;font-weight:800;text-align:left}
-  .info .r{display:flex;justify-content:space-between;padding:9px 18px;border-bottom:1px dashed var(--line);font-size:13px}.info .k{color:var(--muted)}
-  .src{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:#0a7d7d;background:var(--teal-soft);padding:2px 8px;border-radius:999px}
-  .src.crm{color:#2447a8;background:var(--primary-soft)}
-  #toast{position:fixed;bottom:20px;inset-inline-start:20px;display:flex;flex-direction:column;gap:8px;z-index:80}
-  .toast{background:#0d1b2e;color:#fff;padding:11px 15px;border-radius:11px;font-size:13px;box-shadow:var(--sh);border-inline-start:4px solid var(--teal)}.toast.ok{border-inline-start-color:var(--green)}.toast.er{border-inline-start-color:var(--red)}
-</style>
-</head>
-<body>
-<div class="app">
-  <aside class="side">
-    <div class="brand"><div class="m">FO</div><div><b>Finance OS</b><small>النسخة الكاملة · Demo</small></div></div>
-    <nav class="nav" id="nav">
-      <div class="sec">الرئيسية</div>
-      <button data-v="dash" class="on"><span class="i">▦</span> لوحة المعلومات</button>
-      <button data-v="team"><span class="i">🤖</span> الفريق المالي الذكي</button>
-      <div class="sec">العمليات المالية</div>
-      <button data-v="ap"><span class="i">🧾</span> فواتير الموردين (AP)</button>
-      <button data-v="cust"><span class="i">👥</span> العملاء 360°</button>
-      <button data-v="cash"><span class="i">🏦</span> الخزينة والنقد</button>
-      <button data-v="ledger"><span class="i">📚</span> الأستاذ العام (GL)</button>
-      <div class="sec">التحليل والحوكمة</div>
-      <button data-v="reports"><span class="i">📊</span> التقارير و KPIs</button>
-      <button data-v="audit"><span class="i">🛡️</span> سجل التدقيق</button>
-    </nav>
-    <div class="foot">ERP = System of Record · الذكاء الاصطناعي لا يكتب في ERP مباشرة · كل إجراء عبر Workflow مُدقّق.</div>
-  </aside>
+:root{color-scheme:light dark;--bg:#0e131a;--card:#151c26;--card2:#1b2431;--ln:#232e3d;--tx:#e9edf3;--sub:#7e8ba0;--ac:#2bc4c4;--ok:#2fbd6b;--warn:#e0a53a;--bad:#e05a5a;--plan:#8497b0}
+@media(prefers-color-scheme:light){:root{--bg:#f5f7f8;--card:#fff;--card2:#eef1f4;--ln:#e3e7ec;--tx:#131922;--sub:#6a7688;--ac:#0c8a8a;--ok:#15914b;--warn:#c07a0a;--bad:#c23c3c;--plan:#5b6b82}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",system-ui,Tahoma,sans-serif;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:0 18px 60px}
+.hero{background:#0b121c;color:#eaf2f2;border-radius:0 0 22px 22px;padding:22px 24px 26px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--ac),#0a6a6a);display:grid;place-items:center;color:#fff;font-weight:800}
+h1{font-size:20px;margin:0;font-weight:800}.tag{color:#9fb4b4;font-size:12.5px}
+.roles{margin-inline-start:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+select{background:rgba(255,255,255,.08);color:#eaf2f2;border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:7px 10px;font-size:13px;font-family:inherit}
+.rnote{font-size:10.5px;color:#9fb4b4;max-width:250px}
+.src{margin-top:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:11px 14px;font-size:12px;color:#cfe0e0;line-height:1.9}
+.src b{color:#7ee3e3}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.kpi{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:11px;padding:10px 13px}
+.kpi .v{font-size:19px;font-weight:800}.kpi .l{font-size:10.5px;color:#9fb4b4}
+nav{display:flex;gap:7px;flex-wrap:wrap;margin:22px 0 14px}
+nav button{background:var(--card);color:var(--tx);border:1px solid var(--ln);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+nav button[aria-selected=true]{background:var(--ac);color:#04211f;border-color:var(--ac)}
+.panel{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:16px 18px}
+.phead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+.phead h2{font-size:16px;margin:0;font-weight:800}
+.ep{font-size:11px;color:var(--sub);font-family:ui-monospace,Consolas,monospace}
+.pnote{font-size:12px;color:var(--sub);margin:0 0 12px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{text-align:start;padding:7px 9px;border-bottom:1px solid var(--ln);white-space:nowrap}
+th{font-size:11px;color:var(--sub);font-weight:700;letter-spacing:.4px}
+td.n{font-variant-numeric:tabular-nums;font-weight:600}
+tbody tr:hover{background:var(--card2)}
+.scroll{overflow-x:auto}
+.state{padding:22px 8px;text-align:center;color:var(--sub);font-size:13px;line-height:2}
+.pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;display:inline-block}
+.p-live{background:rgba(47,189,107,.15);color:var(--ok)}.p-read{background:rgba(43,196,196,.15);color:var(--ac)}
+.p-wait{background:rgba(132,151,176,.16);color:var(--plan)}.p-bad{background:rgba(224,90,90,.15);color:var(--bad)}
+.gaps{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.gap{background:var(--card2);border:1px dashed var(--ln);border-radius:13px;padding:14px 15px}
+.gap .t{font-weight:800;font-size:14px;margin-bottom:5px}
+.gap .d{font-size:12px;color:var(--sub)}
+.gap a{color:var(--ac);font-size:11.5px;text-decoration:none;display:inline-block;margin-top:8px}
+.foot{margin-top:30px;padding-top:15px;border-top:1px solid var(--ln);font-size:11.5px;color:var(--sub);line-height:1.9}
+a.lnk{color:var(--ac);text-decoration:none}
+</style></head><body>
 
-  <header class="top">
-    <h1 id="pt">لوحة المعلومات<small id="ps">نظرة تنفيذية على أداء المالية</small></h1>
-    <div class="sp"></div>
-    <span id="lastupd" style="font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block"></span>آخر تحديث: —</span>
-    <label style="font-size:11px;color:var(--muted)">بصفتك:</label>
-    <select class="rolesel" id="role">
-      <option value="PRESIDENT">الرئيس</option>
-      <option value="CFO">المدير المالي (CFO)</option>
-      <option value="AP_MANAGER">مدير الحسابات الدائنة</option>
-      <option value="AP_CLERK">موظف حسابات دائنة</option>
-      <option value="OPERATOR">المُشغّل (إدخال البيانات)</option>
-      <option value="AUDITOR">مدقّق داخلي</option>
-    </select>
-    <div class="who"><span id="uname">الرئيس</span><div class="av" id="uav">ا</div></div>
-  </header>
+<div class="hero"><div class="wrap" style="padding-bottom:0">
+  <div class="brand">
+    <div class="logo">₤</div>
+    <div><h1>Finance OS</h1><div class="tag">كوكبيت مالي · كل رقم هنا من endpoint حيّ</div></div>
+    <div class="roles">
+      <select id="role" aria-label="الدور">
+        <option value="PRESIDENT">الرئيس</option>
+        <option value="CFO">المدير المالي (CFO)</option>
+        <option value="AP_MANAGER">مدير الحسابات الدائنة</option>
+        <option value="AP_CLERK">موظف حسابات دائنة</option>
+        <option value="OPERATOR">المُشغّل</option>
+        <option value="AUDITOR">مدقّق داخلي</option>
+      </select>
+      <div class="rnote">الدور بيفلتر <b>العرض</b> بس — المنع الحقيقي محتاج
+        <a href="/systems/idp" style="color:#7ee3e3">هوية موحّدة</a>، ولسه مش مُنفَّذ.</div>
+    </div>
+  </div>
+  <div class="src" id="src">بيحمّل مصدر الأرقام…</div>
+  <div class="kpis" id="kpis"></div>
+</div></div>
 
-  <main class="main">
-    <div class="view on" id="v-dash"></div>
-    <div class="view" id="v-team"></div>
-    <div class="view" id="v-ap"></div>
-    <div class="view" id="v-cust"></div>
-    <div class="view" id="v-cash"></div>
-    <div class="view" id="v-ledger"></div>
-    <div class="view" id="v-reports"></div>
-    <div class="view" id="v-audit"></div>
-  </main>
+<div class="wrap">
+  <nav id="nav" role="tablist"></nav>
+  <div class="panel" id="panel"><div class="state">…</div></div>
+
+  <div class="foot">
+    ERP = مصدر الحقيقة · كل الكنكتورات <b>قراءة فقط</b> · المفاتيح server-side · الـ AI مايكتبش مباشرة
+    <div>المتصفح <b>مابيجمّعش فلوس</b> — كل مجموع جاي من
+      <a class="lnk" href="/api/v1/finance/kpis">/api/v1/finance/*</a>، اللي متطابق مع SQL وشايل
+      حُكم حارس الانحراف معاه. حساب تاني في الجافاسكريبت = إجابة تانية.</div>
+    <div>قسم من غير endpoint حيّ بيقول <b>مستني إيه</b> — مابيعرضش رقم.</div>
+  </div>
 </div>
-<div id="toast"></div>
 
 <script>
-/* ===== roles ===== */
-const PERM={CFO:new Set(["inv:read","cash:read","team","rec:decide","audit","ledger"]),
-  AP_MANAGER:new Set(["inv:read","inv:approve","inv:post","team","ledger"]),
-  AP_CLERK:new Set(["inv:read","inv:create","inv:submit","team"]),
-  AUDITOR:new Set(["inv:read","audit","team","ledger"]),
-  // المُشغّل (operator): بيدخّل/يغذّي المعلومات — إنشاء وإرسال، بدون اعتماد (فصل واجبات)
-  OPERATOR:new Set(["inv:read","inv:create","inv:submit","team","ledger"]),
-  // الرئيس: بيشوف كل حاجة + بيقرّر + بتحصل نقاشات معاه (شات الفريق) — رؤية تنفيذية كاملة
-  PRESIDENT:new Set(["inv:read","inv:approve","cash:read","team","rec:decide","audit","ledger"])};
-const RMETA={CFO:{id:1,n:"ليلى حسن"},AP_MANAGER:{id:3,n:"سمير مدير"},AP_CLERK:{id:4,n:"أحمد موظف"},AUDITOR:{id:5,n:"هدى مدقّق"},
-  OPERATOR:{id:6,n:"المُشغّل"},PRESIDENT:{id:7,n:"الرئيس"}};
-let role="PRESIDENT"; const can=p=>PERM[role].has(p); const meId=()=>RMETA[role].id;
+var KEY="__GATEWAY_API_KEY__",H={headers:{"X-API-Key":KEY}};
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function money(n){return n==null||n===""||isNaN(n)?"—":Number(n).toLocaleString("en-US",{maximumFractionDigits:0})}
+function big(n){return n==null?"—":(Math.abs(n)>=1e6?(n/1e6).toFixed(1)+"M":money(n))}
+function get(p){return fetch("/api/v1/"+p,H).then(function(r){
+  if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})}
 
-/* ===== agents ===== */
-const AG={cfo:{n:"ليلى حسن",t:"المدير المالي",a:"ل",c:"#0f2a47"},treasury:{n:"عمر فهمي",t:"الخزينة",a:"ع",c:"#0ea5a5"},
- controller:{n:"سارة نبيل",t:"المراقب المالي",a:"س",c:"#2563eb"},ap:{n:"خالد عادل",t:"الحسابات الدائنة",a:"خ",c:"#7c3aed"},
- ar:{n:"منى صلاح",t:"الحسابات المدينة",a:"م",c:"#db2777"},cost:{n:"طارق سمير",t:"التكاليف",a:"ط",c:"#ea580c"},
- tax:{n:"يوسف كمال",t:"الضرائب",a:"ي",c:"#0891b2"},audit:{n:"هنا وائل",t:"التدقيق الداخلي",a:"ه",c:"#65a30d"}};
+/* Sections. `ep` is the endpoint that fills one; a section without an endpoint
+   is a stated gap, never a number. */
+var SECTIONS=[
+ {id:"customers",label:"العملاء (AR)",roles:"*",ep:"finance/customers?limit=200",
+  note:"مستحق على كل عميل — من نفس المصدر اللي بيغذّي KPI الـ AR فوق، فمستحيل يختلفوا.",
+  cols:[["code","الكود"],["name1","الاسم"],["invoices","فواتير",1],["invoicedNet","الصافي",1],
+        ["collected","المحصّل",1],["outstanding","المستحق",1],["lastInvoiceDate","آخر فاتورة"]],
+  alt:{collected:"paid"}},
+ {id:"suppliers",label:"الموردين (AP)",roles:"*",ep:"finance/suppliers?limit=200",
+  note:"مستحق لكل مورد. نفس القاعدة: الرقم من الـ endpoint، مش محسوب هنا.",
+  cols:[["code","الكود"],["name1","الاسم"],["invoices","فواتير",1],["invoicedNet","الصافي",1],
+        ["paid","المدفوع",1],["outstanding","المستحق",1],["lastInvoiceDate","آخر فاتورة"]]},
+ {id:"banks",label:"البنوك",roles:"PRESIDENT,CFO,AUDITOR",ep:"banks?limit=100",
+  note:"الحسابات حيّة من نما. الأرصدة مش معروضة عن قصد — محتاجة GL مش مُرحَّل بالكامل، ورقم غلط أسوأ من غيابه.",
+  cols:[["code","الكود"],["name1","الحساب"],["_bankName","البنك"],["_currency","العملة"],["_glAccount","حساب GL"]]},
+ {id:"purchases",label:"فواتير المشتريات",roles:"PRESIDENT,CFO,AP_MANAGER,AP_CLERK,AUDITOR",
+  ep:"nama/lists/PurchaseInvoice?page_size=100",doc:1,
+  note:"مستندات حيّة من الإنتاج، قراءة فقط. الاعتماد والترحيل كتابة على الـ ERP (Layer 5) ولسه مش مُنفَّذة.",
+  cols:[["code","المستند"],["issueDate","التاريخ"],["_party","المورد"],["_currency","العملة"],["_lines","سطور",1]]},
+ {id:"journal",label:"قيود اليومية",roles:"PRESIDENT,CFO,AUDITOR",
+  ep:"nama/lists/JournalEntry?page_size=100",doc:1,
+  note:"قيود حيّة من الإنتاج. الأستاذ العام المُجمَّع محتاج GL مُرحَّل — القيد نفسه متاح، المجاميع لأ.",
+  cols:[["code","القيد"],["issueDate","التاريخ"],["_party","الطرف"],["_currency","العملة"],["_lines","سطور",1]]},
+ {id:"receipts",label:"التحصيلات",roles:"PRESIDENT,CFO,AUDITOR",
+  ep:"nama/lists/ReceiptVoucher?page_size=100",doc:1,
+  note:"سندات القبض. دي كانت شكلها مقفولة لأن نما بترجّع 400 على النجاح الجزئي والكلاينت كان برميه.",
+  cols:[["code","السند"],["issueDate","التاريخ"],["_party","العميل"],["_currency","العملة"],["_lines","سطور",1]]},
+ {id:"payments",label:"المدفوعات",roles:"PRESIDENT,CFO,AP_MANAGER,AUDITOR",
+  ep:"nama/lists/PaymentVoucher?page_size=100",doc:1,
+  note:"سندات الصرف — نفس الحكاية.",
+  cols:[["code","السند"],["issueDate","التاريخ"],["_party","المورد"],["_currency","العملة"],["_lines","سطور",1]]},
+ {id:"gaps",label:"مستني إيه",roles:"*",gaps:[
+   {t:"أرصدة البنوك",d:"الحسابات موجودة، الأرصدة لأ. محتاجة GL مُرحَّل بالكامل — والنسخة الحالية مش مُرحَّل فيها.",l:"/connectors/banks",lt:"كنكتور البنوك ←"},
+   {t:"دورة اعتماد الفواتير",d:"قراءة الفواتير حيّة. الاعتماد والترحيل كتابة على الـ ERP — محتاجة workflow مدقّق وموافقة بشرية (Layer 5).",l:"/api/v1/ideas?readiness=ready",lt:"المتطلبات الجاهزة ←"},
+   {t:"التوصيات الذكية",d:"كانت خمس توصيات مكتوبة بالإيد. التوصية الحقيقية محتاجة طبقة الذكاء (Layer 4) — ولحد ساعتها مافيش توصيات، مش توصيات مخترعة.",l:"/systems/ai",lt:"طبقة الذكاء ←"},
+   {t:"الصلاحيات (RBAC)",d:"الدور فوق بيفلتر العرض بس. المنع الحقيقي محتاج دخول موحّد وهوية — PA2/PA3.",l:"/systems/idp",lt:"الهوية ←"},
+   {t:"سجل التدقيق",d:"الجيتواي بيسجّل كل طلب فعلًا. ربط السجل بالمستند لسه — والسجل المزيّف كان أسوأ من غيابه.",l:"/metrics",lt:"المراقبة ←"}]}
+];
 
-/* ===== data ===== */
-const TODAY=new Date("2026-07-22"); const C=["#2f5bd0","#0ea5a5","#7c3aed","#db2777","#ea580c"];
-const banks=[{n:"Main Operating",b:"CIB",ac:"****4021",cc:"EGP",v:4823000},{n:"Payroll",b:"HSBC",ac:"****8830",cc:"EGP",v:962000},
- {n:"FX Reserve",b:"QNB",ac:"****1176",cc:"USD",v:210000},{n:"Local Ops",b:"Banque Misr",ac:"****5590",cc:"EGP",v:1315000}];
-const vendors=[{id:1,n:"شركة أكمي"},{id:2,n:"النيل للتجارة"},{id:3,n:"دلتا لوجيستيك"}];
-let invSeq=5, invoices=[
- {id:1,no:"INV-1001",v:1,amt:25000,st:"DRAFT",by:4},{id:2,no:"INV-1002",v:2,amt:48000,st:"SUBMITTED",by:4},
- {id:3,no:"INV-1003",v:1,amt:152000,st:"APPROVED",by:4},{id:4,no:"INV-1004",v:3,amt:9000,st:"POSTED",by:4,erp:"ERP-9F2A6C71"},
- {id:5,no:"INV-1005",v:2,amt:33000,st:"REJECTED",by:4}];
-const customers=[
- {id:1,n:"شركة أكمي للتوريدات",code:"CUST-001",owner:"منى صلاح",phone:"0100 111 2233",city:"القاهرة",
-  led:[{no:"SI-100231",k:"فاتورة",d:"2026-05-02",due:"2026-06-01",dr:48000,cr:0},{no:"RV-90012",k:"سند قبض",d:"2026-06-03",due:"",dr:0,cr:30000},
-       {no:"SI-100288",k:"فاتورة",d:"2026-07-10",due:"2026-08-09",dr:52000,cr:0}]},
- {id:2,n:"النيل للتجارة",code:"CUST-002",owner:"خالد عادل",phone:"0122 333 4455",city:"الإسكندرية",
-  led:[{no:"SI-100240",k:"فاتورة",d:"2026-06-28",due:"2026-07-28",dr:28000,cr:0},{no:"RV-90020",k:"سند قبض",d:"2026-07-05",due:"",dr:0,cr:15000}]},
- {id:3,n:"دلتا لوجيستيك",code:"CUST-003",owner:"منى صلاح",phone:"0111 777 8899",city:"الجيزة",
-  led:[{no:"SI-100261",k:"فاتورة",d:"2026-04-15",due:"2026-05-15",dr:22000,cr:0}]}];
-let recSeq=5, recs=[
- {id:1,ag:"treasury",tl:"فائض نقدي غير مستثمر",dt:"رصيد تشغيلي أعلى من الحد؛ يُقترح وديعة 30 يوماً.",sv:"HIGH",st:"PENDING_APPROVAL"},
- {id:2,ag:"tax",tl:"استحقاق ض.ق.م خلال 6 أيام",dt:"مراجعة المرفقات واعتماد السداد.",sv:"HIGH",st:"PENDING_APPROVAL"},
- {id:3,ag:"ap",tl:"جدولة دفعة موردين",dt:"فواتير معتمدة قاربت الاستحقاق.",sv:"MEDIUM",st:"PENDING_APPROVAL"},
- {id:4,ag:"ap",tl:"منع فاتورة مكررة",dt:"أوقف الفريق إدخالاً مكرراً تلقائياً.",sv:"LOW",st:"AUTO_DECIDED"},
- {id:5,ag:"controller",tl:"تنبيه فواتير > 10,000",dt:"فُعّل تلقائياً للعرض على الاعتماد.",sv:"LOW",st:"AUTO_DECIDED"}];
-const ledger=[
- {no:"JV-2201",d:"2026-07-20",desc:"إثبات فاتورة مورد INV-1004",dr:"مصروفات تشغيل",cr:"موردون",amt:9000},
- {no:"JV-2202",d:"2026-07-19",desc:"تحصيل من عميل النيل",dr:"البنك",cr:"عملاء",amt:15000},
- {no:"JV-2203",d:"2026-07-18",desc:"إثبات مبيعات أكمي",dr:"عملاء",cr:"إيرادات",amt:52000}];
-let aSeq=0, audit=[]; ["invoice.create","invoice.submit","invoice.approve","invoice.post"].forEach((a,i)=>
- audit.push({id:++aSeq,ac:a,e:"invoice#4",who:i<2?"أحمد موظف":"سمير مدير",cid:cid(),ts:"2026-07-21 09:0"+i}));
-
-/* ===== helpers ===== */
-function cid(){return Math.random().toString(16).slice(2,10)+Math.random().toString(16).slice(2,6);}
-const M=(n,c="EGP")=>new Intl.NumberFormat("en-US",{maximumFractionDigits:0}).format(Math.round(n))+" "+c;
-function toast(m,t){const e=document.createElement("div");e.className="toast "+(t||"");e.textContent=m;document.getElementById("toast").appendChild(e);setTimeout(()=>e.remove(),3400);}
-function ts(){const d=new Date(),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;}
-function log(ac,e){audit.unshift({id:++aSeq,ac,e,who:RMETA[role].n,cid:cid(),ts:ts()});}
-const vName=id=>(vendors.find(v=>v.id===id)||{}).n||("#"+id);
-function cash(){let e=0,u=0;banks.forEach(b=>b.cc==="USD"?u+=b.v:e+=b.v);return {egp:e,usd:u};}
-function payables(){const op=invoices.filter(i=>["DRAFT","SUBMITTED","APPROVED"].includes(i.st));
- return {open:op.reduce((s,i)=>s+i.amt,0),pend:invoices.filter(i=>i.st==="SUBMITTED").length,
-  pendAmt:invoices.filter(i=>i.st==="SUBMITTED").reduce((s,i)=>s+i.amt,0),posted:invoices.filter(i=>i.st==="POSTED").length};}
-function custBalance(c){return c.led.reduce((s,l)=>s+l.dr-l.cr,0);}
-function receivables(){return customers.reduce((s,c)=>s+custBalance(c),0);}
-function agingAll(){const b={cur:0,d30:0,d60:0,d90:0};customers.forEach(c=>{let credit=c.led.filter(l=>l.cr>0).reduce((s,l)=>s+l.cr,0);
- c.led.filter(l=>l.dr>0).sort((a,z)=>new Date(a.d)-new Date(z.d)).forEach(inv=>{const ap=Math.min(credit,inv.dr);credit-=ap;const rem=inv.dr-ap;if(rem<=0)return;
-  const ov=Math.max(0,Math.round((TODAY-new Date(inv.due))/864e5));if(ov<=0)b.cur+=rem;else if(ov<=30)b.d30+=rem;else if(ov<=60)b.d60+=rem;else b.d90+=rem;});});return b;}
-
-/* ===== brain (chat) ===== */
-function route(m){m=(m||"").toLowerCase();
- if(/نقد|بنك|رصيد|سيول|cash|bank/.test(m))return"treasury";
- if(/مورد|فاتور|دائن|payable|invoice/.test(m))return"ap";
- if(/عميل|تحصيل|مدين|receivable/.test(m))return"ar";
- if(/ضريب|tax/.test(m))return"tax";if(/تدقيق|audit/.test(m))return"audit";return"cfo";}
-function brain(msg){const k=route(msg),a=AG[k];
- if(k==="treasury"){if(!can("cash:read"))return{a,r:`معك ${a.n} من الخزينة. أرصدة البنوك مقصورة على الإدارة المالية (treasury:read).`};
-  const c=cash();return{a,r:`معك ${a.n}. السيولة: ${M(c.egp)} + ${M(c.usd,"USD")}. تحب توقّع تدفق نقدي 30/60/90؟`};}
- if(k==="ap"){const p=payables();return{a,r:`معك ${a.n}. ${p.pend} فاتورة تنتظر الاعتماد (${M(p.pendAmt)})، وإجمالي مفتوح ${M(p.open)}.`};}
- if(k==="ar")return{a,r:`معك ${a.n}. إجمالي المديونيات على العملاء ${M(receivables())}. أجهّز أولويات التحصيل عند الطلب.`};
- if(k==="tax")return{a,r:`معك ${a.n}. إقرار ض.ق.م مستحق خلال 6 أيام — أجهّز الملخّص والمرفقات؟`};
- if(k==="audit"){if(!can("audit"))return{a,r:`معك ${a.n}. تفاصيل التدقيق مقصورة على audit:read، لكن كل إجراء مُوثّق.`};
-  return{a,r:`معك ${a.n}. الضوابط فعّالة: فصل الواجبات مطبّق وكل إجراء له مسار تدقيق.`};}
- const p=payables();return{a:AG.cfo,r:`معك ${AG.cfo.n}. تنفيذياً: سيولة ${M(cash().egp)}، ${p.pend} فاتورة تنتظر الاعتماد، مديونيات عملاء ${M(receivables())}.`};}
-
-/* ===== views ===== */
-function svgDonut(parts){const R=52,Cc=2*Math.PI*R;let off=0;const tot=parts.reduce((s,p)=>s+p.v,0)||1;
- const arcs=parts.map(p=>{const len=p.v/tot*Cc;const s=`<circle r="${R}" cx="68" cy="68" fill="none" stroke="${p.c}" stroke-width="18" stroke-dasharray="${len} ${Cc-len}" stroke-dashoffset="${-off}" transform="rotate(-90 68 68)"/>`;off+=len;return s;}).join("");
- return `<svg width="136" height="136" viewBox="0 0 136 136">${arcs}<circle r="34" cx="68" cy="68" fill="#fff"/><text x="68" y="72" text-anchor="middle" font-size="15" font-weight="800" fill="#0f1b2d">${M(tot,"")}</text></svg>`;}
-
-function vDash(){const p=payables(),c=cash(),ag=agingAll(),rec=receivables();
- const overdue=customers.flatMap(c=>c.led.filter(l=>l.dr>0&&new Date(l.due)<TODAY)).length;
- const kpi=(lab,val,d,ic,bg,cl)=>`<div class="kpi"><div class="top"><div class="lab">${lab}</div><div class="ic" style="background:${bg}">${ic}</div></div><div class="val">${val}</div><div class="d ${cl||''}">${d}</div></div>`;
- const bars=[["فبراير",3.1],["مارس",3.6],["أبريل",4.0],["مايو",4.4],["يونيو",4.9],["يوليو",(c.egp/1e6)]];
- const mx=Math.max(...bars.map(b=>b[1]));
- const nfd=n=>n==null?"—":(Math.abs(n)>=1e6?(n/1e6).toFixed(1)+" M":new Intl.NumberFormat("en-US").format(n));
- const realKpi=LIVE.kpis?`<div class="kpis" style="margin-bottom:14px">
-   <div class="kpi"><div class="top"><div class="lab">المبيعات <span class="src">نما SQL · حيّ</span></div><div class="ic" style="background:var(--teal-soft)">💰</div></div><div class="val" style="color:var(--green)">${nfd(LIVE.kpis.salesTotal)} ج</div><div class="d">${nfd(LIVE.kpis.salesInvoices)} فاتورة</div></div>
-   <div class="kpi"><div class="top"><div class="lab">مستحق لنا (AR)</div><div class="ic" style="background:var(--primary-soft)">📈</div></div><div class="val" style="color:#f0574d">${nfd(LIVE.kpis.arOutstanding)} ج</div><div class="d">${nfd(LIVE.kpis.customers)} عميل</div></div>
-   <div class="kpi"><div class="top"><div class="lab">المشتريات</div><div class="ic" style="background:var(--violet-soft)">🛒</div></div><div class="val">${nfd(LIVE.kpis.purchaseTotal)} ج</div><div class="d">${nfd(LIVE.kpis.purchaseInvoices)} فاتورة</div></div>
-   <div class="kpi"><div class="top"><div class="lab">مستحق علينا (AP)</div><div class="ic" style="background:var(--violet-soft)">🧾</div></div><div class="val" style="color:var(--amber)">${nfd(LIVE.kpis.apOutstanding)} ج</div><div class="d">${nfd(LIVE.kpis.suppliers)} مورد · حتى ${LIVE.kpis.asOf}</div></div>
- </div>`:"";
- document.getElementById("v-dash").innerHTML=realKpi+`
- <div class="pillrow"><span class="chip">✔ أرقام نما الحقيقية (SQL)</span><span class="chip">✔ RBAC + فصل الواجبات</span><span class="chip">✔ ERP = System of Record</span></div>`+`
- <div class="kpis" style="margin-bottom:16px">
-  ${kpi("السيولة النقدية", can("cash:read")?M(c.egp):"🔒", can("cash:read")?"+ "+M(c.usd,"USD"):"مقصور على CFO", "💧","var(--teal-soft)","up")}
-  ${kpi("مديونيات العملاء (AR)", M(rec), overdue+" فاتورة متأخرة", "📈","var(--primary-soft)","")}
-  ${kpi("التزامات الموردين (AP)", M(p.open), p.pend+" تنتظر الاعتماد", "🧾","var(--violet-soft)","")}
-  ${kpi("توصيات تنتظرك", recs.filter(r=>r.st==="PENDING_APPROVAL").length, "من الفريق الذكي", "💡","var(--amber-soft)","dn")}
- </div>
- <div class="g2">
-  <div>
-   <div class="card"><div class="hd"><h3>اتجاه السيولة (٦ أشهر)</h3><span class="sub">مليون EGP</span></div>
-    <div class="bars">${bars.map(b=>`<div class="bar"><i style="height:${b[1]/mx*100}%"></i><span>${b[0]}</span></div>`).join("")}</div></div>
-   <div style="height:16px"></div>
-   <div class="card"><div class="hd"><h3>توصيات الفريق</h3><span class="sub">اعتمد من تبويب الفريق</span></div>
-    ${recs.slice(0,3).map(r=>{const a=AG[r.ag];const sc={HIGH:"var(--red)",MEDIUM:"var(--amber)",LOW:"var(--green)"}[r.sv];
-     return `<div class="rec"><div class="sv" style="background:${sc}"></div><div style="flex:1"><div class="tl">${r.tl}</div><div class="dt">${r.dt}</div>
-      <div class="mt"><span class="tag t-${r.st}">${r.st.replace("_"," ")}</span><span style="font-size:11px;color:var(--muted)">👤 ${a.n}</span></div></div></div>`;}).join("")}</div>
-  </div>
-  <div>
-   <div class="card"><div class="hd"><h3>أعمار الديون</h3><span class="src">نما</span></div>
-    ${agingHtml(ag)}</div>
-   <div style="height:16px"></div>
-   <div class="card"><div class="hd"><h3>أحدث القيود (GL)</h3></div>
-    <table><tbody>${ledger.slice(0,4).map(j=>`<tr><td><b>${j.no}</b><div style="font-size:11px;color:var(--muted)">${j.desc}</div></td><td class="amt">${M(j.amt)}</td></tr>`).join("")}</tbody></table></div>
-  </div>
- </div>`;}
-function agingHtml(ag){const t=ag.cur+ag.d30+ag.d60+ag.d90||1;const s=(v,c)=>`<i style="width:${v/t*100}%;background:${c}"></i>`;
- return `<div style="height:8px"></div><div class="agebar">${s(ag.cur,'#15a34a')}${s(ag.d30,'#d98a09')}${s(ag.d60,'#ea580c')}${s(ag.d90,'#dc2b3d')}</div>
- <div class="leg"><div class="li"><span class="sw" style="background:#15a34a"></span>حالي <b>${M(ag.cur,"")}</b></div>
- <div class="li"><span class="sw" style="background:#d98a09"></span>1–30 <b>${M(ag.d30,"")}</b></div>
- <div class="li"><span class="sw" style="background:#ea580c"></span>31–60 <b>${M(ag.d60,"")}</b></div>
- <div class="li"><span class="sw" style="background:#dc2b3d"></span>60+ <b>${M(ag.d90,"")}</b></div></div>`;}
-
-let chatInit=false;
-function vTeam(){
- const org=`<div class="card"><div class="hd"><h3>فريقك المالي الذكي</h3><span class="sub">هيكل هرمي</span></div>
-  <div class="agents">${Object.values(AG).map(a=>`<div class="agc"><div class="a" style="background:${a.c}">${a.a}</div><div class="nm">${a.n}</div><div class="tt">${a.t}</div></div>`).join("")}</div></div>`;
- const rc=`<div class="card"><div class="hd"><h3>التوصيات والقرارات</h3><span class="sub">أخضر=ذاتي · برتقالي=يحتاج اعتمادك</span></div><div id="recs" style="padding-top:8px"></div></div>`;
- const chat=`<div class="card"><div class="hd"><h3>الدردشة مع الفريق</h3></div>
-  <div class="chat"><div class="thread" id="thread"></div><div class="cbar" id="cbar"></div>
-   <div class="comp"><input id="ci" placeholder="اسأل فريقك… مثال: كم رصيدنا النقدي؟"/><button class="snd" id="cs">إرسال</button></div></div></div>`;
- document.getElementById("v-team").innerHTML=`<div class="g2"><div>${chat}</div><div>${org}${'<div style="height:16px"></div>'}${rc}</div></div>`;
- renderRecs();
- document.getElementById("thread").innerHTML="";
- bubble("a",AG.cfo.n,`أهلاً ${RMETA[role].n} 👋 أنا ليلى ومعي الفريق. اسألني عن أي شيء.`,AG.cfo.c);
- document.getElementById("cbar").innerHTML=["كم رصيدنا النقدي؟","كم فاتورة تنتظر الاعتماد؟","مديونيات العملاء؟","وضع الضرائب؟"].map(c=>`<button>${c}</button>`).join("");
- document.querySelectorAll("#cbar button").forEach(b=>b.onclick=()=>{document.getElementById("ci").value=b.textContent;sendChat();});
- document.getElementById("cs").onclick=sendChat;document.getElementById("ci").onkeydown=e=>{if(e.key==="Enter")sendChat();};
+/* Source, age and the drift verdict — the same three facts the reports page states. */
+function renderSource(k){
+  var el=document.getElementById("src"),f=(k&&k.freshness)||{},g=f.guard||{};
+  if(!k||!k.available){
+    el.innerHTML='<span class="pill p-bad">الأرقام مش متاحة</span> '+
+      esc(f.reason||"الـ endpoint مارجّعش أرقام")+
+      (f.building?' · ⏳ في مسح شغّال — استنى وحدّث الصفحة':'');
+    return;
+  }
+  var head=f.live
+    ? '<span class="pill p-live">نما REST · إنتاج حيّ</span> اتسحبت من <b>'+
+      (f.age_minutes==null?"—":(f.age_minutes<60?Math.round(f.age_minutes)+" دقيقة":(f.age_minutes/60).toFixed(1)+" ساعة"))+'</b>'
+    : '<span class="pill p-read">نما SQL · نسخة مُرستَرة</span> بيانات حتى <b>'+esc(f.as_of||k.asOf||"—")+'</b>'+
+      (f.age_days>1?' · عُمرها '+f.age_days+' يوم':'');
+  var guard=g.status==="drift"
+    ? '<br><span class="pill p-bad">انحراف</span> '+esc(g.reason||"")+' — الأرقام رجعت لـ SQL'
+    : g.status==="pass"
+    ? '<br><span class="pill p-live">مطابقة</span> اتطابقت مع SQL على شهر '+esc(g.period||"")+' مقفول'
+    : '<br><span class="pill p-wait">المطابقة ماتفحصتش</span> '+esc(g.reason||"");
+  var miss=(k.excludedDocuments|0)
+    ? '<br><span class="pill p-bad">'+k.excludedDocuments+' مستند مستبعد</span> مش مقروء بالـ credential — تفاصيله في <a class="lnk" href="/api/v1/finance/live">حالة اللقطة</a>'
+    : '';
+  el.innerHTML=head+guard+miss;
 }
-function bubble(who,nm,txt,col){const t=document.getElementById("thread");if(!t)return;const w=document.createElement("div");w.className="msg"+(who==="me"?" me":"");
- w.innerHTML=`<div class="a" style="background:${who==="me"?"#26334a":col}">${(who==="me"?RMETA[role].n:nm).trim()[0]}</div><div class="b">${who==="me"?"":`<div class="nm">${nm}</div>`}${txt}</div>`;
- t.appendChild(w);t.scrollTop=t.scrollHeight;}
-function sendChat(){const i=document.getElementById("ci"),m=i.value.trim();if(!m)return;bubble("me",null,m);i.value="";
- setTimeout(()=>{const r=brain(m);bubble("a",r.a.n+" — "+r.a.t,r.r,r.a.c);},420);}
-function renderRecs(){const box=document.getElementById("recs");if(!box)return;const sc={HIGH:"var(--red)",MEDIUM:"var(--amber)",LOW:"var(--green)"};
- box.innerHTML=recs.map(r=>{const a=AG[r.ag];const dec=can("rec:decide")&&r.st==="PENDING_APPROVAL";
-  const acts=dec?`<div class="acts"><button class="btn ap" data-id="${r.id}" data-a="approve">اعتماد</button><button class="btn rj" data-id="${r.id}" data-a="dismiss">تجاهل</button></div>`:"";
-  return `<div class="rec"><div class="sv" style="background:${sc[r.sv]}"></div><div style="flex:1"><div class="tl">${r.tl}</div><div class="dt">${r.dt}</div>
-   <div class="mt"><span class="tag t-${r.st}">${r.st.replace("_"," ")}</span><span style="font-size:11px;color:var(--muted)">👤 ${a.n} · ${a.t}</span>${acts}</div></div></div>`;}).join("");
- box.querySelectorAll("button[data-a]").forEach(b=>b.onclick=()=>{const r=recs.find(x=>x.id===+b.dataset.id);r.st=b.dataset.a==="approve"?"APPROVED":"DISMISSED";
-  log("recommendation."+b.dataset.a,"rec#"+r.id);toast(b.dataset.a==="approve"?"تم اعتماد التوصية":"تم تجاهل التوصية","ok");renderRecs();});}
-
-function vAP(){const canCreate=can("inv:create");
- const rowbtns=i=>{const b=[];const creator=i.by===meId();
-  if(i.st==="DRAFT"&&can("inv:submit"))b.push(`<button class="btn pr" data-act="submit" data-id="${i.id}">إرسال</button>`);
-  if(i.st==="SUBMITTED"&&can("inv:approve")){if(creator)b.push('<span class="denied">لا تعتمد فاتورتك</span>');
-   else{b.push(`<button class="btn ap" data-act="approve" data-id="${i.id}">اعتماد</button>`);b.push(`<button class="btn rj" data-act="reject" data-id="${i.id}">رفض</button>`);}}
-  if(i.st==="APPROVED"&&can("inv:post"))b.push(`<button class="btn ap" data-act="post" data-id="${i.id}">ترحيل ERP</button>`);
-  return `<div class="acts">${b.join("")||'<span style="color:var(--muted)">—</span>'}</div>`;};
- document.getElementById("v-ap").innerHTML=`<div class="card">
-  <div class="hd"><h3>فواتير الموردين — دورة الاعتماد</h3><button class="btn pr" id="newInv" ${canCreate?"":"disabled"}>+ إنشاء فاتورة</button></div>
-  <div class="hint">${canCreate?"دورك يسمح بإنشاء وإرسال الفواتير.":can("inv:approve")?"دورك يسمح بالاعتماد/الترحيل (لا الإنشاء — فصل واجبات).":"قراءة فقط."}</div>
-  <table><thead><tr><th>الرقم</th><th>المورد</th><th>القيمة</th><th>الحالة</th><th>أنشأها</th><th>ERP</th><th>الإجراءات</th></tr></thead>
-  <tbody>${invoices.map(i=>`<tr><td><b>${i.no}</b></td><td>${vName(i.v)}</td><td class="amt">${M(i.amt)}</td>
-   <td><span class="badge2 b-${i.st}">${i.st}</span></td><td style="color:var(--muted)">${(Object.values(RMETA).find(m=>m.id===i.by)||{}).n||"—"}</td>
-   <td>${i.erp?`<span style="font-size:11px;color:var(--green);font-weight:700">${i.erp}</span>`:'—'}</td><td>${rowbtns(i)}</td></tr>`).join("")}</tbody></table></div>`;
- const nb=document.getElementById("newInv");if(nb&&canCreate)nb.onclick=()=>{const a=prompt("قيمة الفاتورة (مورد أكمي):","25000");if(!a)return;
-  invoices.push({id:++invSeq,no:"INV-"+(1000+Math.floor(Math.random()*9000)),v:1,amt:parseFloat(a),st:"DRAFT",by:meId()});log("invoice.create","invoice#"+invSeq);toast("تم إنشاء مسودة","ok");vAP();};
- document.querySelectorAll("#v-ap button[data-act]").forEach(b=>b.onclick=()=>apAct(+b.dataset.id,b.dataset.act));}
-function apAct(id,act){const i=invoices.find(x=>x.id===id);
- try{if(act==="submit"){i.st="SUBMITTED";}
-  else if(act==="approve"){if(i.by===meId())throw"فصل الواجبات: لا تعتمد فاتورتك";i.st="APPROVED";}
-  else if(act==="reject"){i.st="REJECTED";}
-  else if(act==="post"){i.erp="ERP-"+cid().toUpperCase().slice(0,8);i.st="POSTED";}
-  log("invoice."+act,"invoice#"+id);toast("تم: "+act,"ok");
- }catch(e){toast(String(e),"er");return;}vAP();}
-
-let sel=1;
-function vCust(){const c=customers.find(x=>x.id===sel);
- const list=customers.map(c=>{const bl=custBalance(c);const col=C[c.id%C.length];
-  return `<div class="crow ${c.id===sel?'sel':''}" data-id="${c.id}"><div class="cv" style="background:${col}">${c.n[0]}</div>
-   <div><div class="nm">${c.n}</div><div class="mt">${c.code}</div></div><div class="bl" style="color:${bl>0?'#b41b2c':'#0f7a37'}">${M(bl)}</div></div>`;}).join("");
- const bl=custBalance(c);const col=C[c.id%C.length];
- const detail=`<div class="card"><div class="hd"><div class="cv" style="width:40px;height:40px;border-radius:11px;background:${col};display:grid;place-items:center;color:#fff;font-weight:800">${c.n[0]}</div>
-   <div><h3 style="font-size:16px">${c.n}</h3><div style="font-size:11.5px;color:var(--muted)">${c.code} · ${c.owner} · ${c.city}</div></div>
-   <div style="margin-inline-start:auto;text-align:left"><div style="font-size:11px;color:var(--muted)">الرصيد المستحق <span class="src">نما</span></div><div style="font-size:20px;font-weight:800;color:${bl>0?'#b41b2c':'#0f7a37'}">${M(bl)}</div></div></div>
-  <div class="hd" style="border-top:1px solid var(--line)"><h3>كشف الحساب</h3><span class="src">نما · Namasoft</span></div>
-  <table><thead><tr><th>المستند</th><th>النوع</th><th>التاريخ</th><th>مدين</th><th>دائن</th></tr></thead>
-  <tbody>${c.led.map(l=>`<tr><td><b>${l.no}</b></td><td>${l.k}</td><td>${l.d}</td><td class="amt">${l.dr?M(l.dr,""):"—"}</td><td class="amt" style="color:#0f7a37">${l.cr?M(l.cr,""):"—"}</td></tr>`).join("")}</tbody></table>
-  <div class="info"><div class="r"><span class="k">المسؤول <span class="src crm">CRM</span></span><span>${c.owner}</span></div>
-   <div class="r"><span class="k">الهاتف <span class="src crm">CRM</span></span><span>${c.phone}</span></div>
-   <div class="r"><span class="k">المدينة</span><span>${c.city}</span></div></div></div>`;
- const nf=n=>(n==null?"—":new Intl.NumberFormat("en-US").format(n));
- const liveCard=LIVE.customers?`<div style="height:16px"></div><div class="card"><div class="hd"><h3>أرصدة العملاء الفعلية <span class="src">نما SQL · حيّ</span></h3><span class="sub">${LIVE.customers.length} عميل · AR</span></div>
-  <table><thead><tr><th>الكود</th><th>العميل</th><th>المبيعات</th><th>المستحق</th></tr></thead>
-  <tbody>${LIVE.customers.slice(0,60).map(c=>`<tr><td class="c">${c.code||"—"}</td><td>${c.name1||"—"}</td><td class="amt">${nf(c.salesTotal)}</td><td class="amt" style="color:${c.outstanding>0?'#f0574d':'var(--sub)'};font-weight:700">${nf(c.outstanding)}</td></tr>`).join("")}</tbody></table>
-  <div class="hint">أرصدة حقيقية من نما عبر SQL (قراءة فقط) — حتى ${LIVE.kpis?LIVE.kpis.asOf:"—"}.</div></div>`:"";
- const supCard=LIVE.suppliers?`<div style="height:16px"></div><div class="card"><div class="hd"><h3>أرصدة الموردين الفعلية <span class="src">نما SQL · حيّ</span></h3><span class="sub">${LIVE.suppliers.length} مورد · AP</span></div>
-  <table><thead><tr><th>الكود</th><th>المورد</th><th>المشتريات</th><th>المستحق علينا</th></tr></thead>
-  <tbody>${LIVE.suppliers.slice(0,40).map(s=>`<tr><td class="c">${s.code||"—"}</td><td>${s.name1||"—"}</td><td class="amt">${nf(s.purchaseTotal)}</td><td class="amt" style="color:${s.outstanding>0?'#f0a935':'var(--sub)'};font-weight:700">${nf(s.outstanding)}</td></tr>`).join("")}</tbody></table>
-  <div class="hint">أرصدة حقيقية من نما عبر SQL (قراءة فقط).</div></div>`:"";
- document.getElementById("v-cust").innerHTML=`<div class="list360"><div class="card"><div class="hd"><h3>العملاء</h3><span class="sub">تجريبي</span></div><div style="padding:8px">${list}</div></div><div>${detail}</div></div>`+liveCard+supCard;
- document.querySelectorAll("#v-cust .crow").forEach(r=>r.onclick=()=>{sel=+r.dataset.id;vCust();});}
-
-function vCash(){if(!can("cash:read")){document.getElementById("v-cash").innerHTML=`<div class="card"><div class="hd"><h3>الخزينة والنقد</h3></div><div style="padding:18px"><div class="lock">🔒 أرصدة البنوك مقصورة على الإدارة المالية (صلاحية <b>treasury:read</b>). بدّل الدور إلى <b>CFO</b> من الأعلى لعرضها — مثال حيّ على بيانات يملكها الفريق ولا يراها الجميع.</div></div></div>`;return;}
- const c=cash();document.getElementById("v-cash").innerHTML=`
- <div class="kpis" style="margin-bottom:16px">
-  <div class="kpi"><div class="lab">حسابات بنكية فعلية</div><div class="val">${LIVE.banks?LIVE.banks.length:'—'}</div><div class="d">من نما · حيّ</div></div>
-  <div class="kpi"><div class="lab">الأرصدة الرقمية</div><div class="val" style="font-size:14px">من الأستاذ (GL)</div><div class="d">قيد الترحيل بالنسخة</div></div>
-  <div class="kpi"><div class="lab">عدد الحسابات</div><div class="val">${banks.length}</div><div class="d">٣ بنوك</div></div>
-  <div class="kpi"><div class="lab">آخر تحديث</div><div class="val" style="font-size:16px">اليوم</div><div class="d">من نما/البنوك</div></div></div>
- <div class="card"><div class="hd"><h3>ملاحظة الأرصدة النقدية</h3></div>
-  <div style="padding:14px 18px;color:var(--muted);font-size:12.5px">الأرصدة الرقمية للبنوك بتيجي من الأستاذ العام (GL) — <b>غير مُرحّل بالكامل في النسخة المُرستَرة الحالية</b>، فمش بنعرض أرقام وهمية. حسابات البنوك الفعلية من نما تحت 👇 · (أرصدة العملاء والموردين حقيقية لأنها على الفواتير مباشرة).</div></div>`
- +(LIVE.banks?`<div style="height:16px"></div><div class="card"><div class="hd"><h3>حسابات البنوك الفعلية <span class="src">نما · حيّ</span></h3><span class="sub">${LIVE.banks.length} حساب من نما</span></div>
-  <table><thead><tr><th>الكود</th><th>الاسم</th><th>البنك</th><th>العملة</th><th>الرصيد</th></tr></thead>
-  <tbody>${LIVE.banks.map(b=>`<tr><td><b>${b.code||"—"}</b></td><td>${b.name1||"—"}</td><td>${b._bankName||"—"}</td><td>${b._currency||"—"}</td><td style="color:var(--muted);font-size:11px">غير متاح عبر REST · SQL لاحقاً</td></tr>`).join("")}</tbody></table>
-  <div class="hint">الحسابات حيّة من نما عبر الجيتواي. الأرصدة الرقمية مش على Nama REST — بتيجي من SQL/تقرير.</div></div>`:"");}
-
-function vLedger(){if(!can("ledger")){document.getElementById("v-ledger").innerHTML=`<div class="card"><div style="padding:18px"><div class="lock">🔒 الأستاذ العام يتطلب صلاحية عرض.</div></div></div>`;return;}
- document.getElementById("v-ledger").innerHTML=`<div class="card"><div class="hd"><h3>الأستاذ العام — قيود اليومية</h3><span class="src">نما</span></div>
-  <table><thead><tr><th>القيد</th><th>التاريخ</th><th>البيان</th><th>مدين (حساب)</th><th>دائن (حساب)</th><th>المبلغ</th></tr></thead>
-  <tbody>${ledger.map(j=>`<tr><td><b>${j.no}</b></td><td>${j.d}</td><td>${j.desc}</td><td>${j.dr}</td><td>${j.cr}</td><td class="amt">${M(j.amt)}</td></tr>`).join("")}</tbody></table></div>`;}
-
-function vReports(){const p=payables();const byst={};["DRAFT","SUBMITTED","APPROVED","POSTED","REJECTED"].forEach(s=>byst[s]=invoices.filter(i=>i.st===s).length);
- const ag=agingAll();const donut=svgDonut([{v:ag.cur,c:"#15a34a"},{v:ag.d30,c:"#d98a09"},{v:ag.d60,c:"#ea580c"},{v:ag.d90,c:"#dc2b3d"}]);
- const mx=Math.max(...Object.values(byst),1);
- document.getElementById("v-reports").innerHTML=`
- <div class="g3" style="margin-bottom:16px">
-  <div class="kpi"><div class="lab">DSO (متوسط تحصيل)</div><div class="val">42 يوم</div><div class="d up">-3 مقابل الشهر السابق</div></div>
-  <div class="kpi"><div class="lab">نسبة الأتمتة</div><div class="val">62%</div><div class="d up">هدف المرحلة ≥ 60%</div></div>
-  <div class="kpi"><div class="lab">تغطية التدقيق</div><div class="val">100%</div><div class="d">الإجراءات الحسّاسة</div></div></div>
- <div class="g2">
-  <div class="card"><div class="hd"><h3>فواتير AP حسب الحالة</h3></div>
-   <div class="bars" style="height:170px">${Object.entries(byst).map(([s,n])=>`<div class="bar"><i style="height:${n/mx*100}%;background:var(--primary)"></i><span>${s}</span><b style="font-size:12px">${n}</b></div>`).join("")}</div></div>
-  <div class="card"><div class="hd"><h3>توزيع أعمار الديون</h3><span class="src">نما</span></div>
-   <div style="display:flex;align-items:center;gap:16px;padding:14px 18px">${donut}
-    <div class="leg" style="padding:0;flex-direction:column"><div class="li"><span class="sw" style="background:#15a34a"></span>حالي ${M(ag.cur,"")}</div>
-    <div class="li"><span class="sw" style="background:#d98a09"></span>1–30 ${M(ag.d30,"")}</div>
-    <div class="li"><span class="sw" style="background:#ea580c"></span>31–60 ${M(ag.d60,"")}</div>
-    <div class="li"><span class="sw" style="background:#dc2b3d"></span>60+ ${M(ag.d90,"")}</div></div></div></div>
- </div>`;}
-
-function vAudit(){if(!can("audit")){document.getElementById("v-audit").innerHTML=`<div class="card"><div style="padding:18px"><div class="lock">🔒 سجل التدقيق يتطلب صلاحية audit:read (مدقّق/مدير مالي).</div></div></div>`;return;}
- document.getElementById("v-audit").innerHTML=`<div class="card"><div class="hd"><h3>سجل التدقيق (Append-only)</h3><span class="sub">غير قابل للتعديل</span></div>
-  <div>${audit.map(a=>`<div style="padding:11px 18px;border-bottom:1px solid var(--line);font-size:12.5px">
-   <b>${a.ac}</b> · <span style="color:var(--muted)">${a.ts}</span><br><span style="color:var(--muted);font-size:11px">👤 ${a.who} · ${a.e} · cid:${a.cid.slice(0,10)}</span></div>`).join("")}</div></div>`;}
-
-/* ===== router + role ===== */
-const RENDER={dash:vDash,team:vTeam,ap:vAP,cust:vCust,cash:vCash,ledger:vLedger,reports:vReports,audit:vAudit};
-const TITLES={dash:["لوحة المعلومات","نظرة تنفيذية على أداء المالية"],team:["الفريق المالي الذكي","دردشة، توصيات، وقرارات (HITL)"],
- ap:["فواتير الموردين","دورة الاعتماد والترحيل"],cust:["العملاء 360°","بيانات CRM + حساب نما موحّدة"],
- cash:["الخزينة والنقد","بيانات مقصورة على الإدارة المالية"],ledger:["الأستاذ العام","قيود اليومية"],
- reports:["التقارير و KPIs","مؤشرات الأداء والتحليل"],audit:["سجل التدقيق","سجل غير قابل للتعديل"]};
-let curr="dash";
-function go(v){curr=v;document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
- document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));document.getElementById("v-"+v).classList.add("on");
- document.getElementById("pt").childNodes[0].nodeValue=TITLES[v][0];document.getElementById("ps").textContent=TITLES[v][1];
- RENDER[v]();}
-document.getElementById("nav").addEventListener("click",e=>{const b=e.target.closest("button[data-v]");if(b)go(b.dataset.v);});
-document.getElementById("role").addEventListener("change",e=>{role=e.target.value;
- document.getElementById("uname").textContent=RMETA[role].n;document.getElementById("uav").textContent=RMETA[role].n.trim()[0];
- toast("أصبحت الآن: "+RMETA[role].n);go(curr);});
-
-/* آخر تحديث (يتعبّى بتاريخ/وقت فتح الصفحة) */
-(function(){var d=new Date(),p=n=>String(n).padStart(2,"0");
- var t=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
- document.getElementById("lastupd").innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block"></span>آخر تحديث: '+t+' · <b style="color:#b45309">بيانات تجريبية — نما غير متصل</b>';})();
-
-/* ===== gateway live data (المفاتيح server-side) ===== */
-const GW="/api/v1/", GWH={"X-API-Key":"__GATEWAY_API_KEY__"};
-let LIVE={banks:null,customers:null,suppliers:null,kpis:null};
-async function gwGet(path){const r=await fetch(GW+path,{headers:GWH});if(!r.ok)throw new Error(path+" HTTP "+r.status);return r.json();}
-function setBanner(sources){const el=document.getElementById("lastupd");if(!el)return;
- var d=new Date(),p=n=>String(n).padStart(2,"0");
- var t=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
- if(sources&&sources.length){
-  el.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:#15a34a;display:inline-block"></span>آخر تحديث: '+t+
-   ' · <b style="color:#0f7a37">متصل بالجيتواي ✅ ('+sources.join(" · ")+' حيّ)</b>';
- }else{
-  el.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block"></span>آخر تحديث: '+t+
-   ' · <b style="color:#b45309">الجيتواي غير متصل — بيانات تجريبية</b>';
- }}
-async function loadLive(){
- const ok=[];
- try{const d=await gwGet("banks?limit=100");const rows=(d.records)||[];
-  if(rows.length){LIVE.banks=rows;ok.push("البنوك");}}catch(e){}
- try{const d=await gwGet("finance/kpis");if(d&&d.available){LIVE.kpis=d;ok.push("KPIs");}}catch(e){}
- try{const d=await gwGet("finance/customers?limit=200");const rows=(d.records)||[];
-  if(rows.length){LIVE.customers=rows;ok.push("العملاء");}}catch(e){}
- try{const d=await gwGet("finance/suppliers?limit=100");const rows=(d.records)||[];
-  if(rows.length){LIVE.suppliers=rows;ok.push("الموردين");}}catch(e){}
- setBanner(ok);
- if(ok.length)go(curr);   // re-render current view with live overlays
+function renderKpis(k){
+  var box=document.getElementById("kpis");
+  if(!k||!k.available){box.innerHTML="";return}
+  var cells=[["مستحق لنا AR",k.arOutstanding],["منه على عملاء",k.arFromCustomers],
+             ["مستحق علينا AP",k.apOutstanding],["منه لموردين",k.apToSuppliers],
+             ["مبيعات",k.salesTotal],["مشتريات",k.purchaseTotal],
+             ["عملاء",k.customers],["موردين",k.suppliers]];
+  box.innerHTML=cells.filter(function(c){return c[1]!=null}).map(function(c){
+    return '<div class="kpi"><div class="v">'+big(c[1])+'</div><div class="l">'+c[0]+'</div></div>'}).join("");
 }
 
-/* boot */
-go("dash");
-loadLive();
+/* Documents show identity only — code, date, party, line count. Deliberately no
+   money: the totals belong to the reconciled endpoints, not to this page. */
+function docCell(rec,key){
+  if(key==="_party"){var s=rec.subsidiary||{};return (s.code||"")+(s.entityType?" ("+s.entityType+")":"")}
+  if(key==="_currency")return ((rec.money||{}).currency)||"";
+  if(key==="_lines")return (rec.details||[]).length;
+  return rec[key];
+}
+
+var ROLE="PRESIDENT",CURR="customers",CACHE={};
+function visible(){return SECTIONS.filter(function(s){
+  return s.roles==="*"||s.roles.split(",").indexOf(ROLE)>=0})}
+
+function renderNav(){
+  var vis=visible();
+  if(!vis.some(function(s){return s.id===CURR}))CURR=vis[0].id;
+  document.getElementById("nav").innerHTML=vis.map(function(s){
+    return '<button role="tab" data-id="'+s.id+'" aria-selected="'+(s.id===CURR)+'">'+esc(s.label)+'</button>'}).join("");
+}
+
+function renderPanel(){
+  var s=SECTIONS.filter(function(x){return x.id===CURR})[0],p=document.getElementById("panel");
+  if(s.gaps){
+    p.innerHTML='<div class="phead"><h2>'+esc(s.label)+'</h2><span class="pill p-wait">مستني تكامل</span></div>'+
+      '<p class="pnote">القاعدة: قسم من غير داتا بيقول ناقصه إيه — مابيعرضش رقم.</p><div class="gaps">'+
+      s.gaps.map(function(g){return '<div class="gap"><div class="t">'+esc(g.t)+'</div><div class="d">'+
+        esc(g.d)+'</div><a href="'+g.l+'">'+esc(g.lt)+'</a></div>'}).join("")+'</div>';
+    return;
+  }
+  var head='<div class="phead"><h2>'+esc(s.label)+'</h2><span class="ep">/api/v1/'+esc(s.ep)+'</span>'+
+    '<a class="lnk ep" href="/api/v1/'+s.ep+'">افتح الـ endpoint ←</a></div><p class="pnote">'+esc(s.note)+'</p>';
+  var cached=CACHE[s.id];
+  if(cached===undefined){p.innerHTML=head+'<div class="state">بيحمّل…</div>';load(s);return}
+  if(cached&&cached.error){
+    p.innerHTML=head+'<div class="state"><span class="pill p-bad">مافيش داتا</span><br>'+
+      esc(cached.error)+'<br>الـ endpoint مارجّعش صفوف — وده اللي مكتوب، مش صفوف مخترعة.</div>';
+    return;
+  }
+  var rows=cached||[];
+  if(!rows.length){p.innerHTML=head+'<div class="state">الـ endpoint رجّع صفر صفوف.</div>';return}
+  var th=s.cols.map(function(c){return '<th>'+esc(c[1])+'</th>'}).join("");
+  var body=rows.map(function(r){return '<tr>'+s.cols.map(function(c){
+    var v=s.doc?docCell(r,c[0]):(r[c[0]]!=null?r[c[0]]:(s.alt&&s.alt[c[0]]?r[s.alt[c[0]]]:null));
+    return c[2]?'<td class="n">'+money(v)+'</td>':'<td>'+esc(v==null?"—":v)+'</td>'}).join("")+'</tr>'}).join("");
+  p.innerHTML=head+'<div class="scroll"><table><thead><tr>'+th+'</tr></thead><tbody>'+body+
+    '</tbody></table></div><p class="pnote" style="margin-top:10px">'+rows.length+' صف — كلهم من الـ endpoint فوق.</p>';
+}
+
+function load(s){
+  get(s.ep+"&format=json").then(function(d){
+    CACHE[s.id]=(d.records||[]);
+    if(CURR===s.id)renderPanel();
+  }).catch(function(e){
+    CACHE[s.id]={error:String(e.message||e)};
+    if(CURR===s.id)renderPanel();
+  });
+}
+
+document.getElementById("nav").addEventListener("click",function(ev){
+  var b=ev.target.closest("button[data-id]");if(!b)return;
+  CURR=b.dataset.id;renderNav();renderPanel();
+});
+document.getElementById("role").addEventListener("change",function(ev){
+  ROLE=ev.target.value;renderNav();renderPanel();
+});
+
+/* Provenance first, so no table is read before its source is stated. */
+get("finance/kpis?format=json").then(function(k){renderSource(k);renderKpis(k)})
+  .catch(function(e){document.getElementById("src").innerHTML=
+    '<span class="pill p-bad">مصدر الأرقام مش معروف</span> '+esc(e.message||e)+
+    ' — مافيش رقم هيتعرض من غير مصدره.'});
+renderNav();renderPanel();
 </script>
-</body>
-</html>
+</body></html>

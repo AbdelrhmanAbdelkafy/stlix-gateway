@@ -3,14 +3,14 @@
   "one_liner": "نقطة تكامل واحدة (FastAPI) تربط كل أنظمة الشركة — قراءة أولًا، مفاتيح server-side، بوابة مزدوجة.",
   "aka": "hub = gateway = platform = الهَب = الجيتواي = المنصّة — all the same project (owner's words). Not to be confused with 'D:\\CLAUDE SHARED MEMORY\\Enterprise Platform AI based' (unrelated doc set).",
   "path": "D:\\Nama Code project\\stlix-gateway",
-  "git": "local only (no remote, by owner's choice). Branch `live-numbers` in a SEPARATE worktree at D:\\Nama Code project\\stlix-gateway-live, because a concurrent session is editing D:\\Nama Code project\\stlix-gateway. That folder stays on `main` with its own uncommitted work. Commit 20fdfb4 carries BOTH sessions' work: the edits are interleaved in the same files and cannot be separated after the fact.",
+  "git": "local only (no remote, by owner's choice). Single branch `live-numbers` in a separate worktree at D:\\Nama Code project\\stlix-gateway-live; it has `main` as an ancestor, so one branch holds everything. The shared folder D:\\Nama Code project\\stlix-gateway is where a concurrent session worked; `main` there can fast-forward onto live-numbers.",
   "as_of": "2026-07-25",
   "language_pref": "Egyptian Arabic (reply to owner in it)",
   "run": {
     "how": ".claude/launch.json name 'stlix-gateway' -> uvicorn app.main:app on 127.0.0.1:8000 (no --reload)",
     "restart_after": "python code / registry / config changes (HTML/JS in modules/ is read fresh per request)",
     "venv": ".venv (Python 3.14; deps need current pins)",
-    "tests": "130 passing (.venv/Scripts/python.exe -m pytest -q)"
+    "tests": "136 passing (.venv/Scripts/python.exe -m pytest -q)"
   },
   "architecture_6_layers": {
     "1_gateway": "done",
@@ -64,7 +64,7 @@
   },
   "pages_served": {
     "/tools/platform": "unified hub (entry point) — live modules + placeholders + SSO placeholder",
-    "/tools/finance-os": "role-based cockpit (Demo prototype). REAL: dashboard KPI strip, Customers 360 (customer AR + supplier AP). Treasury = honest (no fake numbers, GL balances pending). AP invoices / GL ledger = still demo.",
+    "/tools/finance-os": "the cockpit. Rebuilt: seven sections, each reading one live endpoint (finance/customers, finance/suppliers, banks, and Nama documents for PurchaseInvoice / JournalEntry / ReceiptVoucher / PaymentVoucher), plus a gap tab naming the five things with no data (bank balances need a posted GL, invoice approval is Layer 5, recommendations are Layer 4, RBAC needs an IdP, audit-to-document linkage). It previously shipped invented bank balances, AP invoices, customer ledgers and journal entries, overlaid with real figures where an endpoint existed — so a section with no endpoint rendered fiction under a banner reading 'connected'. The browser now sums no money at all: totals come from /api/v1/finance/*, which is reconciled and carries the drift verdict.",
     "/tools/finance-reports": "100% REAL finance reports (AR/AP/KPIs) from SQL — the production finance UI",
     "/tools/name-builder": "item creation — reads Nama lists + local parser + fuzzy autocomplete + dedup (read-only; create = write step pending)",
     "/tools/ideas": "ideas board — all 181 owner requirements as links, parsed live from BACKLOG.md; search + filter by connector readiness; deep link /tools/ideas#<id>",
@@ -104,7 +104,8 @@
       "every data endpoint is a real route (catalog.paths())",
       "a planned idea never links to a built page, and never gets one as a data source",
       "an idea with no data endpoints always carries an `unblock` link",
-      "catalog and app routes match in BOTH directions (tests/test_catalog.py)"
+      "catalog and app routes match in BOTH directions (tests/test_catalog.py)",
+      "no routed page contains a written-down money figure, and no unrouted page under modules/ carries figures at all (tests/test_no_invented_numbers.py) — validated against the file it replaced, which it flags on all four invented bank balances"
     ],
     "adding_a_row": "BACKLOG.md row shows on the board immediately with no code — but tests/test_graph.py fails until app/ideas/wiring.py also says what exactly that idea is missing. Deliberate: an idea on the board with no stated gap sits there for a year."
   },
@@ -192,5 +193,6 @@
       "'@draft' is not the only unposted marker: one PurchaseInvoice is Draft with NO code at all. is_draft() now also treats a missing/blank code as unposted — safe, since zero of the 13,686 posted invoice rows has an empty code."
     ],
     "open_question": "ANSWERED: yes. Rebuilt net/paid matched SQL to the piastre on live documents, and the reconciliation is now a repeatable script (scripts/reconcile_live_vs_sql.py, exit 1 on any unexplained difference) rather than a one-off check."
-  }
+  },
+  "invariants_locked_by_tests": []
 }

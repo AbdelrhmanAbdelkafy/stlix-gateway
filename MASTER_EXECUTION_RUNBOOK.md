@@ -20,7 +20,7 @@
 stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --reload)
 ```
 - **أعِد التشغيل بعد أي تعديل Python / registry / config.** ملفات HTML/JS في `modules/` بتتقري fresh كل طلب (مش محتاجة restart).
-- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **130 passing**.
+- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **136 passing**.
 - الأسرار في `.env` (gitignored). نسخة احتياطية للمفاتيح: `secrets/gates-keys.backup.md`.
 
 ## 2) الصفحات (افتحها في المتصفح)
@@ -31,7 +31,7 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
 | `/api/v1/map` | **الخريطة الموحّدة** — أنظمة × كنكتورات × endpoints × متطلبات × محرّكات في رد واحد |
 | `/tools/ideas` | **لوحة الأفكار** — كل متطلب مربوط بنظامه وكنكتوره و**الـ endpoints اللي فيها داتاه الخام** · فلاتر بالـ URL |
 | `/tools/finance-reports` | **التقارير المالية الحقيقية** (100% من SQL) — الواجهة المالية الإنتاجية |
-| `/tools/finance-os` | الكوكبيت بالأدوار (Demo prototype) — KPIs + عملاء/موردين حقيقي، الباقي ديمو |
+| `/tools/finance-os` | **الكوكبيت** — كل قسم من endpoint حيّ: عملاء · موردين · بنوك · فواتير مشتريات · قيود يومية · تحصيلات · مدفوعات · وتاب «مستني إيه» |
 | `/tools/name-builder` | إنشاء الأصناف (قراءة) |
 | `/tools/engineer` | **مساعد المهندس** — خزانات (سُمك ASME) · مواسير · ليزر · مبادلات · حصر BOM (أوفلاين) |
 | `/tools/library` | وثائق المشروع نفسها (الرَنبوك · القرارات · الرؤية) من جوّه المنصّة |
