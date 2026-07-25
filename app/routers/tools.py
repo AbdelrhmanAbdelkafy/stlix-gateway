@@ -104,6 +104,23 @@ async def quality_certificate(settings: Settings = Depends(get_settings)) -> HTM
     return _serve("import/certificate.html", settings)
 
 
+@router.get("/expert", response_class=HTMLResponse)
+async def nama_expert(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """Nama Expert — ask about Nama or about this platform, in Egyptian Arabic.
+
+    Text, a pasted screenshot of a Nama error, or voice. The page holds no
+    secret beyond the gateway key every `/tools/*` page already gets: the
+    Anthropic credential stays in the server's settings and the question is
+    composed server-side. Speech-to-text is the browser's own Web Speech API,
+    so voice costs no vendor and no key either.
+
+    Its answers carry `[S#]` markers back to the passages they came from, and
+    with no model configured it shows those passages instead of writing prose
+    around them.
+    """
+    return _serve("expert/chat.html", settings)
+
+
 @router.get("/platform/public", response_class=HTMLResponse)
 async def platform_hub_public(settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """The wide-audience view of the hub — same figures, fewer internals.

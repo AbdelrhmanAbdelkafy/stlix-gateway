@@ -27,6 +27,7 @@
     "crm",
     "banks",
     "inventory",
+    "expert",
     "gateway",
     "front-end",
     "all-connectors"
@@ -73,7 +74,8 @@
     "/connectors/{key}": "one connector: what it reads and exactly which ideas it blocks",
     "/tools/library": "the repo's own markdown docs, readable from inside the platform",
     "/tools/engineer": "Engineer's assistant (PD2): tanks/vessels with ASME UG-27 shell thickness, sanitary piping, laser & forming, heat exchangers, BOQ. OFFLINE - holds no credentials, calls nothing; its BOM is copied by hand rather than checked against Nama's item master.",
-    "/tools/platform/public": "the wide-audience hub. Was an unrouted file holding hand-typed AR/AP totals and a hand-typed as-of date; now reads the same /api/v1/map and /api/v1/finance/kpis the main hub reads, so the two cannot disagree."
+    "/tools/platform/public": "the wide-audience hub. Was an unrouted file holding hand-typed AR/AP totals and a hand-typed as-of date; now reads the same /api/v1/map and /api/v1/finance/kpis the main hub reads, so the two cannot disagree.",
+    "/tools/expert": "Nama Expert — the chat. Answers about Nama and about this platform from the repo's documents and the gateway's own map, with [S#] citations back to the passage. Screenshot (paste/drag/pick) and Arabic voice (browser Web Speech API). With no ANTHROPIC_API_KEY it returns the retrieved passages and says no model is attached, rather than paraphrasing them into something that reads like knowledge."
   },
   "ideas": {
     "source_of_truth": "BACKLOG.md (add a markdown row -> appears on the board, no code change)",
@@ -212,15 +214,25 @@
     }
   },
   "nama_expert": {
-    "what": "Owner's request 2026-07-25: an AI expert chat that solves problems — ask it about Nama or the platform, upload a screenshot of an error, talk to it by voice. Backlog A4-A9. This is Layer 4 made concrete.",
-    "sources_that_already_exist": [
-      "/api/v1/map — the platform describes itself: systems x connectors x endpoints x requirements",
-      "/tools/library — the repo's own docs, already served from inside the platform",
-      "Nama OpenAPI, 599 entities at /erp/browseapi/openapi/{Entity}.json",
-      "REP's measured Nama write rules (docs/rep-integration.md)",
-      "the live read-only connectors"
+    "status": "BUILT 2026-07-25. app/integrations/expert/{knowledge,retrieve,answer,router}.py + modules/expert/chat.html. Page /tools/expert, API /api/v1/expert/{'',search,ask,reindex}. 30 tests in tests/test_expert.py. Design note: docs/nama-expert.md.",
+    "what": "Owner's request 2026-07-25: an AI expert chat that solves problems — ask it about Nama or the platform, upload a screenshot of an error, talk to it by voice. Backlog A4-A9.",
+    "index": "~3,300 chunks from two things that already existed: the repo's markdown (same allow-list /tools/library serves) and the gateway's own map (registry.SYSTEMS, catalog.CONNECTORS, catalog.ENDPOINTS, ideas). NOTHING is hand-copied into the expert's code — a rule changes in the runbook and the answer changes with it.",
+    "retrieval": "BM25, offline, no embedding service: no third credential, works with nothing configured, and reproducible from the repo alone. Arabic normalisation folds alef/ya/ta-marbuta and strips tashkeel+tatweel.",
+    "three_arabic_fixes_each_a_real_bug": [
+      "mark ranges written as \\uXXXX escapes — Arabic letters U+0621-U+064A sit BETWEEN two blocks of diacritics, and a range one codepoint too wide deletes the alphabet: every document tokenises to nothing and every question returns nothing, with no error. Locked by a test.",
+      "question scaffolding (ليه/إزاي/فين) stripped from the QUERY — in a formal corpus the colloquial 'ليه' is as rare as 'pageSize', so IDF rated them equally and a chunk matching only 'ليه...نما' beat the one chunk explaining the truncation. Rarity is not aboutness.",
+      "score scaled by rarity-weighted coverage — plain BM25 sums per-term scores, so three common words can beat the single rare word the question is about.",
+      "max 3 passages per section — a customer-balances question came back as six consecutive rows of one table, so the model never saw the endpoint that serves them."
     ],
-    "governing_rule": "Every answer names its source — endpoint, document or entity — and 'I do not know' is a valid answer. An answer without a source is the conversational form of the hand-typed 20.0M this session spent its time removing. It matters more here than anywhere else: a confident wrong answer about a Nama write rule destroys records — addRecord:true replaces silently, re-saving a draft commits it permanently.",
-    "boundaries": "Read-only, through the gateway only, keys server-side. Anything it proposes to write goes through the audited workflow plus human approval (Layer 5), with REP's ECDSA signature as that approval mechanism."
+    "two_modes": "grounded (ANTHROPIC_API_KEY set) = composed answer with [S#] citations. sources_only (no key, model down, or no network) = the passages themselves with their sources, and it says no model is attached. The second is not a sad degradation: it is the project rule applied to prose — old is bad, wrong is far worse. An answer that cites nothing is FLAGGED in its own note rather than passed off.",
+    "governing_rule": "Every answer names its source — endpoint, document or entity — and 'I do not know' is a valid answer. A confident wrong answer about a Nama write rule destroys records: addRecord:true replaces silently, re-saving a draft commits it permanently.",
+    "security": "Key server-side only. The page gets the gateway key like any /tools/* page and calls /api/v1/expert/ask; a test asserts the page contains no fetch to any external host. Voice is the browser's own Web Speech API (ar-EG) — zero vendor, zero key. Screenshots travel through the gateway, not from the browser to the model.",
+    "on_the_map": "System `ai` is now LIVE with url /tools/expert. New connector `expert` (live with no credential — the index is local). `ai-layer` stays NOT live: the orchestrator that would ACT across connectors is unbuilt; the expert only reads and cites. A4/A6/A7/A8 🟢, A5 🟡 (599-entity OpenAPI catalogue not indexed), A9 🟡 (rule written, signing mechanism PA5 still missing).",
+    "still_missing": [
+      "index the 599-entity Nama OpenAPI catalogue (A5)",
+      "conversation memory — each question is independent today",
+      "calling a live endpoint at answer time (that is Layer 4 / ai-layer, not this)",
+      "PA5 signing so A9's approval mechanism actually exists"
+    ]
   }
 }

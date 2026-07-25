@@ -67,7 +67,17 @@ CONNECTORS: tuple[Connector, ...] = (
               note="Browser-side helpers: autocomplete, validators, widgets."),
     Connector("all-connectors", "كل الكنكتورات", "All connectors", "", "fan-out", True,
               note="Reads across every live connector at once."),
+    # Nama Expert. Live with no credential at all: the index is built from the
+    # repo and from this catalogue, so retrieval works offline. `configured_attr`
+    # points at the Anthropic key because that is what upgrades an answer from
+    # "here are the passages" to a composed, cited reply.
+    Connector("expert", "Nama Expert", "Nama Expert", "ai",
+              "repo docs + gateway map (+ Anthropic when configured)", True,
+              "expert_grounded", "",
+              note="من غير مفتاح بيرجّع المقاطع ومصادرها — ما بيخترعش إجابة."),
     # --- not built yet: these are what `blocked`/`partial` readiness points at ---
+    # Distinct from `expert`: this is the orchestrator that would *act* — call
+    # tools, chain steps, propose writes. The expert only reads and cites.
     Connector("ai-layer", "طبقة الذكاء (Layer 4)", "AI orchestrator", "ai", "LLM / agents", False),
     Connector("new-system", "نظام جديد", "New system", "", "does not exist yet", False,
               note="Needs a system built or bought before a connector is possible."),
@@ -155,10 +165,17 @@ _ROUTES: tuple[Endpoint, ...] = (
              method="POST"),
     Endpoint("/api/v1/finance/live/refresh", "تحديث اللقطة اللحظية (سحب كامل)", "nama",
              method="POST"),
+    # expert
+    Endpoint("/api/v1/expert", "حالة الخبير وإيه اللي مفهرس", "expert"),
+    Endpoint("/api/v1/expert/search", "بحث في المصادر (من غير موديل)", "expert"),
+    Endpoint("/api/v1/expert/ask", "اسأل الخبير (نص + سكرين شوت)", "expert",
+             method="POST"),
+    Endpoint("/api/v1/expert/reindex", "إعادة فهرسة الوثائق", "expert", method="POST"),
     # pages
     Endpoint("/tools/platform", "الهَب", "front-end", kind="page"),
     Endpoint("/tools/platform/public", "الهَب — العرض العام", "front-end", kind="page"),
     Endpoint("/tools/certificate", "شهادة الجودة (استيراد)", "front-end", kind="page"),
+    Endpoint("/tools/expert", "Nama Expert — الشات", "front-end", kind="page"),
     Endpoint("/tools/ideas", "لوحة الأفكار", "front-end", kind="page"),
     Endpoint("/tools/finance-reports", "التقارير المالية", "front-end", kind="page"),
     Endpoint("/tools/finance-os", "Finance OS", "front-end", kind="page"),

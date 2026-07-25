@@ -94,6 +94,24 @@ class Settings(BaseSettings):
     def allowed_reversals(self) -> set[str]:
         return {c.strip() for c in self.finance_allowed_reversals.split(",") if c.strip()}
 
+    # --- Nama Expert (Layer 4) ---------------------------------------------
+    # The key lives here and only here. The chat page is served by the gateway
+    # and calls /api/v1/expert/ask; it never sees this value — same rule that
+    # took the Nama and Anthropic creds out of the NameBuilder page.
+    #
+    # Empty is a supported state, not a broken one: with no key the expert
+    # answers in `sources_only` mode — it returns the passages it retrieved and
+    # says no model is attached, instead of paraphrasing them into something
+    # that reads like knowledge.
+    anthropic_api_key: str = Field(default="")
+    expert_model: str = Field(default="claude-sonnet-4-5")
+    expert_max_tokens: int = Field(default=1600)
+    expert_timeout: float = Field(default=90.0)
+
+    @property
+    def expert_grounded(self) -> bool:
+        return bool(self.anthropic_api_key)
+
     finance_customer_entity: str = Field(default="StlixCustomerBalance")
     finance_supplier_entity: str = Field(default="StlixSupplierBalance")
     finance_statement_entity: str = Field(default="StlixCustomerStatement")

@@ -40,8 +40,16 @@ SYSTEMS: list[System] = [
     System("email", "Email", "الإيميل", Status.PLANNED, "Send/receive, templates."),
     System("website", "Website", "الويب سايت", Status.PLANNED,
            "Public site / forms + traffic analytics (MK7)."),
-    System("ai", "AI Services", "الذكاء الاصطناعي", Status.PLANNED,
-           "LLM/agent endpoints + Arabic speech-to-text (UX3/PA4 — same vendor class)."),
+    # LIVE since Nama Expert: `/api/v1/expert/*` is a real AI endpoint reading a
+    # real index. Live means the code exists — grounding still depends on
+    # ANTHROPIC_API_KEY being set, exactly as `nama` is live-but-unconfigured
+    # without its credentials. Speech-to-text is browser-native (Web Speech API)
+    # on the chat page, so it costs no vendor; the *orchestrator* (`ai-layer`)
+    # is still unbuilt, and stays a separate, not-live connector.
+    System("ai", "AI Services", "الذكاء الاصطناعي", Status.LIVE,
+           "Nama Expert: grounded Q&A over the repo documents and the gateway's own map, "
+           "with screenshots and Arabic voice. Sources cited; no model = passages only.",
+           url="/tools/expert"),
     System("archive", "Archive", "الأرشيف", Status.PLANNED,
            "Document & record store: contracts, licenses, certificates, Form 4."),
     System("inventory", "Inventory / Stocktaking", "الجرد", Status.LIVE,
