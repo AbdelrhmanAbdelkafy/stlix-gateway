@@ -45,6 +45,22 @@ class NamaClient:
         if isinstance(data, dict) and data.get("failureOccurred"):
             raise UpstreamError(str(data.get("failureMessage") or data))
         if resp.status_code >= 400:
+            # A *partial* success also comes back 400: Nama answers 400 when some
+            # records fail to serialise, but still returns the ones that did. We
+            # were discarding those - ReceiptVoucher/PaymentVoucher (the live
+            # collections and payments) look empty for exactly this reason.
+            #
+            # The dropped records are NOT hidden: `_partial` travels with the data
+            # so a caller summing money can tell it is looking at an incomplete
+            # set rather than a true total.
+            records = data.get("records") if isinstance(data, dict) else None
+            if records and any(rows for rows in records.values()):
+                data["_partial"] = {
+                    "http_status": resp.status_code,
+                    "returned": sum(len(r) for r in records.values()),
+                    "failed": data.get("failed_records_count", 0),
+                }
+                return data
             raise UpstreamError(f"Nama HTTP {resp.status_code}: {str(data)[:200]}")
         return data
 

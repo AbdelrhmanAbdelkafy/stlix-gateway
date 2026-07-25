@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hard Steel — مساعد المهندس الذكي</title>
+<style>
+:root{
+  --bg:#0e1420; --panel:#151d2b; --panel2:#1b2536; --line:#28344a;
+  --ink:#e8eef7; --muted:#93a1b8; --accent:#3aa0ff; --accent2:#25d0a5;
+  --warn:#ffb43a; --bad:#ff5c6c; --good:#25d0a5; --chip:#22304a;
+  --steel:linear-gradient(135deg,#3aa0ff,#25d0a5);
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --r:14px; --rs:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Segoe UI",Tahoma,system-ui,Arial,sans-serif;
+  background:radial-gradient(1200px 600px at 80% -10%,#1a2740 0%,var(--bg) 55%);
+  color:var(--ink); min-height:100vh; line-height:1.55;
+}
+a{color:var(--accent)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+
+/* Header */
+header{position:sticky;top:0;z-index:40;background:rgba(14,20,32,.82);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;gap:14px;padding:12px 16px;max-width:1180px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+.logo .mk{width:38px;height:38px;border-radius:10px;background:var(--steel);
+  display:grid;place-items:center;box-shadow:var(--shadow)}
+.logo .mk svg{width:22px;height:22px}
+.logo small{display:block;font-weight:600;color:var(--muted);font-size:11px;letter-spacing:1px}
+.hbar .spacer{flex:1}
+.pill{font-size:12px;color:var(--muted);border:1px solid var(--line);
+  padding:6px 12px;border-radius:999px;background:var(--panel)}
+
+/* Nav */
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;max-width:1180px;margin:0 auto;
+  scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;cursor:pointer;border:1px solid var(--line);background:var(--panel);
+  color:var(--muted);padding:9px 16px;border-radius:999px;font-weight:700;font-size:14px;
+  display:flex;align-items:center;gap:8px;transition:.15s}
+.tab:hover{color:var(--ink);border-color:#37507a}
+.tab.active{color:#06121f;background:var(--steel);border-color:transparent;box-shadow:var(--shadow)}
+.tab .ic{font-size:16px}
+
+main{padding:22px 0 60px}
+.view{display:none;animation:fade .25s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Grid + cards */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:860px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+  border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 4px;font-size:17px;display:flex;align-items:center;gap:9px}
+.card .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+.badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--chip);
+  color:var(--accent);border:1px solid #2b3d5e}
+
+/* Inputs */
+.field{margin-bottom:12px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px;font-weight:600}
+.field .hint{font-size:11px;color:#6f7f97}
+input,select{width:100%;background:#0d1523;border:1px solid var(--line);color:var(--ink);
+  border-radius:var(--rs);padding:10px 12px;font-size:15px;font-family:inherit;outline:none;transition:.15s}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(58,160,255,.15)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.inline{display:flex;gap:8px;align-items:center}
+.unit{font-size:12px;color:var(--muted);min-width:34px}
+
+/* Results */
+.out{background:#0c1420;border:1px dashed #2c3a54;border-radius:var(--rs);padding:14px;margin-top:8px}
+.kpi{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid #1c2740}
+.kpi:last-child{border-bottom:0}
+.kpi .lab{color:var(--muted);font-size:13px}
+.kpi .val{font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+.kpi .val small{font-size:12px;color:var(--muted);font-weight:600;margin-inline-start:4px}
+.big{font-size:26px;background:var(--steel);-webkit-background-clip:text;background-clip:text;color:transparent}
+.note{font-size:12px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid #1c2740}
+.flag{display:inline-flex;gap:6px;align-items:center;font-weight:700;font-size:13px;padding:6px 10px;border-radius:8px;margin-top:8px}
+.flag.ok{background:rgba(37,208,165,.12);color:var(--good)}
+.flag.warn{background:rgba(255,180,58,.12);color:var(--warn)}
+.flag.bad{background:rgba(255,92,108,.12);color:var(--bad)}
+
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+th,td{padding:8px 10px;text-align:start;border-bottom:1px solid #1c2740}
+th{color:var(--muted);font-weight:700;font-size:12px}
+td .en{direction:ltr;unicode-bidi:isolate}
+tbody tr:hover{background:#121b2c}
+
+.btn{cursor:pointer;border:0;border-radius:10px;padding:11px 16px;font-weight:800;font-size:14px;
+  background:var(--steel);color:#06121f;font-family:inherit}
+.btn.ghost{background:var(--panel);color:var(--ink);border:1px solid var(--line)}
+.btn.mini{padding:7px 12px;font-size:13px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+.en{direction:ltr;unicode-bidi:plaintext}
+.mono{font-variant-numeric:tabular-nums}
+.small{font-size:12px;color:var(--muted)}
+.hr{height:1px;background:var(--line);margin:14px 0}
+.tag{display:inline-block;background:var(--chip);border:1px solid #2b3d5e;color:var(--muted);
+  font-size:11px;padding:3px 9px;border-radius:6px;margin:2px 2px 0 0}
+.seg{display:flex;gap:4px;background:#0d1523;border:1px solid var(--line);border-radius:10px;padding:4px}
+.seg button{flex:1;border:0;background:transparent;color:var(--muted);padding:8px;border-radius:7px;
+  cursor:pointer;font-weight:700;font-family:inherit;font-size:13px}
+.seg button.on{background:var(--steel);color:#06121f}
+
+/* dashboard tiles */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:860px){.tiles{grid-template-columns:1fr 1fr}}
+.tile{cursor:pointer;background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
+  border-radius:var(--r);padding:16px;transition:.15s}
+.tile:hover{transform:translateY(-3px);border-color:#37507a}
+.tile .ic{font-size:26px}
+.tile h4{margin:8px 0 3px;font-size:15px}
+.tile p{margin:0;font-size:12px;color:var(--muted)}
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;padding:20px 0;text-align:center}
+.print-only{display:none}
+.projectbar{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;margin:0 0 16px}
+.projectbar .field{margin:0}
+.statusline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 16px;
+  padding:10px 14px;border:1px solid rgba(255,180,58,.35);background:rgba(255,180,58,.08);border-radius:10px}
+.statusline strong{color:var(--warn)}
+.invalid{border-color:var(--bad)!important;box-shadow:0 0 0 3px rgba(255,92,108,.12)!important}
+.toast{position:fixed;left:18px;bottom:18px;z-index:80;background:#07111d;border:1px solid var(--line);
+  border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);
+  pointer-events:none;transition:.2s}
+.toast.show{opacity:1;transform:none}
+@media(max-width:720px){.projectbar{grid-template-columns:1fr 1fr}.statusline{align-items:flex-start;flex-direction:column}}
+@media print{
+  header,nav.tabs,.toolbar,.no-print{display:none!important}
+  body{background:#fff;color:#000}
+  .card{box-shadow:none;border:1px solid #ccc;background:#fff}
+  .view{display:block!important}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hbar">
+    <div class="logo">
+      <span class="mk"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7l8-4 8 4-8 4-8-4z" fill="#06121f"/><path d="M4 12l8 4 8-4M4 17l8 4 8-4" stroke="#06121f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span>Hard Steel<small>ENGINEER'S SMART ASSISTANT · مساعد المهندس</small></span>
+    </div>
+    <div class="spacer"></div>
+    <span class="pill no-print">SS 304 / 316 / 316L · Sanitary Fabrication</span>
+  </div>
+  <nav class="tabs" id="tabs">
+    <div class="tab active" data-v="home"><span class="ic">🏠</span> الرئيسية</div>
+    <div class="tab" data-v="tanks"><span class="ic">🛢️</span> خزانات وأوعية · Tanks &amp; Vessels</div>
+    <div class="tab" data-v="pipe"><span class="ic">🔩</span> مواسير صحية · Sanitary Piping</div>
+    <div class="tab" data-v="laser"><span class="ic">⚙️</span> ليزر وتشكيل · Laser &amp; Forming</div>
+    <div class="tab" data-v="hx"><span class="ic">🌡️</span> مبادلات وخامات · HX &amp; Material</div>
+    <div class="tab" data-v="sim"><span class="ic">🧪</span> محاكاة وحصر · Simulation &amp; BOQ</div>
+  </nav>
+</header>
+
+<main class="wrap">
+  <div class="statusline">
+    <div><strong>PRELIMINARY ENGINEERING</strong> · نتائج أولية للتسعير والمراجعة — ليست اعتماد تصنيع أو ختم تصميم.</div>
+    <div class="toolbar no-print" style="margin:0">
+      <button class="btn ghost mini" type="button" onclick="saveProject()">💾 حفظ</button>
+      <button class="btn ghost mini" type="button" onclick="exportProject()">⬇️ ملف المشروع</button>
+      <button class="btn ghost mini" type="button" onclick="resetProject()">↺ جديد</button>
+    </div>
+  </div>
+  <div class="projectbar card">
+    <div class="field"><label>اسم المشروع · Project</label><input id="pr-name" value="مشروع جديد"></div>
+    <div class="field"><label>رقم المشروع · Job No.</label><input id="pr-no" value="HS-ENG-001"></div>
+    <div class="field"><label>أعدّه · Prepared by</label><input id="pr-by" value=""></div>
+    <div class="field"><label>المراجعة · Rev.</label><input id="pr-rev" value="0"></div>
+  </div>
+  <!-- ================= HOME ================= -->
+  <section class="view active" id="home">
+    <div class="card" style="background:linear-gradient(120deg,#12233c,#141d2c)">
+      <h3 style="font-size:22px">🧰 مساعد المهندس الميكانيكي الذكي</h3>
+      <p class="sub" style="font-size:14px;max-width:760px">
+        مجموعة حاسبات هندسية أولية تستند إلى معادلات مرجعية من ASME VIII وDarcy‑Weisbach
+        لكل خطوط منتجات Hard Steel: خزانات وأوعية ضغط، مواسير صحية، قص ليزر وتشكيل صاج، ومبادلات حرارية.
+        كل الحسابات تشتغل <b>أوفلاين</b> على الموبايل واللابتوب — من غير إنترنت.
+      </p>
+      <div class="tiles">
+        <div class="tile" data-go="tanks"><div class="ic">🛢️</div><h4>خزانات وأوعية</h4><p>حجم · سُمك ASME · وزن · حصر كميات (BOM)</p></div>
+        <div class="tile" data-go="pipe"><div class="ic">🔩</div><h4>مواسير صحية</h4><p>مقاسات BPE · سرعة · Δضغط · CIP · حصر لحام</p></div>
+        <div class="tile" data-go="laser"><div class="ic">⚙️</div><h4>ليزر وتشكيل</h4><p>وزن شيت · وقت وتكلفة قص · ثني (K‑factor)</p></div>
+        <div class="tile" data-go="hx"><div class="ic">🌡️</div><h4>مبادلات وخامات</h4><p>Q · LMTD · مساحة · اختيار 304/316/316L</p></div>
+        <div class="tile" data-go="sim"><div class="ic">🧪</div><h4>محاكاة وحصر</h4><p>تحمّل · اتزان · Safety Factor · BOQ + CSV</p></div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <h3>📑 بوابة المراجعة الهندسية <span class="badge">CONTROLLED</span></h3>
+        <p class="sub">لا تبدأ التصنيع من نتيجة منفردة؛ أكمل مسار المراجعة أولًا.</p>
+        <p class="small">ثبّت رقم المشروع والمراجعة، أرفق الرسم المعتمد، راجع الخامة ودرجة الحرارة والضغط،
+        ثم نفّذ مراجعة مستقلة للحسابات. أي توصيف من صورة أو اسكتش يظل مدخلًا غير معتمد حتى مطابقته بالرسم والأبعاد الفعلية.</p>
+        <div class="toolbar">
+          <span class="tag">مقاسات</span><span class="tag">نوع الخامة</span><span class="tag">عدد اللحامات</span><span class="tag">BOM مبدئي</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>ℹ️ ملاحظات الاستخدام</h3>
+        <ul class="small" style="margin:0;padding-inline-start:18px;line-height:1.9">
+          <li>الحسابات <b>Preliminary</b> للتقدير والمقارنة، ولا تُستخدم وحدها كحسابات تصنيع.</li>
+          <li>قيم الإجهاد المسموح (S) واللحام (E) قابلة للتعديل — راجع ASME II‑D للخامة ودرجة الحرارة.</li>
+          <li>اضغط <b>«طباعة / PDF»</b> في أي موديول لإخراج ورقة حساب موقّعة.</li>
+          <li>الوحدات SI (متر/ملم/بار) مع المقاسات بالبوصة حيثما اعتاد السوق.</li>
+        </ul>
+        <div class="toolbar"><button class="btn ghost mini" onclick="window.print()">🖨️ طباعة الصفحة</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TANKS ================= -->
+  <section class="view" id="tanks">
+    <div class="grid g2">
+      <div class="card">
+        <h3>🛢️ الخزان / الوعاء <span class="badge">الأبعاد & السعة</span></h3>
+        <p class="sub">Vertical / Horizontal cylinder + dished heads · حجم وسعة التشغيل</p>
+        <div class="field"><label>الوضع · Orientation</label>
+          <div class="seg" id="tk-orient">
+            <button class="on" data-o="V">رأسي · Vertical</button>
+            <button data-o="H">أفقي · Horizontal</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label>القطر الداخلي · ID <span class="hint">(mm)</span></label><input id="tk-D" type="number" value="1500"></div>
+          <div class="field"><label>طول الجسم المستقيم · Shell <span class="hint">(mm)</span></label><input id="tk-L" type="number" value="2000"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>الغطاء العلوي · Top head</label>
+            <select id="tk-htop"><option value="ell">2:1 Ellipsoidal</option><option value="fd">ASME F&amp;D (torispherical)</option><option value="hemi">Hemispherical</option><option value="flat">Flat · مسطح</option><option value="cone">Cone · مخروط</option></select></div>
+          <div class="field"><label>الغطاء السفلي · Bottom head</label>
+            <select id="tk-hbot"><option value="ell">2:1 Ellipsoidal</option><option value="fd">ASME F&amp;D (torispherical)</option><option value="hemi">Hemispherical</option><option value="flat">Flat · مسطح</option><option value="cone">Cone · مخروط</option></select></div>
+        </div>
+        <div class="field"><label>ملء التشغيل · Fill level <span class="hint">(% من ارتفاع الجسم — لحساب سعة التشغيل)</span></label><input id="tk-fill" type="number" value="90"></div>
+      </div>
+
+      <div class="card">
+        <h3>📊 السعة · Volume</h3>
+        <div class="out" id="tk-volout"></div>
+        <div class="note">2:1 Ellipsoidal ≈ πD³/24 · F&amp;D ≈ 0.0809·D³ (تقريبي) · Hemi = πD³/12. المخروط بارتفاع = القطر × 0.5.</div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <h3>🧱 سُمك الجدار · Shell Thickness <span class="badge">ASME VIII Div.1</span></h3>
+        <p class="sub">t = P·R / (S·E − 0.6·P) · للضغط الداخلي</p>
+        <div class="row">
+          <div class="field"><label>ضغط التصميم · P <span class="hint">(bar g)</span></label><input id="tk-P" type="number" value="3"></div>
+          <div class="field"><label>الخامة · Material</label>
+            <select id="tk-mat"><option value="ss316">SS 316 / 316L</option><option value="ss304">SS 304 / 304L</option></select></div>
+        </div>
+        <div class="row3">
+          <div class="field"><label>الإجهاد المسموح · S <span class="hint">(MPa)</span></label><input id="tk-S" type="number" value="115"></div>
+          <div class="field"><label>كفاءة اللحام · E</label>
+            <select id="tk-E"><option value="1">1.00 · Full RT</option><option value="0.85" selected>0.85 · Spot RT</option><option value="0.7">0.70 · None</option></select></div>
+          <div class="field"><label>سماح تآكل · CA <span class="hint">(mm)</span></label><input id="tk-CA" type="number" value="0"></div>
+        </div>
+        <div class="out" id="tk-thkout"></div>
+        <div class="note">S الافتراضي 115 MPa (316L @ ambient). لدرجات حرارة أعلى راجع ASME II‑D. الناتج قبل تقريب اللوح التجاري.</div>
+      </div>
+
+      <div class="card">
+        <h3>⚖️ الوزن وحصر الكميات · Weight & BOM</h3>
+        <div class="row">
+          <div class="field"><label>سُمك اللوح المختار · Plate t <span class="hint">(mm)</span></label><input id="tk-t" type="number" value="6"></div>
+          <div class="field"><label>كثافة الخامة <span class="hint">(kg/m³)</span></label><input id="tk-rho" type="number" value="8000"></div>
+        </div>
+        <div class="out" id="tk-wout"></div>
+        <div class="toolbar no-print">
+          <button class="btn mini" onclick="window.print()">🖨️ طباعة / PDF</button>
+          <button class="btn ghost mini" onclick="copyBOM()">📋 نسخ الـ BOM</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PIPING ================= -->
+  <section class="view" id="pipe">
+    <div class="grid g2">
+      <div class="card">
+        <h3>🔩 المواسير الصحية <span class="badge">ASME BPE / DIN 11850</span></h3>
+        <p class="sub">اختر المقاس والسريان — الأداة تحسب السرعة، Reynolds، وهبوط الضغط</p>
+        <div class="field"><label>مقاس التيوب · Tube size <span class="hint">(OD اسمي — جدار 0.065″ قياسي)</span></label>
+          <select id="pp-size"></select></div>
+        <div class="field"><label>نوع الحساب · Input by</label>
+          <div class="seg" id="pp-mode">
+            <button class="on" data-m="flow">السريان · Flow rate</button>
+            <button data-m="vel">السرعة · Velocity</button>
+          </div>
+        </div>
+        <div class="row" id="pp-flowrow">
+          <div class="field"><label>معدل السريان · Q</label><input id="pp-Q" type="number" value="10"></div>
+          <div class="field"><label>وحدة · Unit</label><select id="pp-Qu"><option value="m3h">m³/h</option><option value="Lmin">L/min</option><option value="Ls">L/s</option><option value="gpm">US GPM</option></select></div>
+        </div>
+        <div class="row" id="pp-velrow" style="display:none">
+          <div class="field"><label>السرعة المطلوبة · v <span class="hint">(m/s)</span></label><input id="pp-v" type="number" value="1.5"></div>
+          <div class="field"></div>
+        </div>
+        <div class="hr"></div>
+        <div class="row3">
+          <div class="field"><label>السائل · Fluid</label>
+            <select id="pp-fluid"><option value="water20">ماء 20°C</option><option value="water80">ماء 80°C (CIP)</option><option value="milk">لبن/سائل غذائي</option><option value="custom">مخصص</option></select></div>
+          <div class="field"><label>كثافة ρ <span class="hint">(kg/m³)</span></label><input id="pp-rho" type="number" value="998"></div>
+          <div class="field"><label>لزوجة μ <span class="hint">(mPa·s)</span></label><input id="pp-mu" type="number" value="1.0"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>طول الخط المستقيم · Pipe length <span class="hint">(m)</span></label><input id="pp-len" type="number" value="20"></div>
+          <div class="field"><label>طول مكافئ للوصلات · Fittings Le <span class="hint">(m)</span></label><input id="pp-le" type="number" value="0"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📈 النتائج · Hydraulics</h3>
+        <div class="out" id="pp-out"></div>
+        <div class="note">1.5 m/s هدف شائع كبداية لخطوط CIP وليس ضمان تنظيف. اعتمد السرعة والزمن والتركيز والحرارة من خطة التنظيف والتحقق الصحي. هبوط الضغط يشمل الطول المستقيم والطول المكافئ المُدخل.</div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <h3>⚖️ وزن الماسورة · Tube Weight</h3>
+        <div class="out" id="pp-wout"></div>
+      </div>
+      <div class="card">
+        <h3>🔥 حصر اللحام الأوربيتال · Orbital Weld Takeoff</h3>
+        <div class="row">
+          <div class="field"><label>عدد الوصلات · Joints</label><input id="pp-joints" type="number" value="40"></div>
+          <div class="field"><label>زمن قوس/وصلة · Arc/joint <span class="hint">(s)</span></label><input id="pp-arc" type="number" value="45"></div>
+        </div>
+        <div class="out" id="pp-weldout"></div>
+        <div class="note">تقدير غاز الأرجون للتطهير (purge) = حجم داخلي للخط × 5 تبديلات. زمن القوس تقريبي حسب القطر/السُمك.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LASER & FORMING ================= -->
+  <section class="view" id="laser">
+    <div class="grid g2">
+      <div class="card">
+        <h3>⚙️ وزن الشيت وقص الليزر <span class="badge">Fiber Laser</span></h3>
+        <p class="sub">Sheet up to 6000×2500 · Fiber up to 30 mm steel</p>
+        <div class="row3">
+          <div class="field"><label>الطول · L <span class="hint">(mm)</span></label><input id="ls-L" type="number" value="2000"></div>
+          <div class="field"><label>العرض · W <span class="hint">(mm)</span></label><input id="ls-W" type="number" value="1000"></div>
+          <div class="field"><label>السُمك · t <span class="hint">(mm)</span></label><input id="ls-t" type="number" value="3"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>الخامة · Material</label>
+            <select id="ls-mat"><option value="ss">Stainless (7900)</option><option value="cs">Carbon steel (7850)</option><option value="al">Aluminium (2700)</option></select></div>
+          <div class="field"><label>عدد الألواح · Sheets</label><input id="ls-qty" type="number" value="1"></div>
+        </div>
+        <div class="hr"></div>
+        <div class="row">
+          <div class="field"><label>طول القص الكلي · Cut length <span class="hint">(m) — للمسار</span></label><input id="ls-cut" type="number" value="12"></div>
+          <div class="field"><label>عدد الثقوب · Pierces</label><input id="ls-pierce" type="number" value="20"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>سعر تشغيل الماكينة · Rate <span class="hint">(EGP/min)</span></label><input id="ls-rate" type="number" value="45"></div>
+          <div class="field"><label>سعر الخامة · Material <span class="hint">(EGP/kg)</span></label><input id="ls-mprice" type="number" value="180"></div>
+        </div>
+        <div class="field"><label>سرعة القص المعتمدة من الماكينة · Validated speed <span class="hint">(mm/min، اتركها 0 لاستخدام قيمة استرشادية)</span></label><input id="ls-speed" type="number" value="0"></div>
+      </div>
+      <div class="card">
+        <h3>📊 الوزن والوقت والتكلفة</h3>
+        <div class="out" id="ls-out"></div>
+        <div class="note">السرعة الاسترشادية ليست وعد إنتاج. ثبّت السرعة من Cut Chart الخاص بقدرة الماكينة والغاز والفوهة وجودة الحافة المطلوبة.</div>
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <h3>📐 الثني · Bending <span class="badge">K-factor</span></h3>
+        <p class="sub">Bend Allowance & Flat Pattern · للحساب الدقيق للبلانك</p>
+        <div class="row3">
+          <div class="field"><label>السُمك · t <span class="hint">(mm)</span></label><input id="bd-t" type="number" value="3"></div>
+          <div class="field"><label>نصف قطر الثني · R <span class="hint">(mm)</span></label><input id="bd-R" type="number" value="3"></div>
+          <div class="field"><label>الزاوية · θ <span class="hint">(°)</span></label><input id="bd-ang" type="number" value="90"></div>
+        </div>
+        <div class="row3">
+          <div class="field"><label>K-factor</label><input id="bd-k" type="number" value="0.42" step="0.01"></div>
+          <div class="field"><label>الضلع A <span class="hint">(mm)</span></label><input id="bd-a" type="number" value="100"></div>
+          <div class="field"><label>الضلع B <span class="hint">(mm)</span></label><input id="bd-b" type="number" value="80"></div>
+        </div>
+        <div class="out" id="bd-out"></div>
+        <div class="note">BA = (π/180)·θ·(R + K·t) · Flat = A + B + BA − 2·(R+t). K الافتراضي 0.42 (SS). أقل نصف قطر ثني ≈ سُمك اللوح.</div>
+      </div>
+      <div class="card">
+        <h3>🧩 الاستغلال · Nesting</h3>
+        <p class="sub">كفاءة استغلال اللوح — كم قطعة من لوح واحد</p>
+        <div class="row">
+          <div class="field"><label>لوح الطول · Sheet L <span class="hint">(mm)</span></label><input id="ns-L" type="number" value="2500"></div>
+          <div class="field"><label>لوح العرض · Sheet W <span class="hint">(mm)</span></label><input id="ns-W" type="number" value="1250"></div>
+        </div>
+        <div class="row3">
+          <div class="field"><label>قطعة الطول · Part L</label><input id="ns-pl" type="number" value="400"></div>
+          <div class="field"><label>قطعة العرض · Part W</label><input id="ns-pw" type="number" value="300"></div>
+          <div class="field"><label>فجوة · Gap <span class="hint">(mm)</span></label><input id="ns-gap" type="number" value="8"></div>
+        </div>
+        <div class="out" id="ns-out"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HX & MATERIAL ================= -->
+  <section class="view" id="hx">
+    <div class="grid g2">
+      <div class="card">
+        <h3>🌡️ المبادل الحراري · Heat Exchanger <span class="badge">LMTD</span></h3>
+        <p class="sub">حساب الحمل الحراري ومساحة السطح المطلوبة</p>
+        <div class="field"><label>الجانب المعروف (لحساب الحمل Q)</label>
+          <select id="hx-side"><option value="hot">من المائع الساخن</option><option value="cold">من المائع البارد</option></select></div>
+        <div class="row3">
+          <div class="field"><label>معدل الكتلة · ṁ <span class="hint">(kg/h)</span></label><input id="hx-m" type="number" value="5000"></div>
+          <div class="field"><label>السعة النوعية · cp <span class="hint">(kJ/kg·K)</span></label><input id="hx-cp" type="number" value="4.18"></div>
+          <div class="field"><label>معامل الانتقال · U <span class="hint">(W/m²·K)</span></label><input id="hx-U" type="number" value="1000"></div>
+        </div>
+        <div class="hr"></div>
+        <p class="small" style="margin:0 0 8px">درجات الحرارة (°C) — للتيار المتوازي/المتعاكس</p>
+        <div class="row"><div class="field"><label>ساخن دخول · Th,in</label><input id="hx-thi" type="number" value="90"></div>
+          <div class="field"><label>ساخن خروج · Th,out</label><input id="hx-tho" type="number" value="60"></div></div>
+        <div class="row"><div class="field"><label>بارد دخول · Tc,in</label><input id="hx-tci" type="number" value="20"></div>
+          <div class="field"><label>بارد خروج · Tc,out</label><input id="hx-tco" type="number" value="45"></div></div>
+        <div class="field"><label>نوع التيار · Flow</label>
+          <div class="seg" id="hx-flow"><button class="on" data-f="counter">متعاكس · Counter</button><button data-f="parallel">متوازي · Parallel</button></div></div>
+      </div>
+      <div class="card">
+        <h3>📊 النتائج · Sizing</h3>
+        <div class="out" id="hx-out"></div>
+        <div class="note">Q = ṁ·cp·ΔT · LMTD = (ΔT₁−ΔT₂)/ln(ΔT₁/ΔT₂) · A = Q/(U·LMTD). قيم U الاسترشادية: ماء/ماء 800–1500، بخار/ماء 1500–4000، لبن/ماء 400–1000 W/m²·K.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>🧪 اختيار الخامة · Material Selection Advisor <span class="badge">304 / 316 / 316L</span></h3>
+      <p class="sub">اختر الوسط وظروف التشغيل — نرشّح الدرجة المناسبة</p>
+      <div class="grid g3">
+        <div class="field"><label>الوسط · Media</label>
+          <select id="ms-media">
+            <option value="food">أغذية/ألبان عامة</option>
+            <option value="wfi">مياه نقية / WFI / صيدلي</option>
+            <option value="brine">أملاح/كلوريدات (Brine)</option>
+            <option value="acid">أحماض ضعيفة (خل/فواكه)</option>
+            <option value="water">مياه شرب/عامة</option>
+            <option value="cip">محاليل CIP (صودا كاوية)</option>
+          </select></div>
+        <div class="field"><label>وجود كلوريدات · Chlorides</label>
+          <select id="ms-cl"><option value="low">منخفض</option><option value="med">متوسط</option><option value="high">عالٍ (بحري)</option></select></div>
+        <div class="field"><label>لحام واسع · Welding</label>
+          <select id="ms-weld"><option value="yes">نعم — لحام كثيف</option><option value="no">لا / محدود</option></select></div>
+      </div>
+      <div class="out" id="ms-out"></div>
+    </div>
+  </section>
+
+  <!-- ================= SIMULATION & BOQ ================= -->
+  <section class="view" id="sim">
+    <div class="card" style="background:linear-gradient(120deg,#12233c,#141d2c)">
+      <h3>🧪 المحاكاة والحصر · من الرسمة إلى التصنيع</h3>
+      <p class="sub" style="max-width:820px">الموديول ينفّذ <b>فحوصًا حسابية مبسطة</b> للتحمّل والاتزان وحصر الكميات.
+      تحويل الاسكتش إلى نموذج CAD/STEP أو تنفيذ FEA ليس جزءًا من هذه الصفحة، ويجب تنفيذه ومراجعته في برنامج هندسي متخصص قبل التصنيع.</p>
+      <div class="toolbar">
+        <span class="tag">Hand check</span><span class="tag">Stress + Safety Factor</span>
+        <span class="tag">Euler Buckling</span><span class="tag">CoG &amp; Tipping</span><span class="tag">Detailed BOQ + CSV</span>
+      </div>
+    </div>
+
+    <!-- Structural -->
+    <div class="card" style="margin-top:16px">
+      <h3>🏋️ اختبار التحمّل · Load / Stress Check <span class="badge">Safety Factor</span></h3>
+      <div class="field"><label>نوع العنصر · Element</label>
+        <div class="seg" id="st-type">
+          <button class="on" data-t="lug">كوسة رفع · Lifting Lug</button>
+          <button data-t="beam">كمرة · Beam</button>
+          <button data-t="col">عمود/رجل · Column</button>
+        </div>
+      </div>
+
+      <div class="grid g2">
+        <div id="st-inputs">
+          <!-- LUG -->
+          <div class="st-set" data-set="lug">
+            <div class="row3">
+              <div class="field"><label>الحمل · P <span class="hint">(kN)</span></label><input id="lg-P" type="number" value="5"></div>
+              <div class="field"><label>سُمك اللوح · t <span class="hint">(mm)</span></label><input id="lg-t" type="number" value="12"></div>
+              <div class="field"><label>معامل صدمة · Impact</label><input id="lg-imp" type="number" value="2" step="0.1"></div>
+            </div>
+            <div class="row3">
+              <div class="field"><label>قطر الثقب · d <span class="hint">(mm)</span></label><input id="lg-d" type="number" value="30"></div>
+              <div class="field"><label>عرض عند الثقب · w <span class="hint">(mm)</span></label><input id="lg-w" type="number" value="90"></div>
+              <div class="field"><label>مسافة حافة · e <span class="hint">(mm)</span></label><input id="lg-e" type="number" value="40"></div>
+            </div>
+            <div class="field"><label>حد الخضوع · Yield Sy <span class="hint">(MPa) — 316:205 / 304:215</span></label><input id="lg-sy" type="number" value="205"></div>
+          </div>
+          <!-- BEAM -->
+          <div class="st-set" data-set="beam" style="display:none">
+            <div class="row3">
+              <div class="field"><label>البحر · Span L <span class="hint">(mm)</span></label><input id="bm-L" type="number" value="2000"></div>
+              <div class="field"><label>الحمل · w</label><input id="bm-w" type="number" value="5"></div>
+              <div class="field"><label>نوع الحمل</label><select id="bm-type"><option value="udl">موزّع kN/m</option><option value="pt">مركّز kN (منتصف)</option></select></div>
+            </div>
+            <div class="row3">
+              <div class="field"><label>الإسناد</label><select id="bm-sup"><option value="ss">بسيط · Simple</option><option value="cant">كابولي · Cantilever</option><option value="fix">مثبّت الطرفين</option></select></div>
+              <div class="field"><label>معامل المقطع · Z <span class="hint">(cm³)</span></label><input id="bm-Z" type="number" value="30"></div>
+              <div class="field"><label>عزم القصور · I <span class="hint">(cm⁴)</span></label><input id="bm-I" type="number" value="180"></div>
+            </div>
+            <div class="field"><label>حد الخضوع · Sy <span class="hint">(MPa)</span></label><input id="bm-sy" type="number" value="205"></div>
+          </div>
+          <!-- COLUMN -->
+          <div class="st-set" data-set="col" style="display:none">
+            <div class="row3">
+              <div class="field"><label>الحمل المحوري · P <span class="hint">(kN)</span></label><input id="cl-P" type="number" value="20"></div>
+              <div class="field"><label>الطول · L <span class="hint">(mm)</span></label><input id="cl-L" type="number" value="1500"></div>
+              <div class="field"><label>ثابت الطرف · K</label><select id="cl-K"><option value="1">1.0 · مفصلي‑مفصلي</option><option value="0.7">0.7 · مثبّت‑مفصلي</option><option value="0.5">0.5 · مثبّت‑مثبّت</option><option value="2">2.0 · كابولي</option></select></div>
+            </div>
+            <div class="row3">
+              <div class="field"><label>عزم القصور · I <span class="hint">(cm⁴)</span></label><input id="cl-I" type="number" value="40"></div>
+              <div class="field"><label>المساحة · A <span class="hint">(cm²)</span></label><input id="cl-A" type="number" value="12"></div>
+              <div class="field"><label>المعامل · E <span class="hint">(GPa)</span></label><input id="cl-E" type="number" value="193"></div>
+            </div>
+          </div>
+        </div>
+        <div class="out" id="st-out"></div>
+      </div>
+      <div class="note" id="st-note"></div>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <!-- Stability -->
+      <div class="card">
+        <h3>⚖️ الاتزان · Stability / Tipping</h3>
+        <p class="sub">مركز الثقل ومقاومة الانقلاب (رياح/زلزال)</p>
+        <div class="row3">
+          <div class="field"><label>وزن المعدة · W <span class="hint">(kg)</span></label><input id="sb-W" type="number" value="1200"></div>
+          <div class="field"><label>ارتفاع مركز الثقل · h_cg <span class="hint">(mm)</span></label><input id="sb-h" type="number" value="1600"></div>
+          <div class="field"><label>أصغر بُعد قاعدة · b <span class="hint">(mm)</span></label><input id="sb-b" type="number" value="1500"></div>
+        </div>
+        <div class="row3">
+          <div class="field"><label>الحالة</label><select id="sb-mode"><option value="wind">رياح · Wind</option><option value="seismic">زلزال · Seismic</option></select></div>
+          <div class="field"><label>ضغط الرياح · q <span class="hint">(N/m²)</span></label><input id="sb-q" type="number" value="700"></div>
+          <div class="field"><label>مساحة معرّضة · A_proj <span class="hint">(m²)</span></label><input id="sb-A" type="number" value="4"></div>
+        </div>
+        <div class="field"><label>معامل الزلزال · Cs <span class="hint">(نسبة من الوزن — للزلزال فقط)</span></label><input id="sb-cs" type="number" value="0.15" step="0.01"></div>
+        <div class="out" id="sb-out"></div>
+      </div>
+
+      <!-- BOQ -->
+      <div class="card">
+        <h3>📋 حصر الكميات المفصّل · Detailed BOQ</h3>
+        <p class="sub">أضِف بنود الألواح والمواسير والفوهات — يحسب الوزن والتكلفة</p>
+        <div class="row3">
+          <div class="field"><label>سعر الاستانلس <span class="hint">(EGP/kg)</span></label><input id="bq-price" type="number" value="180"></div>
+          <div class="field"><label>سعر اللحام <span class="hint">(EGP/m)</span></label><input id="bq-weld" type="number" value="90"></div>
+          <div class="field"><label>هالك/فاقد <span class="hint">(%)</span></label><input id="bq-scrap" type="number" value="10"></div>
+        </div>
+        <table id="bq-table"><thead><tr><th>البند</th><th>كجم/وحدة</th><th>عدد</th><th>لحام م</th><th></th></tr></thead><tbody id="bq-body"></tbody></table>
+        <div class="toolbar no-print">
+          <button class="btn ghost mini" onclick="addBQ()">＋ بند</button>
+          <button class="btn ghost mini" onclick="seedBQ()">↻ مثال (كوسة الرفع)</button>
+          <button class="btn ghost mini" onclick="exportBQ()">⬇️ CSV</button>
+          <button class="btn mini" onclick="window.print()">🖨️ PDF</button>
+        </div>
+        <div class="out" id="bq-out"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- modules injected below -->
+</main>
+
+<footer class="wrap">
+  Hard Steel Engineering Toolkit · Preliminary calculations · إصدار 1.0 · يلزم تحقق ومراجعة مستقلة قبل التصنيع
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============ Navigation ============ */
+const tabs=document.getElementById('tabs');
+function show(v){
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active',s.id===v));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.v===v));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+tabs.addEventListener('click',e=>{const t=e.target.closest('.tab');if(t)show(t.dataset.v);});
+document.querySelectorAll('[data-go]').forEach(x=>x.addEventListener('click',()=>show(x.dataset.go)));
+
+/* ============ helpers ============ */
+const $=id=>document.getElementById(id);
+const num=id=>{const v=parseFloat($(id).value);return isNaN(v)?0:v;};
+const fmt=(n,d=2)=>{if(!isFinite(n))return'—';const a=Math.abs(n);
+  let dg=d; if(a!==0&&a<1)dg=Math.max(d,3); if(a>=1000)dg=Math.min(d,1);
+  return n.toLocaleString('en-US',{maximumFractionDigits:dg,minimumFractionDigits:0});};
+const DENS={ss304:7930,ss316:8000,al:2700,cs:7850}; // kg/m3
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
+function projectData(){
+  const values={};document.querySelectorAll('input,select').forEach(el=>{if(el.id)values[el.id]=el.value;});
+  return {schema:1,savedAt:new Date().toISOString(),values,bqRows};
+}
+function saveProject(){localStorage.setItem('hardsteel-engineer-project',JSON.stringify(projectData()));toast('تم حفظ المشروع على هذا الجهاز');}
+function exportProject(){
+  const blob=new Blob([JSON.stringify(projectData(),null,2)],{type:'application/json;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=(($('pr-no').value||'HardSteel_Project').replace(/[^\w\u0600-\u06ff-]+/g,'_'))+'.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function restoreProject(){
+  try{const p=JSON.parse(localStorage.getItem('hardsteel-engineer-project')||'null');if(!p)return false;
+    Object.entries(p.values||{}).forEach(([id,v])=>{const el=$(id);if(el)el.value=v;});
+    if(Array.isArray(p.bqRows))bqRows=p.bqRows;return true;
+  }catch(e){return false;}
+}
+function resetProject(){if(!confirm('بدء مشروع جديد ومسح الحفظ المحلي؟'))return;localStorage.removeItem('hardsteel-engineer-project');location.reload();}
+function validatePositive(ids){
+  let ok=true;ids.forEach(id=>{const el=$(id);if(!el)return;const bad=!isFinite(parseFloat(el.value))||parseFloat(el.value)<=0;
+    el.classList.toggle('invalid',bad);if(bad)ok=false;});return ok;
+}
+
+/* ============ TANKS & VESSELS ============ */
+// head volume coefficient × D^3 (D in m). Returns [volume m3, depth m, blankFactor]
+function headGeom(type,D){
+  switch(type){
+    case 'ell':  return {v:Math.PI*D*D*D/24, h:D/4,  blank:1.24};   // 2:1 semi-ellipsoidal
+    case 'fd':   return {v:0.0809*D*D*D,     h:0.194*D, blank:1.22}; // ASME F&D torispherical (approx)
+    case 'hemi': return {v:Math.PI*D*D*D/12, h:D/2,  blank:1.42};
+    case 'cone': return {v:Math.PI/12*(D*0.5)*(D*D), h:D*0.5, blank:1.55}; // 90° apex, h=0.5D
+    default:     return {v:0, h:0, blank:1.0};                       // flat
+  }
+}
+function headArea(type,D){ // developed blank area m2 (for plate weight)
+  const g=headGeom(type,D); const bd=g.blank*D; return Math.PI*bd*bd/4;
+}
+let lastBOM='';
+function calcTanks(){
+  if(!validatePositive(['tk-D','tk-L','tk-S','tk-t','tk-rho']))return;
+  const orient=document.querySelector('#tk-orient .on').dataset.o;
+  const D=num('tk-D')/1000, L=num('tk-L')/1000;   // m
+  const htop=$('tk-htop').value, hbot=$('tk-hbot').value;
+  const fill=num('tk-fill')/100;
+  const Vshell=Math.PI/4*D*D*L;
+  const gt=headGeom(htop,D), gb=headGeom(hbot,D);
+  const Vtotal=Vshell+gt.v+gb.v;
+  // operating volume: fill fraction of shell + bottom head (vertical). For horizontal use fraction of total.
+  let Vop;
+  if(orient==='V'){
+    const bodyFill=Math.max(0,Math.min(1,fill));
+    Vop=Math.min(Vtotal,Math.PI/4*D*D*(L*bodyFill)+gb.v);
+  } else {
+    const f=Math.max(0,Math.min(1,fill));
+    const h=f*D;
+    const r=D/2;
+    const segment=r*r*Math.acos((r-h)/r)-(r-h)*Math.sqrt(Math.max(0,2*r*h-h*h));
+    Vop=segment*L+(gt.v+gb.v)*f;
+  }
+  $('tk-volout').innerHTML=
+    kpiBig('السعة الكلية · Total','L',fmt(Vtotal*1000,0),' لتر  ('+fmt(Vtotal,2)+' م³)')
+    +kpi('الجسم الأسطواني · Shell',fmt(Vshell*1000,0)+' L')
+    +kpi('الغطاء العلوي · Top head',fmt(gt.v*1000,0)+' L')
+    +kpi('الغطاء السفلي · Bottom head',fmt(gb.v*1000,0)+' L')
+    +kpi('سعة التشغيل · Working @ '+fmt(fill*100,0)+'%','<b>'+fmt(Vop*1000,0)+' L</b>')
+    +kpi('الارتفاع/الطول الكلي · Overall',fmt((L+gt.h+gb.h)*1000,0)+' mm');
+
+  // ---- thickness (ASME VIII Div.1) ----
+  const P=num('tk-P')*0.1;            // bar -> MPa (1 bar=0.1 MPa)
+  const S=num('tk-S'), E=parseFloat($('tk-E').value), CA=num('tk-CA');
+  const R=D*1000/2;                    // inside radius mm
+  const tCirc=(P*R)/(S*E-0.6*P)+CA;    // circumferential stress (governs)
+  const tLong=(P*R)/(2*S*E+0.4*P)+CA;  // longitudinal stress
+  // heads
+  const Dm=D*1000;
+  const tEll=(P*Dm)/(2*S*E-0.2*P)+CA;
+  const tHemi=(P*R)/(2*S*E-0.2*P)+CA;
+  const tFD=(0.885*P*Dm)/(S*E-0.1*P)+CA;
+  const headMap={ell:tEll,hemi:tHemi,fd:tFD,flat:NaN,cone:tCirc};
+  const tHeadTop=headMap[htop], tHeadBot=headMap[hbot];
+  const tShell=Math.max(tCirc,tLong);
+  $('tk-thkout').innerHTML=
+    kpiBig('سُمك الجسم المطلوب · Shell t','req',fmt(tShell,2),' mm')
+    +kpi('إجهاد محيطي · Circumferential',fmt(tCirc,2)+' mm')
+    +kpi('إجهاد طولي · Longitudinal',fmt(tLong,2)+' mm')
+    +kpi('سُمك الغطاء العلوي',isFinite(tHeadTop)?fmt(tHeadTop,2)+' mm':'يلزم حساب UG-34')
+    +kpi('سُمك الغطاء السفلي',isFinite(tHeadBot)?fmt(tHeadBot,2)+' mm':'يلزم حساب UG-34')
+    +flagLine(num('tk-t')>=tShell,
+        'اللوح المختار '+num('tk-t')+' mm ≥ المطلوب ✔','اللوح المختار '+num('tk-t')+' mm أقل من المطلوب '+fmt(tShell,2)+' mm ✗');
+
+  // ---- weight & BOM ----
+  const t=num('tk-t')/1000, rho=num('tk-rho');
+  const Ashell=Math.PI*D*L;
+  const Atop=htop==='flat'?Math.PI/4*D*D:headArea(htop,D);
+  const Abot=hbot==='flat'?Math.PI/4*D*D:headArea(hbot,D);
+  const wShell=Ashell*t*rho, wTop=Atop*t*rho, wBot=Abot*t*rho;
+  const wTotal=wShell+wTop+wBot;
+  $('tk-wout').innerHTML=
+    kpiBig('الوزن الإجمالي (فارغ) · Empty','kg',fmt(wTotal,0),' kg')
+    +'<table><thead><tr><th>البند · Item</th><th>مساحة m²</th><th>وزن kg</th></tr></thead><tbody>'
+    +bomRow('لوح الجسم · Shell plate ('+fmt(D*1000,0)+'⌀ × '+fmt(L*1000,0)+'L)',Ashell,wShell)
+    +bomRow('الغطاء العلوي · Top head',Atop,wTop)
+    +bomRow('الغطاء السفلي · Bottom head',Abot,wBot)
+    +'</tbody></table>'
+    +'<div class="note">وزن اللوح فقط (بدون قلابات/أرجل/فوهات). مساحة الغطاء من قطر البلانك المطوّر ×'+headGeom(htop,D).blank+'. أضِف ~8–12% للفاقد.</div>';
+  lastBOM='HARD STEEL — Tank BOM\nID '+fmt(D*1000,0)+' mm x Shell '+fmt(L*1000,0)+' mm\n'
+    +'Total vol '+fmt(Vtotal*1000,0)+' L | Working '+fmt(Vop*1000,0)+' L\n'
+    +'Shell t(req) '+fmt(tShell,2)+' mm | selected '+num('tk-t')+' mm\n'
+    +'Shell plate: '+fmt(Ashell,2)+' m2 | '+fmt(wShell,0)+' kg\n'
+    +'Top head: '+fmt(Atop,2)+' m2 | '+fmt(wTop,0)+' kg\n'
+    +'Bottom head: '+fmt(Abot,2)+' m2 | '+fmt(wBot,0)+' kg\n'
+    +'TOTAL EMPTY WEIGHT: '+fmt(wTotal,0)+' kg';
+}
+function copyBOM(){ if(lastBOM){navigator.clipboard&&navigator.clipboard.writeText(lastBOM);alert('تم نسخ الـ BOM ✔');} }
+
+/* ---- shared result builders ---- */
+function kpi(l,v){return '<div class="kpi"><span class="lab">'+l+'</span><span class="val en">'+v+'</span></div>';}
+function kpiBig(l,tag,v,suffix){return '<div class="kpi"><span class="lab">'+l+'</span><span class="val big en">'+v+'<small>'+(suffix||'')+'</small></span></div>';}
+function bomRow(n,a,w){return '<tr><td>'+n+'</td><td class="en">'+fmt(a,2)+'</td><td class="en">'+fmt(w,0)+'</td></tr>';}
+function flagLine(ok,okmsg,badmsg){return '<div class="flag '+(ok?'ok':'bad')+'">'+(ok?'✔ ':'✗ ')+(ok?okmsg:badmsg)+'</div>';}
+
+/* ============ SANITARY PIPING ============ */
+// OD(mm), wall(mm) — ASME BPE / sanitary standard (0.065" wall ≤4", 0.109" for 6")
+const TUBES=[
+ {n:'½″',od:12.7,w:1.65},{n:'¾″',od:19.05,w:1.65},{n:'1″',od:25.4,w:1.65},
+ {n:'1½″',od:38.1,w:1.65},{n:'2″',od:50.8,w:1.65},{n:'2½″',od:63.5,w:1.65},
+ {n:'3″',od:76.2,w:1.65},{n:'4″',od:101.6,w:2.11},{n:'6″',od:152.4,w:2.77}
+];
+function initPipe(){
+  const sel=$('pp-size'); TUBES.forEach((t,i)=>{const id=(t.od-2*t.w).toFixed(1);
+    sel.innerHTML+='<option value="'+i+'"'+(i===4?' selected':'')+'>'+t.n+' — OD '+t.od+' / ID '+id+' mm</option>';});
+}
+const FLU={water20:[998,1.0],water80:[972,0.355],milk:[1030,2.1]};
+function calcPipe(){
+  if(!validatePositive(['pp-rho','pp-mu']))return;
+  const t=TUBES[+$('pp-size').value];
+  const ID=(t.od-2*t.w)/1000;           // m
+  const A=Math.PI/4*ID*ID;              // m2
+  const mode=document.querySelector('#pp-mode .on').dataset.m;
+  const fl=$('pp-fluid').value;
+  if(fl!=='custom'&&FLU[fl]){$('pp-rho').value=FLU[fl][0];$('pp-mu').value=FLU[fl][1];}
+  const rho=num('pp-rho'), mu=num('pp-mu')/1000; // Pa·s
+  let Q,v; // Q m3/s, v m/s
+  if(mode==='flow'){
+    const u=$('pp-Qu').value, qv=num('pp-Q');
+    Q= u==='m3h'?qv/3600 : u==='Lmin'?qv/60000 : u==='Ls'?qv/1000 : qv*6.309e-5; // gpm
+    v=Q/A;
+  }else{ v=num('pp-v'); Q=v*A; }
+  const Re=rho*v*ID/mu;
+  // friction factor
+  let f; const eps=0.0000015; // smooth SS ~1.5 µm
+  if(Re<2300){ f=64/Math.max(Re,1); }
+  else{ f=0.25/Math.pow(Math.log10(eps/(3.7*ID)+5.74/Math.pow(Re,0.9)),2); } // Swamee-Jain
+  const L=num('pp-len')+Math.max(0,num('pp-le'));
+  const dP=f*(L/ID)*(rho*v*v/2); // Pa
+  const regime=Re<2300?'Laminar · صفحي':Re<4000?'Transitional · انتقالي':'Turbulent · اضطرابي';
+  $('pp-out').innerHTML=
+    kpiBig('السرعة · Velocity','v',fmt(v,2),' m/s')
+    +kpi('السريان · Flow',fmt(Q*3600,2)+' m³/h  ·  '+fmt(Q*60000,0)+' L/min')
+    +kpi('Reynolds · Re',fmt(Re,0)+'  ('+regime+')')
+    +kpi('معامل الاحتكاك · f',fmt(f,4))
+    +kpi('هبوط الضغط · ΔP @ '+L+'m','<b>'+fmt(dP/1000,2)+' kPa</b>  ·  '+fmt(dP/100000,3)+' bar')
+    +kpi('ΔP لكل 100 م',fmt(dP/L*100/1000,2)+' kPa/100m')
+    +(v>=1.5?'<div class="flag ok">✔ يحقق هدف السرعة المبدئي 1.5 m/s — يلزم تحقق CIP كامل</div>':
+        '<div class="flag warn">⚠ السرعة '+fmt(v,2)+' m/s أقل من الهدف المبدئي 1.5 m/s</div>');
+  // weight
+  const rhoSS=8000, ODm=t.od/1000, wm=Math.PI/4*(ODm*ODm-ID*ID)*rhoSS;
+  const water=A*1000; // L/m
+  $('pp-wout').innerHTML=
+    kpiBig('وزن الماسورة · Tube','kg/m',fmt(wm,2),' kg/m')
+    +kpi('المقاس · Size',t.n+' — OD '+t.od+' mm · جدار '+t.w+' mm')
+    +kpi('القطر الداخلي · ID',fmt(ID*1000,1)+' mm')
+    +kpi('محتوى السائل · Hold-up',fmt(water,2)+' L/m')
+    +kpi('وزن 6 م (طول قياسي)',fmt(wm*6,1)+' kg');
+  // weld takeoff
+  const joints=num('pp-joints'), arc=num('pp-arc');
+  const totalArc=joints*arc; // s
+  const lineVol=water*num('pp-len'); // L internal
+  const purge=lineVol*5; // L argon (5 exchanges)
+  $('pp-weldout').innerHTML=
+    kpiBig('زمن القوس الكلي · Arc time','min',fmt(totalArc/60,1),' min')
+    +kpi('عدد الوصلات · Joints',joints)
+    +kpi('أرجون التطهير · Purge Ar (تقديري)',fmt(purge,0)+' L')
+    +kpi('زمن اللحام مع الإعداد (×3)','≈ '+fmt(totalArc*3/60,0)+' min');
+}
+
+/* ============ LASER & FORMING ============ */
+// fiber-laser cut speed mm/min [thickness,speed] (mid-power ~4-6kW, typical shop values)
+const CUTSPD={
+  ss:[[1,20000],[2,9000],[3,4500],[4,2800],[5,2000],[6,1500],[8,900],[10,600],[12,400],[15,220]],
+  cs:[[1,8000],[3,3500],[6,2600],[8,2100],[10,1800],[12,1500],[16,1000],[20,700],[25,480],[30,350]],
+  al:[[1,15000],[2,7000],[3,4000],[4,2600],[6,1500],[8,900],[10,700],[12,450]]
+};
+const MATRHO={ss:7900,cs:7850,al:2700};
+function interpSpeed(mat,t){
+  const tb=CUTSPD[mat]; if(t<=tb[0][0])return tb[0][1];
+  for(let i=1;i<tb.length;i++){if(t<=tb[i][0]){const[a,sa]=tb[i-1],[b,sb]=tb[i];
+    return sa+(sb-sa)*(t-a)/(b-a);}}
+  return tb[tb.length-1][1];
+}
+function calcLaser(){
+  if(!validatePositive(['ls-L','ls-W','ls-t','ls-qty']))return;
+  const L=num('ls-L'),W=num('ls-W'),t=num('ls-t'),qty=num('ls-qty');
+  const mat=$('ls-mat').value, rho=MATRHO[mat];
+  const area=L*W/1e6; // m2
+  const wPer=area*(t/1000)*rho; // kg per sheet
+  const wTot=wPer*qty;
+  const enteredSpeed=num('ls-speed');
+  const spd=enteredSpeed>0?enteredSpeed:interpSpeed(mat,t); // mm/min
+  const cutLen=num('ls-cut')*1000; // mm
+  const pierce=num('ls-pierce');
+  const cutMin=(cutLen/spd)+(pierce*1)/60; // +1s per pierce
+  const totMin=cutMin*qty;
+  const rate=num('ls-rate'), mprice=num('ls-mprice');
+  const machCost=totMin*rate, matCost=wTot*mprice, total=machCost+matCost;
+  $('ls-out').innerHTML=
+    kpiBig('وزن اللوح الواحد · Sheet','kg',fmt(wPer,2),' kg')
+    +kpi('الوزن الكلي · Total ('+qty+' لوح)',fmt(wTot,1)+' kg')
+    +kpi('سرعة القص · Cut speed',fmt(spd,0)+' mm/min '+(enteredSpeed>0?'(validated input)':'(guidance only)'))
+    +kpi('زمن القص/لوح · Time/sheet',fmt(cutMin,1)+' min')
+    +kpi('الزمن الكلي · Total time',fmt(totMin,1)+' min')
+    +'<div class="hr"></div>'
+    +kpi('تكلفة تشغيل · Machine',fmt(machCost,0)+' EGP')
+    +kpi('تكلفة الخامة · Material',fmt(matCost,0)+' EGP')
+    +kpiBig('الإجمالي · Total cost','EGP',fmt(total,0),' EGP');
+  // bending
+  const bt=num('bd-t'),bR=num('bd-R'),ang=num('bd-ang'),k=num('bd-k'),ba_=num('bd-a'),bb=num('bd-b');
+  const BA=(Math.PI/180)*ang*(bR+k*bt);
+  const flat=ba_+bb+BA-2*(bR+bt);
+  const BD=(ba_-(bR+bt))+(bb-(bR+bt))+BA - (ba_+bb-flat); // informational
+  $('bd-out').innerHTML=
+    kpiBig('طول البلانك المفرود · Flat length','mm',fmt(flat,2),' mm')
+    +kpi('Bend Allowance · BA',fmt(BA,2)+' mm')
+    +kpi('أقل نصف قطر ثني موصى به',fmt(bt,1)+' mm  (≈ سُمك اللوح)')
+    +flagLine(bR>=bt,'نصف القطر '+bR+' mm ملائم ✔','نصف القطر '+bR+' mm أصغر من السُمك — خطر تشقق');
+  // nesting
+  const sl=num('ns-L'),sw=num('ns-W'),pl=num('ns-pl'),pw=num('ns-pw'),gap=num('ns-gap');
+  function fit(a,b,c,d){return Math.floor((a+gap)/(c+gap))*Math.floor((b+gap)/(d+gap));}
+  const n1=fit(sl,sw,pl,pw), n2=fit(sl,sw,pw,pl);
+  const best=Math.max(n1,n2), rot=n2>n1;
+  const util=best*pl*pw/(sl*sw)*100;
+  $('ns-out').innerHTML=
+    kpiBig('عدد القطع/لوح · Parts','pcs',best,' قطعة')
+    +kpi('الاتجاه الأمثل · Orientation',rot?'مُدوّرة 90°':'قياسية')
+    +kpi('كفاءة الاستغلال · Utilization',fmt(util,1)+'%')
+    +kpi('الفاقد · Scrap',fmt(100-util,1)+'%')
+    +flagLine(util>=70,'استغلال جيد ('+fmt(util,0)+'%) ✔','استغلال منخفض — أعد ترتيب النِّست');
+}
+
+/* ============ HEAT EXCHANGER ============ */
+function calcHX(){
+  const m=num('hx-m')/3600, cp=num('hx-cp')*1000, U=num('hx-U'); // kg/s, J/kgK
+  const thi=num('hx-thi'),tho=num('hx-tho'),tci=num('hx-tci'),tco=num('hx-tco');
+  const side=$('hx-side').value;
+  const dT = side==='hot'? (thi-tho):(tco-tci);
+  const Q=m*cp*dT; // W
+  const flow=document.querySelector('#hx-flow .on').dataset.f;
+  let dT1,dT2;
+  if(flow==='counter'){ dT1=thi-tco; dT2=tho-tci; } else { dT1=thi-tci; dT2=tho-tco; }
+  let LMTD;
+  if(dT1<=0||dT2<=0){ LMTD=NaN; }
+  else if(Math.abs(dT1-dT2)<1e-6){ LMTD=dT1; }
+  else{ LMTD=(dT1-dT2)/Math.log(dT1/dT2); }
+  const A=Q/(U*LMTD);
+  const bad=isNaN(LMTD)||LMTD<=0;
+  $('hx-out').innerHTML=
+    kpiBig('الحمل الحراري · Duty Q','kW',fmt(Q/1000,1),' kW')
+    +kpi('ΔT للمائع المحسوب',fmt(dT,1)+' °C')
+    +kpi('ΔT₁ / ΔT₂',fmt(dT1,1)+' / '+fmt(dT2,1)+' °C')
+    +kpi('المتوسط اللوغاريتمي · LMTD',(bad?'⚠ غير صالح':fmt(LMTD,2)+' °C'))
+    +kpiBig('المساحة المطلوبة · Area','m²',(bad?'—':fmt(A,2)),' m²')
+    +(bad?'<div class="flag bad">✗ تداخل درجات الحرارة — راجع القيم (يلزم Th>Tc عند الطرفين)</div>'
+        :flagLine(true,'تصميم متسق — تأكد من U الفعلي حسب الأوساخ (fouling)',''));
+}
+
+/* ============ MATERIAL SELECTION ============ */
+function calcMaterial(){
+  const media=$('ms-media').value, cl=$('ms-cl').value, weld=$('ms-weld').value;
+  let grade='SS 304', why=[], warn=[], score={ '304':0,'304L':0,'316':0,'316L':0 };
+  // base by media
+  if(media==='wfi'){ score['316L']+=3; why.push('خدمات WFI/الصيدلي غالبًا ترجّح 316L مع تشطيب وحدود خشونة يحددها URS والمواصفة المعتمدة'); }
+  if(media==='brine'||cl==='high'){ score['316L']+=3; score['316']+=2; why.push('كلوريدات عالية → مقاومة تنقّر (pitting) بالموليبدنوم في 316'); }
+  if(media==='acid'){ score['316']+=2; score['316L']+=2; why.push('أحماض ضعيفة → 316 أفضل من 304'); }
+  if(media==='food'||media==='water'){ score['304']+=2; score['304L']+=1; why.push('أغذية عامة/مياه → 304/304L خيار اقتصادي بحسب التصنيع واللحام'); }
+  if(media==='cip'){ score['316']+=1; score['304']+=1; why.push('صودا كاوية ساخنة → 304/316 مناسب، تجنّب تركيز كلوريد عالٍ'); }
+  if(cl==='med'){ score['316']+=1; }
+  if(cl==='low'){ score['304']+=1; }
+  // welding → prefer L (low carbon) to avoid sensitization
+  if(weld==='yes'){ score['316L']+=2; score['304L']+=2; score['304']-=1;
+    warn.push('لحام كثيف → يُفضّل الدرجات L (منخفضة الكربون) لتجنّب الحسّاسية (sensitization) وتآكل الحدود الحبيبية'); }
+  // pick
+  const best=Object.entries(score).sort((a,b)=>b[1]-a[1])[0][0];
+  grade='SS '+best;
+  const props={
+    '304':'304 — كروم‑نيكل، اقتصادي، مناسب لأوساط عديدة منخفضة الكلوريدات.',
+    '304L':'304L — كربون منخفض، مناسب للحام في الخدمات التي لا تحتاج مقاومة 316 للكلوريدات.',
+    '316':'316 — يحتوي موليبدنوم (2–3%)، مقاومة تنقّر أعلى، للأوساط العدوانية.',
+    '316L':'316L — كربون منخفض (≤0.03%)، الأفضل للحام الكثيف والصيدلة والـWFI.'
+  };
+  $('ms-out').innerHTML=
+    kpiBig('التوصية · Recommended','',grade,'')
+    +kpi('السبب الرئيسي',props[best])
+    +(why.length?'<div class="note"><b>لماذا:</b><ul style="margin:6px 0;padding-inline-start:18px">'+why.map(w=>'<li>'+w+'</li>').join('')+'</ul></div>':'')
+    +(warn.length?'<div class="flag warn">⚠ '+warn.join(' · ')+'</div>':'')
+    +'<div class="note">توصية استرشادية — راجع جداول التوافق الكيميائي ودرجة الحرارة قبل الاعتماد النهائي.</div>';
+}
+
+/* ============ SIMULATION: STRUCTURAL ============ */
+function sfFlag(sf,rec){return '<div class="flag '+(sf>=rec?'ok':(sf>=1?'warn':'bad'))+'">'+
+  (sf>=rec?'✔ ':(sf>=1?'⚠ ':'✗ '))+'معامل الأمان '+fmt(sf,2)+' — '+(sf>=rec?'آمن (≥'+rec+')':(sf>=1?'أقل من الموصى به ('+rec+')':'غير آمن (<1)'))+'</div>';}
+function calcStruct(){
+  const type=document.querySelector('#st-type .on').dataset.t;
+  let html='';
+  if(type==='lug'){
+    const P=num('lg-P')*1000, imp=num('lg-imp'), t=num('lg-t'), d=num('lg-d'), w=num('lg-w'), e=num('lg-e'), Sy=num('lg-sy');
+    const Pd=P*imp;
+    const At=(w-d)*t, st=Pd/At;
+    const sbr=Pd/(d*t);
+    const tau=Pd/(2*e*t);
+    const SFt=Sy/st, SFbr=Sy/sbr, SFsh=(0.577*Sy)/tau;
+    const gov=Math.min(SFt,SFbr,SFsh);
+    html=kpiBig('معامل الأمان الحاكم · Min SF','',fmt(gov,2),'')
+      +kpi('شد المقطع الصافي · Tension σt',fmt(st,1)+' MPa  (SF '+fmt(SFt,2)+')')
+      +kpi('ضغط البنّة · Bearing σbr',fmt(sbr,1)+' MPa  (SF '+fmt(SFbr,2)+')')
+      +kpi('قص التمزّق · Tear-out τ',fmt(tau,1)+' MPa  (SF '+fmt(SFsh,2)+')')
+      +kpi('الحمل التصميمي · P·impact',fmt(Pd/1000,1)+' kN')
+      +sfFlag(gov,3);
+    $('st-note').innerHTML='رفع المعدات يتطلب SF ≥ 3–5 على الخضوع. راجع مسافة الحافة e ≥ 1.5·d وقطر البنّة. القيم لكوسة أحادية.';
+  }
+  else if(type==='beam'){
+    const L=num('bm-L'), wv=num('bm-w'), tp=$('bm-type').value, sup=$('bm-sup').value;
+    const Z=num('bm-Z')*1000, I=num('bm-I')*1e4, Sy=num('bm-sy'), E=193000;
+    let M,defl; const w=tp==='udl'?wv:0, Pp=tp==='pt'?wv*1000:0; // w N/mm, P N
+    if(sup==='ss'){ if(tp==='udl'){M=w*L*L/8;defl=5*w*Math.pow(L,4)/(384*E*I);} else {M=Pp*L/4;defl=Pp*Math.pow(L,3)/(48*E*I);} }
+    else if(sup==='cant'){ if(tp==='udl'){M=w*L*L/2;defl=w*Math.pow(L,4)/(8*E*I);} else {M=Pp*L;defl=Pp*Math.pow(L,3)/(3*E*I);} }
+    else { if(tp==='udl'){M=w*L*L/12;defl=w*Math.pow(L,4)/(384*E*I);} else {M=Pp*L/8;defl=Pp*Math.pow(L,3)/(192*E*I);} }
+    const sig=M/Z, SF=Sy/sig, ratio=L/defl;
+    html=kpiBig('معامل الأمان · SF','',fmt(SF,2),'')
+      +kpi('العزم الأقصى · M max',fmt(M/1e6,2)+' kN·m')
+      +kpi('إجهاد الانحناء · σ',fmt(sig,1)+' MPa')
+      +kpi('السهم · Deflection',fmt(defl,2)+' mm  (L/'+fmt(ratio,0)+')')
+      +sfFlag(SF,1.67)
+      +flagLine(ratio>=250,'السهم ضمن الحد (≥ L/250) ✔','السهم كبير (< L/250) — راجع المقطع');
+    $('st-note').innerHTML='σ = M/Z · حد السهم الشائع L/250 للأسقف و L/360 للأرضيات. E(SS)=193 GPa.';
+  }
+  else {
+    const P=num('cl-P')*1000, L=num('cl-L'), K=parseFloat($('cl-K').value), I=num('cl-I')*1e4, A=num('cl-A')*100, E=num('cl-E')*1000;
+    const Pcr=Math.PI*Math.PI*E*I/Math.pow(K*L,2); // N
+    const r=Math.sqrt(I/A), lam=K*L/r;
+    const SF=Pcr/P;
+    html=kpiBig('معامل الأمان للانبعاج · SF','',fmt(SF,2),'')
+      +kpi('حمل الانبعاج الحرج · Pcr',fmt(Pcr/1000,1)+' kN')
+      +kpi('الحمل المطبّق · P',fmt(P/1000,1)+' kN')
+      +kpi('النحافة · Slenderness λ',fmt(lam,0)+(lam>200?' ⚠ نحيف جداً':''))
+      +kpi('نصف قطر الدوران · r',fmt(r,1)+' mm')
+      +sfFlag(SF,3);
+    $('st-note').innerHTML='Euler: Pcr = π²EI/(KL)². الانبعاج يتطلب SF ≥ 3. λ يفضّل ≤ 200 للأعمدة الرئيسية.';
+  }
+  $('st-out').innerHTML=html;
+}
+
+/* ============ SIMULATION: STABILITY ============ */
+function calcStab(){
+  const W=num('sb-W')*9.81, h=num('sb-h')/1000, b=num('sb-b')/1000;
+  const mode=$('sb-mode').value;
+  let F, label;
+  if(mode==='wind'){ F=num('sb-q')*num('sb-A'); label='قوة الرياح'; }
+  else { F=num('sb-cs')*W; label='القوة الزلزالية'; }
+  const Mo=F*h, Mr=W*(b/2);
+  const SF=Mr/Mo;
+  $('sb-out').innerHTML=
+    kpiBig('أمان الانقلاب · Tipping SF','',fmt(SF,2),'')
+    +kpi(label+' · Lateral F',fmt(F/1000,2)+' kN')
+    +kpi('عزم القلب · Overturning',fmt(Mo/1000,2)+' kN·m')
+    +kpi('عزم الاتزان · Restoring',fmt(Mr/1000,2)+' kN·m')
+    +kpi('وزن المعدة · W',fmt(W/1000,2)+' kN')
+    +flagLine(SF>=1.5,'متّزن — SF ≥ 1.5 ✔','خطر انقلاب — أضِف تثبيت/أرجل أعرض (SF < 1.5)');
+}
+
+/* ============ SIMULATION: BOQ ============ */
+let bqRows=[];
+function addBQ(n='بند جديد',kg=0,q=1,weld=0){bqRows.push({n,kg,q,weld});renderBQ();}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function seedBQ(){bqRows=[
+  {n:'كوسة رفع 12mm (lug)',kg:0.89,q:2,weld:0.36},
+  {n:'لوح جسم 6mm',kg:452,q:1,weld:4.7},
+  {n:'غطاء 2:1 علوي',kg:130,q:1,weld:4.7},
+  {n:'غطاء 2:1 سفلي',kg:130,q:1,weld:4.7},
+  {n:'فوهة CIP 2″',kg:3.2,q:2,weld:0.32},
+];renderBQ();}
+function renderBQ(){
+  const b=$('bq-body');b.innerHTML='';
+  bqRows.forEach((r,i)=>{
+    b.innerHTML+='<tr>'
+      +'<td><input style="padding:5px" value="'+esc(r.n)+'" oninput="updateBQ('+i+',\'n\',this.value)"></td>'
+      +'<td><input style="padding:5px;width:80px" type="number" value="'+r.kg+'" oninput="updateBQ('+i+',\'kg\',this.value)"></td>'
+      +'<td><input style="padding:5px;width:60px" type="number" value="'+r.q+'" oninput="updateBQ('+i+',\'q\',this.value)"></td>'
+      +'<td><input style="padding:5px;width:70px" type="number" value="'+r.weld+'" oninput="updateBQ('+i+',\'weld\',this.value)"></td>'
+      +'<td><button class="btn ghost mini no-print" style="padding:4px 9px" onclick="bqRows.splice('+i+',1);renderBQ()">✕</button></td></tr>';
+  });
+  const price=num('bq-price'),weldP=num('bq-weld'),scrap=num('bq-scrap')/100;
+  let wt=0,wl=0;bqRows.forEach(r=>{wt+=r.kg*r.q;wl+=r.weld*r.q;});
+  const wtS=wt*(1+scrap), matCost=wtS*price, weldCost=wl*weldP, total=matCost+weldCost;
+  $('bq-out').innerHTML=
+    kpiBig('الإجمالي · Total','EGP',fmt(total,0),' EGP')
+    +kpi('الوزن الصافي · Net weight',fmt(wt,1)+' kg')
+    +kpi('مع الهالك · With scrap ('+fmt(scrap*100,0)+'%)',fmt(wtS,1)+' kg')
+    +kpi('طول اللحام الكلي · Weld',fmt(wl,2)+' m')
+    +kpi('تكلفة الخامة · Material',fmt(matCost,0)+' EGP')
+    +kpi('تكلفة اللحام · Welding',fmt(weldCost,0)+' EGP');
+}
+function updateBQ(i,key,value){
+  bqRows[i][key]=key==='n'?value:(parseFloat(value)||0);
+  const price=num('bq-price'),weldP=num('bq-weld'),scrap=num('bq-scrap')/100;
+  let wt=0,wl=0;bqRows.forEach(r=>{wt+=r.kg*r.q;wl+=r.weld*r.q;});
+  const wtS=wt*(1+scrap),matCost=wtS*price,weldCost=wl*weldP,total=matCost+weldCost;
+  $('bq-out').innerHTML=kpiBig('الإجمالي · Total','EGP',fmt(total,0),' EGP')
+    +kpi('الوزن الصافي · Net weight',fmt(wt,1)+' kg')
+    +kpi('مع الهالك · With scrap ('+fmt(scrap*100,0)+'%)',fmt(wtS,1)+' kg')
+    +kpi('طول اللحام الكلي · Weld',fmt(wl,2)+' m')
+    +kpi('تكلفة الخامة · Material',fmt(matCost,0)+' EGP')
+    +kpi('تكلفة اللحام · Welding',fmt(weldCost,0)+' EGP');
+}
+function exportBQ(){
+  let csv='Item,kg/unit,qty,weld_m,total_kg,total_weld_m\n';
+  bqRows.forEach(r=>{csv+='"'+r.n+'",'+r.kg+','+r.q+','+r.weld+','+(r.kg*r.q)+','+(r.weld*r.q)+'\n';});
+  const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='HardSteel_BOQ.csv';a.click();
+}
+
+/* ============ WIRING ============ */
+function bind(ids,fn){ids.forEach(id=>{const el=$(id);if(el){el.addEventListener('input',fn);el.addEventListener('change',fn);}});}
+function seg(container,fn,extra){
+  const box=$(container); if(!box)return;
+  box.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    box.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    if(extra)extra(b); fn();});
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  initPipe();
+  // Tanks
+  bind(['tk-D','tk-L','tk-htop','tk-hbot','tk-fill','tk-P','tk-mat','tk-S','tk-E','tk-CA','tk-t','tk-rho'],calcTanks);
+  seg('tk-orient',calcTanks);
+  $('tk-mat').addEventListener('change',()=>{$('tk-S').value=$('tk-mat').value==='ss304'?115:115;$('tk-rho').value=$('tk-mat').value==='ss304'?7930:8000;calcTanks();});
+  // Piping
+  bind(['pp-size','pp-Q','pp-Qu','pp-v','pp-fluid','pp-rho','pp-mu','pp-len','pp-le','pp-joints','pp-arc'],calcPipe);
+  seg('pp-mode',calcPipe,b=>{const flow=b.dataset.m==='flow';$('pp-flowrow').style.display=flow?'':'none';$('pp-velrow').style.display=flow?'none':'';});
+  // Laser
+  bind(['ls-L','ls-W','ls-t','ls-mat','ls-qty','ls-cut','ls-pierce','ls-rate','ls-mprice','ls-speed',
+        'bd-t','bd-R','bd-ang','bd-k','bd-a','bd-b','ns-L','ns-W','ns-pl','ns-pw','ns-gap'],calcLaser);
+  // HX + material
+  bind(['hx-side','hx-m','hx-cp','hx-U','hx-thi','hx-tho','hx-tci','hx-tco'],calcHX);
+  seg('hx-flow',calcHX);
+  bind(['ms-media','ms-cl','ms-weld'],calcMaterial);
+  // Simulation
+  bind(['lg-P','lg-t','lg-imp','lg-d','lg-w','lg-e','lg-sy',
+        'bm-L','bm-w','bm-type','bm-sup','bm-Z','bm-I','bm-sy',
+        'cl-P','cl-L','cl-K','cl-I','cl-A','cl-E'],calcStruct);
+  seg('st-type',calcStruct,b=>{document.querySelectorAll('.st-set').forEach(s=>s.style.display=s.dataset.set===b.dataset.t?'':'none');});
+  bind(['sb-W','sb-h','sb-b','sb-mode','sb-q','sb-A','sb-cs'],calcStab);
+  bind(['bq-price','bq-weld','bq-scrap'],renderBQ);
+  const restored=restoreProject();
+  bind(['pr-name','pr-no','pr-by','pr-rev'],()=>{});
+  // initial run
+  calcTanks();calcPipe();calcLaser();calcHX();calcMaterial();
+  calcStruct();calcStab();if(restored)renderBQ();else seedBQ();
+});
+</script>
+</body>
+</html>

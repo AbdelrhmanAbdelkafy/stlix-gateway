@@ -302,6 +302,7 @@ WIRING: dict[str, Wire] = {
     "L1": _w("archive", "ideas", "", "موديول قضايا بالجلسات والأطراف — مش موجود", "legal"),
     # --- Product / R&D · منتجات وتطوير --------------------
     "PD1": _w("nama", "nama", "dup", "خط مقترحات منتجات ينتهي بإضافة صنف في Nama", "rnd"),
+    "PD2": _w("nama", "overview", "", "ربط حصر BOM بأصناف Nama — فحص تكرار وإنشاء عبر workflow"),
     # --- Management & Planning · إدارة وتخطيط -------------
     "G1": _w("archive regulations", "ideas", "", "لوحة توجيهات نكتب فيها مش قراءة بس", "planning"),
     "G2": _w("regulations archive", "ideas", "", "سجل قرارات إدارية بالمصدر والتاريخ والحالة"),

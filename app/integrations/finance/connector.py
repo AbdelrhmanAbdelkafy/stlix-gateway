@@ -7,6 +7,7 @@ a threadpool. If SQL isn't configured, methods return `available: False` gracefu
 """
 from __future__ import annotations
 
+from datetime import date
 from typing import Any
 
 from starlette.concurrency import run_in_threadpool
@@ -55,6 +56,8 @@ SELECT (SELECT COUNT(*) FROM Customer)                        AS customers,
        (SELECT CONVERT(varchar(10), MAX(issueDate), 120) FROM SalesInvoice) AS asOf
 """
 
+_AS_OF = "SELECT CONVERT(varchar(10), MAX(issueDate), 120) AS asOf FROM SalesInvoice"
+
 
 class FinanceConnector:
     key = "finance"
@@ -84,12 +87,40 @@ class FinanceConnector:
             conn.close()
 
     # --- async API ---
+    async def freshness(self) -> dict[str, Any]:
+        """How old is this money?
+
+        Every figure here comes from a **restored backup**, not the live ERP —
+        direct SQL to the Namasoft cloud tenant is not reachable. That was
+        invisible: the reports rendered eleven-day-old balances with no as-of
+        label at all, which reads as "this is today's position".
+        """
+        if not self.configured:
+            return {"available": False}
+        rows = await run_in_threadpool(self._rows, _AS_OF, ())
+        as_of = rows[0].get("asOf") if rows else None
+        age = None
+        if as_of:
+            try:
+                age = (date.today() - date.fromisoformat(as_of)).days
+            except ValueError:
+                age = None
+        return {
+            "available": True,
+            "as_of": as_of,
+            "age_days": age,
+            "live": False,
+            "source": "restored backup of the Nama production DB (cloud SQL is not reachable)",
+            "stale": age is not None and age > 1,
+        }
+
     async def _report(self, sql: str, params: tuple, key: str) -> dict[str, Any]:
         if not self.configured:
             return {"available": False, "reason": "Nama SQL not configured "
                     "(set NAMA_SQL_* in .env).", "records": []}
         rows = await run_in_threadpool(self._rows, sql, params)
-        return {"available": True, "source": "nama_sql", "count": len(rows), "records": rows}
+        return {"available": True, "source": "nama_sql", "count": len(rows),
+                "freshness": await self.freshness(), "records": rows}
 
     async def customer_balances(self, limit: int = 200) -> dict:
         return await self._report(_CUSTOMERS, (limit,), "customers")
@@ -101,4 +132,5 @@ class FinanceConnector:
         if not self.configured:
             return {"available": False, "reason": "Nama SQL not configured."}
         rows = await run_in_threadpool(self._rows, _KPIS, ())
-        return {"available": True, "source": "nama_sql", **(rows[0] if rows else {})}
+        return {"available": True, "source": "nama_sql",
+                "freshness": await self.freshness(), **(rows[0] if rows else {})}

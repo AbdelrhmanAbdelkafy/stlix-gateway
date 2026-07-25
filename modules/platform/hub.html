@@ -46,6 +46,7 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
        went stale silently (the strip claimed 5 connectors and 44 tests long
        after both had changed). -->
   <div class="kpis" id="kpis"><div class="kpi"><div class="v" id="k-conn">—</div><div class="l">كنكتور حيّ</div></div><div class="kpi"><div class="v" id="k-sys">—</div><div class="l">نظام على الخريطة</div></div><div class="kpi"><div class="v" id="k-ideas">—</div><div class="l">متطلب</div></div><div class="kpi"><div class="v" id="k-ready">—</div><div class="l">جاهز للبناء</div></div><div class="kpi"><div class="v" id="k-ar">—</div><div class="l">مستحق لنا AR</div></div><div class="kpi"><div class="v" id="k-ap">—</div><div class="l">مستحق علينا AP</div></div></div>
+  <div id="freshness" style="margin-top:10px;font-size:11.5px;color:#9fb4b4"></div>
 </div></div>
 
 <div class="wrap">
@@ -56,6 +57,7 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
     <a class="mod" href="/tools/finance-os"><div class="ic">💼</div><div class="t">Finance OS</div><div class="d">كوكبيت مالي بأدوار · خزينة · عملاء/موردين بأرصدة حقيقية · شات فريق</div><span class="s s-read">حيّ · SQL</span></a>
     <a class="mod" href="/tools/finance-reports"><div class="ic">📊</div><div class="t">التقارير المالية</div><div class="d">AR · AP · KPIs · أعمار ديون — أرقام نما الحقيقية من SQL</div><span class="s s-live">حيّ · SQL</span></a>
     <a class="mod" href="/tools/name-builder"><div class="ic">🏷️</div><div class="t">إنشاء الأصناف</div><div class="d">نص حر → كود وصفي + اسم · تصحيح إملائي + autocomplete · فحص تكرار</div><span class="s s-read">حيّ · قراءة</span></a>
+    <a class="mod" href="/tools/engineer"><div class="ic">🛢️</div><div class="t">مساعد المهندس</div><div class="d">خزانات وأوعية (سُمك ASME) · مواسير صحية · ليزر وتشكيل · مبادلات · حصر BOM</div><span class="s s-read">حيّ · أوفلاين</span></a>
     <a class="mod" href="/tools/ideas"><div class="ic">💡</div><div class="t">الأفكار والمتطلبات</div><div class="d">كل فكرة قلتها — لينك تفتحه · فلتر بالكنكتور: جاهز / ناقص / محتاج تكامل</div><span class="s s-live" id="ideas-badge">حيّ</span></a>
     <a class="mod" href="/api/v1/map"><div class="ic">🗺️</div><div class="t">الخريطة الموحّدة</div><div class="d">الأنظمة × الكنكتورات × الـ endpoints × المتطلبات — كلها مربوطة في رسم واحد</div><span class="s s-live" id="map-badge">حيّ</span></a>
     <a class="mod" href="/api/v1/workspace"><div class="ic">🗂️</div><div class="t">اللوحة الموحّدة</div><div class="d">تجميع لحظي لكل الأقسام (نما · CRM · بنوك · جرد · مالية · مراقبة)</div><span class="s s-live">حيّ</span></a>
@@ -97,6 +99,12 @@ function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v}
 fetch("/api/v1/finance/kpis",H).then(r=>r.json()).then(k=>{
   if(!k||!k.available)return;const M=n=>n==null?"—":(Math.abs(n)>=1e6?(n/1e6).toFixed(1)+"M":n);
   set("k-ar",M(k.arOutstanding));set("k-ap",M(k.apOutstanding));
+  // Money with no as-of reads as today's position. It is a restored backup.
+  var f=k.freshness||{},el=document.getElementById("freshness");
+  if(el&&f.as_of){
+    el.innerHTML="أرقام المالية بتاريخ <b>"+esc(f.as_of)+"</b>"+
+      (f.age_days>1?' · <span style="color:var(--warn)">عُمرها '+f.age_days+' يوم (نسخة مُرستَرة — الاتصال المباشر بـ SQL السحابي مقفول)</span>':" · محدّثة");
+  }
 }).catch(function(){});
 
 // One call feeds the whole page: KPIs, card badges and the domain grid all read

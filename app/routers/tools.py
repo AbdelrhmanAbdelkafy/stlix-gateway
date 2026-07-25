@@ -65,6 +65,15 @@ async def finance_reports(settings: Settings = Depends(get_settings)) -> HTMLRes
     return _serve("finance-os/reports.html", settings)
 
 
+@router.get("/engineer", response_class=HTMLResponse)
+async def engineer(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """Engineer's assistant — tanks/vessels (ASME thickness), sanitary piping,
+    laser & forming, heat exchangers, BOQ. Offline calculator for now: it holds
+    no credentials and calls nothing, so its BOM is copied out by hand rather
+    than checked against Nama's item master (see modules/engineer/README.md)."""
+    return _serve("engineer/demo.gateway.html", settings)
+
+
 @router.get("/ideas", response_class=HTMLResponse)
 async def ideas_board(settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """Every requirement the owner voiced, as a searchable board — reads

@@ -79,7 +79,13 @@ async function load(){
   $("cusBody").innerHTML=debtors.map(c=>`<tr><td>${c.code}</td><td>${c.name1||"—"}</td><td class="n">${fmt(c.salesTotal)}</td><td class="n paid">${fmt(c.collected)}</td><td class="n out">${fmt(c.outstanding)}</td></tr>`).join("")||'<tr><td colspan="5" style="color:var(--sub)">لا يوجد مدينون بأرصدة على عملاء بالاسم</td></tr>';
   const attributed=debtors.reduce((s,c)=>s+c.outstanding,0);
   $("arNote").innerHTML=`⚠️ <b>ملاحظة بيانات:</b> إجمالي المستحق (AR) = <b>${fmt(k.arOutstanding)} ج</b>، لكن المنسوب منه لعملاء بالاسم = <b>${fmt(attributed)} ج</b> (${debtors.length} عميل). الباقي على فواتير غير مربوطة بعميل مُسمّى — يستحق مراجعة بيانات.`;
-  $("src").innerHTML='<span class="badge">حيّ · نما SQL</span><br>بيانات حتى: '+(k.asOf||"—");
+  // This used to badge the numbers "حيّ" while showing an 11-day-old restore.
+  // The figures are real, but they are as-of a backup — say which, and how old.
+  const f=k.freshness||{}, age=f.age_days;
+  const warn=age==null?"":(age<=1?"":' style="color:var(--warn)"');
+  $("src").innerHTML='<span class="badge">نما SQL · أرقام حقيقية</span><br>'+
+    'بيانات حتى: <b'+warn+'>'+(k.asOf||f.as_of||"—")+'</b>'+
+    (age==null?"":'<br><span'+warn+'>'+(age<=1?"محدّثة":"عُمرها "+age+" يوم — نسخة مُرستَرة، مش لحظي")+'</span>');
   $("load").style.display="none";$("app").style.display="block";
  }catch(e){$("load").innerHTML="❌ فشل التحميل: "+e.message+" — اتأكد إن NAMA_SQL مظبوط في .env والسيرفر شغّال.";}
 }

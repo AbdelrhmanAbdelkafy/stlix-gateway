@@ -149,6 +149,7 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/tools/finance-reports", "التقارير المالية", "front-end", kind="page"),
     Endpoint("/tools/finance-os", "Finance OS", "front-end", kind="page"),
     Endpoint("/tools/name-builder", "إنشاء الأصناف", "front-end", kind="page"),
+    Endpoint("/tools/engineer", "مساعد المهندس (حسابات وحصر)", "front-end", kind="page"),
     Endpoint("/tools/library", "مكتبة وثائق المشروع", "front-end", kind="page"),
     Endpoint("/tools/library/{name}", "وثيقة واحدة", "front-end", kind="page"),
 )

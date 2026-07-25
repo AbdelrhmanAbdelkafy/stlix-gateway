@@ -279,6 +279,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | # | Item | Source | Status |
 |---|------|--------|--------|
 | PD1 | مقترح منتجات جديدة (new product proposals) | new | ⚪ |
+| PD2 | **مساعد المهندس** — خزانات وأوعية (سُمك ASME) · مواسير صحية · ليزر وتشكيل · مبادلات · حصر BOM | front-end | 🟢 شغّال أوفلاين على `/tools/engineer` — الحصر لسه بيتنسخ بالإيد، مش متربط بأصناف نما |
 
 ## Management & Planning (إدارة وتخطيط)
 | # | Item | Source | Status |

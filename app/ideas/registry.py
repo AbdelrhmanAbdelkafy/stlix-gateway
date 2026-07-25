@@ -90,6 +90,7 @@ _BUILT_LINKS = {
     "T25": "/api/v1/banks",
     "T1": "/tools/finance-reports",
     "UX1": "/tools/name-builder",
+    "PD2": "/tools/engineer",
 }
 
 
