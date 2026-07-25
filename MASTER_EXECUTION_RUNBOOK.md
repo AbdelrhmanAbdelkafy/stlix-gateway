@@ -18,15 +18,17 @@
 ```bash
 # شغّل السيرفر (preview) باسم:
 stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --reload)
+stlix-gateway-alt    # البديل على 127.0.0.1:8010 لو :8000 عليه سيرفر شات تاني
 ```
 - **أعِد التشغيل بعد أي تعديل Python / registry / config.** ملفات HTML/JS في `modules/` بتتقري fresh كل طلب (مش محتاجة restart).
-- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **89 passing**.
+- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **115 passing**.
 - الأسرار في `.env` (gitignored). نسخة احتياطية للمفاتيح: `secrets/gates-keys.backup.md`.
 
 ## 2) الصفحات (افتحها في المتصفح)
 | الرابط | إيه هو |
 |---|---|
 | `/tools/platform` | **الهَب الموحّد** — نقطة الدخول · أرقامه كلها حيّة من `/api/v1/map` · 26 كارت دومين بيوصّلوا للوحة مفلترة |
+| `/tools/platform/public` | **تجربة من شات تاني، غير معتمدة** — قرار المالك مفتوح: تتشال ولا تعتمد `/api/v1/map` |
 | `/api/v1/map` | **الخريطة الموحّدة** — أنظمة × كنكتورات × endpoints × متطلبات × محرّكات في رد واحد |
 | `/tools/ideas` | **لوحة الأفكار** — كل متطلب مربوط بنظامه وكنكتوره و**الـ endpoints اللي فيها داتاه الخام** · فلاتر بالـ URL |
 | `/tools/finance-reports` | **التقارير المالية الحقيقية** (100% من SQL) — الواجهة المالية الإنتاجية |
@@ -55,8 +57,8 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
 ## 5) 🎯 الأرصدة الحقيقية (المحور المهم)
 > **إيه اللي لحظي فعلًا؟** نما REST **حيّة**: الموظفين · العملاء · الفواتير كمستندات · البنوك ·
 > الـ CRM · الجرد · و**التحصيلات والمدفوعات** (`ReceiptVoucher`/`PaymentVoucher`).
-> اللي **مش لحظي** = أي **رصيد محسوب** (AR/AP/KPIs) — دي من نسخة مُرستَرة.
-> **ليه:** REST مابتدّيش أرصدة، و**SQL السحابي مقفول** (tcp/1433 و1434 timeout — مقيس).
+> AR/AP/KPIs بقى ليهم **مسار لحظي اختياري** بيتبني من الفواتير وسطور تسويتها.
+> الافتراضي لسه SQL المُرستَر؛ **SQL السحابي مقفول** (tcp/1433 و1434 timeout — مقيس).
 > **عمر البيانات ظاهر دلوقتي** في كل رد مالي (`freshness.as_of` / `age_days` / `stale`).
 
 - **نما REST مابيدّيش أرصدة** (CRUD كيانات فقط — اتأكد من OpenAPI). الحل: **SQL مباشر**.
@@ -64,7 +66,19 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
   - الاتصال في `.env`: `NAMA_SQL_SERVER=localhost` · `NAMA_SQL_DATABASE=NAMA_TEST` · `NAMA_SQL_USER=stlix_gw` · `NAMA_SQL_PASSWORD=***` · driver `ODBC Driver 17 for SQL Server` (Encrypt=yes;TrustServerCertificate=yes).
   - login `stlix_gw` = read-only (db_datareader). أُنشئ عبر SSMS: `CREATE LOGIN stlix_gw ... ; CREATE USER ... ; ALTER ROLE db_datareader ADD MEMBER stlix_gw`.
   - Endpoints: `/api/v1/finance/kpis` · `/customers` · `/suppliers` → أرقام حقيقية.
-- **الأرقام (as-of 2026-07-14):** 549 عميل · 586 مورد · مبيعات 329.9M · AR 20.0M · مشتريات 320.0M · AP 186.7M.
+- **مرجع SQL (as-of 2026-07-14):** AR **20,021,265.86** · AP **186,710,932.48**.
+- **الأرقام اللحظية (`?source=live`):** بتتبني من مستندات نما REST — الصافي من `details[].price.netValue`
+  والمحصّل من `externalPaymentLines[].paymentValue`. اللقطة بتتبني في الخلفية (~8 دقايق / ~14,000 مستند):
+  `POST /api/v1/finance/live/refresh` ثم `GET /api/v1/finance/live`.
+- **آخر لقطة كاملة مُثبتة** (`2026-07-25T03:19:16+00:00`, `complete=true`):
+  6,881 فاتورة بيع · AR **19,914,391.24** ·
+  6,864 فاتورة شراء · AP **187,491,246.17**. الباقي غير المفسّر بعد عزل حركة ما بعد
+  النسخة: **0.17 ج / 0.16 ج**.
+- **`FINANCE_DEFAULT_SOURCE`** (في `.env`) بيحدّد مصدر `/api/v1/finance/*` لما مافيش `?source=`.
+  بينزل `sql`. **مايتقلبش `live` من غير قرار صريح من المالك وبعد حارس مطابقة ناجح.**
+- **`scripts/reconcile_live_vs_sql.py`** — المطابقة مستند بمستند، وبترجّع exit 1 لو فيه فرق مش مفسَّر:
+  `--rest local` (نفس الداتا → صفر فرق مسموح؛ محتاج credential محلي صالح) ·
+  `--rest cloud` (السداد بعد النسخة مفسَّر، وأي reversal لازم allow-list صريح).
 - **أرصدة البنوك مؤجّلة** (محتاجة GL — مش مُرحّل بالكامل في الـ backup الحالي).
 - **التحديث (freshness):** البيانات = آخر `.bak` مُرستَر. نسخ يومية على Google Drive folder `1yvCI6unRWALtzf1yiU9kiHAPaBB56Xtt/full` (`hardsteel<date>.bak`). **مفيش قراءة للـ .bak وهو على الدرايف** — لازم download + `RESTORE DATABASE`. الأتمتة = سكربت ليلي (شوف NEXT_STEP).
 - بديل رسمي (اختياري): تقرير من نماسوفت — `docs/nama-balance-report-spec.md`.
@@ -82,8 +96,11 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
     ده اللي كان مخفي `ReceiptVoucher` و`PaymentVoucher` (التحصيلات والمدفوعات اللحظية).
 - **`records_count` بتاع الصفحة مش الإجمالي.** paging: `startPage` (يبدأ من 1) + `pageSize` (لحد 1000).
 - **`@draft`** في آخر كود المستند = **غير مُرحَّل**. لازم يتفلتر قبل أي مجموع فلوس.
+- **الكود الفاضي** كمان غير مُرحّل؛ اتلاقى PurchaseInvoice Draft من غير كود.
 - `textCriteria`: `field,Equal,value,AND;` — operator case-sensitive (`Equal` بس). التواريخ `DD-MM-YYYY`.
-- أرصدة العملاء/الموردين من `SalesInvoice`/`PurchaseInvoice` (`total`/`totalPaid`/`remaining`) JOIN `Customer`/`Supplier` على `customer_id`/`supplier_id`.
+- أرصدة العملاء/الموردين من `SalesInvoice`/`PurchaseInvoice` (`netValue - totalPaid`)؛
+  ربط الطرف في SQL على `subsidiaryId` + `subsidiaryEntityType`، **مش**
+  `customer_id`/`supplier_id` ولا الكود القديم.
 
 ## 8) إزاي تكمّل (نمط الشغل)
 - **موديول front-end:** `modules/<name>/*.html` + route في `app/routers/tools.py` عبر `_serve()` (بيحقن `__GATEWAY_API_KEY__`). يستدعي endpoints الجيتواي بـ `X-API-Key`.
@@ -94,8 +111,11 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
 ## 8b) الأفكار والمتطلبات (181 بند) — والخريطة اللي بتربطهم
 - **مصدر الحقيقة `BACKLOG.md`** — سطر markdown لكل فكرة. `app/ideas/registry.py` بيقراه ويطلّع:
   الدومين · المصدر · الحالة · المحرّك · **جاهزية الكنكتور**. **ضيف سطر → يظهر في اللوحة فورًا** (مفيش كود).
+  > ⚠️ **بس الاختبارات بتطلب سطر في `app/ideas/wiring.py` كمان.** اللوحة بتشتغل من غيره (بيرث
+  > `DOMAIN_DEFAULTS`)، لكن `test_graph.py` بيقع لحد ما الفكرة تقول *بالظبط* إيه اللي ناقصها.
+  > ده مقصود: فكرة على اللوحة من غير "ناقص إيه" واضحة بتفضل قاعدة من غير ما حد يعرف يبدأ منين.
 - **الجاهزية:** `done` اتعمل · `ready` كل كنكتوراته موجودة (محتاج تقرير بس) · `partial` ناقص جزء · `blocked` محتاج تكامل جديد.
-- **الأرقام دلوقتي:** 1 اتعمل · **107 كنكتورها جاهز** · 44 ناقص جزء · 29 محتاج تكامل جديد · **135 داتاها الخام موجودة دلوقتي**.
+- **الأرقام دلوقتي (183 متطلب):** 2 اتعملوا · **107 كنكتورها جاهز** · 45 ناقص جزء · 29 محتاج تكامل جديد.
 - أكتر الكنكتورات الناقصة طلبًا: نظام جديد (47) · API خارجي (15) · **طبقة الذكاء Layer 4 (10)**.
 - `/api/v1/ideas?readiness=ready` = اللي نقدر نبنيه النهاردة.
 
@@ -119,5 +139,6 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
 ## 9) المتبقّي (الأولويات)
 شوف `NEXT_STEP.md` (المهمة الواحدة) و`TASKS.md` (الكل). أهمها: أتمتة تحديث البيانات · Layer 4 (AI/صوت) · Layer 5 (write) · أول محرّك (Renewals) · SSO/RBAC · Omnichannel.
 
-## 10) بند مفتوح
+## 10) بنود مفتوحة
+- `modules/platform/hub.public.html`: يتشال ولا يعتمد `/api/v1/map`؟ **مستني قرار المالك.**
 🔴 **تغيير المفاتيح المكشوفة** (Anthropic أولًا) — مؤجّل بطلب المالك. `secrets/gates-keys.backup.md`.

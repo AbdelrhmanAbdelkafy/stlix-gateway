@@ -10,7 +10,7 @@
     "how": ".claude/launch.json name 'stlix-gateway' -> uvicorn app.main:app on 127.0.0.1:8000 (no --reload)",
     "restart_after": "python code / registry / config changes (HTML/JS in modules/ is read fresh per request)",
     "venv": ".venv (Python 3.14; deps need current pins)",
-    "tests": "89 passing (.venv/Scripts/python.exe -m pytest -q)"
+    "tests": "115 passing (.venv/Scripts/python.exe -m pytest -q)"
   },
   "architecture_6_layers": {
     "1_gateway": "done",
@@ -32,7 +32,7 @@
     "all-connectors"
   ],
   "finance_sql": {
-    "status": "LIVE — real balances from Nama SQL (REST exposes none)",
+    "status": "REFERENCE — real balances from the restored Nama SQL backup; default source remains sql",
     "login": "stlix_gw (read-only, db_datareader)",
     "conn": "localhost / NAMA_TEST / ODBC Driver 17 / Encrypt=yes;TrustServerCertificate=yes",
     "env_keys": [
@@ -49,15 +49,12 @@
       "/api/v1/finance/suppliers"
     ],
     "real_figures_asOf_2026-07-14": {
-      "customers": 549,
-      "suppliers": 586,
-      "salesTotal": 329913390,
-      "arOutstanding": 20022676,
-      "purchaseTotal": 320048231,
-      "apOutstanding": 186710932
+      "arOutstanding": 20021265.86,
+      "apOutstanding": 186710932.48
     },
-    "data_quality_finding": "AR 20.0M but only ~178K attributed to named customers; rest on unlinked invoices — needs review.",
-    "freshness": "as-of = latest restored .bak (2026-07-14). Newer daily backups (hardsteel<date>.bak, ~5.7GB) on Google Drive folder 1yvCI6unRWALtzf1yiU9kiHAPaBB56Xtt. Refresh = download+RESTORE (can't read .bak in place). Automate as nightly job."
+    "freshness": "as-of = latest restored .bak (2026-07-14). Newer daily backups (hardsteel<date>.bak, ~5.7GB) on Google Drive folder 1yvCI6unRWALtzf1yiU9kiHAPaBB56Xtt. Refresh = download+RESTORE (can't read .bak in place). Automate as nightly job.",
+    "default_source": "FINANCE_DEFAULT_SOURCE decides which source answers when no ?source= is passed. It remains 'sql'. Do not flip it without an explicit owner decision and a passing automated reconciliation guard.",
+    "party_join": "Join on subsidiaryId, NOT customer_id (NULL on 5,263 of 6,845 posted invoices) and NOT subsidiaryCode (4,950 rows carry a legacy code; 226 distinct values do not exist in Customer at all). Nama's REST resolves subsidiary.code to the CURRENT code — measured on SV00001: SQL holds C00002, REST returns C2000001 — so the live path is immune to this."
   },
   "pages_served": {
     "/tools/platform": "unified hub (entry point) — live modules + placeholders + SSO placeholder",
@@ -69,7 +66,8 @@
     "/systems/{key}": "one system: its connectors, endpoints and the requirements waiting on it",
     "/connectors/{key}": "one connector: what it reads and exactly which ideas it blocks",
     "/tools/library": "the repo's own markdown docs, readable from inside the platform",
-    "/tools/engineer": "Engineer's assistant (PD2): tanks/vessels with ASME UG-27 shell thickness, sanitary piping, laser & forming, heat exchangers, BOQ. OFFLINE - holds no credentials, calls nothing; its BOM is copied by hand rather than checked against Nama's item master."
+    "/tools/engineer": "Engineer's assistant (PD2): tanks/vessels with ASME UG-27 shell thickness, sanitary piping, laser & forming, heat exchangers, BOQ. OFFLINE - holds no credentials, calls nothing; its BOM is copied by hand rather than checked against Nama's item master.",
+    "/tools/platform/public": "unapproved worktree experiment from another chat. Owner decision is still open: remove the file or make it read /api/v1/map. Do not describe it as decided."
   },
   "ideas": {
     "source_of_truth": "BACKLOG.md (add a markdown row -> appears on the board, no code change)",
@@ -80,13 +78,13 @@
       "/api/v1/ideas/{id}"
     ],
     "counts_2026-07-25": {
-      "total": 182,
+      "total": 183,
       "domains": 26,
       "done": 2,
       "ready": 107,
-      "partial": 44,
+      "partial": 45,
       "blocked": 29,
-      "with_live_data": 135
+      "with_live_data": 136
     },
     "readiness_meaning": "ready = every connector it needs already exists, so it only needs a report built",
     "top_missing_connectors": {
@@ -101,7 +99,8 @@
       "a planned idea never links to a built page, and never gets one as a data source",
       "an idea with no data endpoints always carries an `unblock` link",
       "catalog and app routes match in BOTH directions (tests/test_catalog.py)"
-    ]
+    ],
+    "adding_a_row": "BACKLOG.md row shows on the board immediately with no code — but tests/test_graph.py fails until app/ideas/wiring.py also says what exactly that idea is missing. Deliberate: an idea on the board with no stated gap sits there for a year."
   },
   "modules": {
     "finance-os": {
@@ -126,7 +125,10 @@
     "Nama web SQL utility (/erp/vue.html#/utils/sql) + API browser are web-login features, NOT reachable with API creds.",
     "Real balances only via SQL (now wired) or a Namasoft-published report (spec at docs/nama-balance-report-spec.md, optional)."
   ],
-  "open_blocker": "🔴 Rotate exposed keys (Anthropic first, then Nama/Vtiger/inventory) — DEFERRED by owner. See secrets/gates-keys.backup.md.",
+  "open_decisions": [
+    "modules/platform/hub.public.html: remove it or make it read /api/v1/map. A different chat modified it, but the owner has not decided.",
+    "🔴 Rotate exposed keys (Anthropic first, then Nama/Vtiger/inventory) — DEFERRED by owner. See secrets/gates-keys.backup.md."
+  ],
   "next_step_file": "NEXT_STEP.md",
   "handover_files": [
     "SESSION_STATE.json",
@@ -148,8 +150,8 @@
     "counts": {
       "systems": 22,
       "connectors": 21,
-      "endpoints": 57,
-      "ideas": 182
+      "endpoints": 60,
+      "ideas": 183
     },
     "systems_without_ideas": []
   },
@@ -169,10 +171,31 @@
       "PaymentVoucher (supplier payments)",
       "JournalEntry"
     ],
-    "not_live": "every computed BALANCE (AR/AP/KPIs) - served from a restored backup",
-    "why": "Nama REST exposes no computed balances, AND direct SQL to the Namasoft cloud tenant is unreachable: tcp/1433 and 1434 to stlixvalley.namasoft.net both time out (measured, not assumed).",
+    "computed_balances": "AR/AP/KPIs have a verified optional live path rebuilt from SalesInvoice/PurchaseInvoice details and externalPaymentLines. Default responses still use the restored SQL backup unless ?source=live is explicit.",
+    "why_reconstruction_is_needed": "Nama REST exposes no ready-made computed balances, AND direct SQL to the Namasoft cloud tenant is unreachable: tcp/1433 and 1434 to stlixvalley.namasoft.net both time out (measured, not assumed).",
     "freshness_is_visible": "every finance response carries freshness{as_of, age_days, live, stale}; shown on the hub and /tools/finance-reports, which previously badged 11-day-old figures as 'حيّ'.",
-    "local_backups_on_disk": "D:/hardsteel20260715.bak - only ONE day newer than what is restored (2026-07-14). Not worth a restore."
+    "local_backups_on_disk": "D:/hardsteel20260715.bak - only ONE day newer than what is restored (2026-07-14). Not worth a restore.",
+    "reconciliation": "Cloud June 2026 passed for 138 sales + 164 purchase invoices with reviewed reversal FP22026060000105 explicitly allowed. Local strict mode is blocked by HTTP 401 because :8080 does not accept the cloud credential; it has not been claimed as passed.",
+    "latest_verified_live_snapshot": {
+      "asOf": "2026-07-25T03:19:16+00:00",
+      "complete": true,
+      "swept": {
+        "salesInvoices": 6885,
+        "purchaseInvoices": 6866,
+        "customers": 531,
+        "suppliers": 575
+      },
+      "salesInvoicesPosted": 6881,
+      "salesNet": 345681108.34,
+      "arOutstanding": 19914391.24,
+      "purchaseInvoicesPosted": 6864,
+      "purchaseNet": 305295048.02,
+      "apOutstanding": 187491246.17,
+      "unexplainedVsBackup": {
+        "ar": 0.17,
+        "ap": 0.16
+      }
+    }
   },
   "nama_400_semantics": {
     "finding": "Nama answers HTTP 400 for TWO different things and the client conflated them.",
@@ -181,8 +204,9 @@
     "traps_for_any_live_aggregate": [
       "records_count is PER PAGE, not a total - it counts only rows serialised in that response",
       "paging is startPage (1-based) + pageSize (max 1000)",
-      "'@draft' suffix on a document code = UNPOSTED draft; must be filtered or drafts get summed with posted documents"
+      "'@draft' suffix on a document code = UNPOSTED draft; must be filtered or drafts get summed with posted documents",
+      "'@draft' is not the only unposted marker: one PurchaseInvoice is Draft with NO code at all. is_draft() now also treats a missing/blank code as unposted — safe, since zero of the 13,686 posted invoice rows has an empty code."
     ],
-    "open_question": "can AR/AP be computed live from ReceiptVoucher + PaymentVoucher + invoices, and does it reconcile with SQL for the same period? Under investigation - no money figure ships before it matches."
+    "open_question": "ANSWERED: yes. Rebuilt net/paid matched SQL to the piastre on live documents, and the reconciliation is now a repeatable script (scripts/reconcile_live_vs_sql.py, exit 1 on any unexplained difference) rather than a one-off check."
   }
 }

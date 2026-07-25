@@ -61,6 +61,20 @@ class Settings(BaseSettings):
     # Namasoft report/query entities that expose computed balances (REST doesn't
     # expose them natively — see docs/nama-balance-report-spec.md). Once Namasoft
     # publishes these, the finance endpoints go live with zero code changes.
+    # Which source answers /api/v1/finance/* when the caller does not say.
+    #
+    # `live` is rebuilt from Nama REST documents. It ships as `sql`; switching
+    # requires an explicit owner decision and a passing automated
+    # reconciliation guard. A figure that is old is bad; a figure that is wrong
+    # is far worse.
+    finance_default_source: str = Field(default="sql", pattern="^(sql|live)$")
+
+    # Seconds between background live sweeps. 0 = off, so importing the app (as
+    # the test suite does) never reaches the ERP. A sweep is ~14,000 documents,
+    # so this is the thing that makes `live` usable as a default at all: without
+    # it the first visitor after every restart pays eight minutes for the page.
+    live_finance_refresh_seconds: int = Field(default=0)
+
     finance_customer_entity: str = Field(default="StlixCustomerBalance")
     finance_supplier_entity: str = Field(default="StlixSupplierBalance")
     finance_statement_entity: str = Field(default="StlixCustomerStatement")

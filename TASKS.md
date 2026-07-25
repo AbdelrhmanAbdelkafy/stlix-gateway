@@ -30,15 +30,16 @@
   `ReceiptVoucher`/`PaymentVoucher` (التحصيلات والمدفوعات اللحظية) بقوا مقروئين
 - ✅ **إظهار عمر البيانات** — كل رد مالي بيقول `as_of`/`age_days`/`stale`
   (صفحة التقارير كانت حاطة شارة «حيّ» على أرقام عمرها 11 يوم)
+- ✅ **AR/AP/KPIs لحظية من Nama REST** — الفاتورة `net − paid` اتطابقت مع SQL:
+  فرق غير مفسَّر 0.17 ج في AR و0.16 ج في AP على كل المجتمع. `?source=live` + لقطة خلفية
+  كل ساعة + source/age/exclusions ظاهرين + SQL المُرستَر يفضل المرجع الكامل.
 - ✅ **كوكي المتصفح** (GET/HEAD بس) — لينك `<a>` على `/api/v1/*` كان هيموت 401 أول ما نحطّ مفتاح
-- ✅ 89 اختبار + توثيق نما (OpenAPI CRUD-only, دلالات الـ400 بالاتجاهين, حلّ SQL)
+- ✅ 115 اختبار + توثيق نما (OpenAPI CRUD-only، دلالات الـ400، paging/drafts، SQL/live)
 - ✅ **نقل الكتاب المرجعي (83 فصل)** جوه الريبو → `docs/enterprise-platform/` + `reference/finance-mvp/`
 
 ## 🟡 جزئي (In progress / partial)
-- 🟡 **الأرقام اللحظية** — نما REST **حيّة فعلًا** للمستندات (موظفين، عملاء، فواتير، بنوك، CRM، جرد).
-  الفلوس بس هي اللي من نسخة مُرستَرة. SQL السحابي مقفول (1433/1434 timeout — متأكد منه).
-  **قيد التحقيق:** هل ينفع نحسب AR/AP لحظي من `ReceiptVoucher`+`PaymentVoucher`+الفواتير؟
-  (الـ paging اتأكد: `startPage` + `pageSize` حتى 1000). مايتعرضش رقم قبل ما يطابق SQL.
+- 🟡 **حارس المطابقة اللحظية** — الطريقة اتثبتت واتشحنت؛ الناقص مقارنة أوتوماتيك على نافذة
+  مقفولة وشارة `pass|drift` تمنع تغيير schema/صلاحية مستقبلي من نشر رقم غلط.
 - 🟡 Finance OS: dashboard KPI strip + Customers/Suppliers حقيقي؛ **باقي شاشاته ديمو**
   (AP invoices · GL ledger · dashboard cash) — يتربطوا أو يتخفوا
 - 🟡 UX1: خانة النوع خلصت؛ **UX1b** (إدخال الاسم الكامل → validator → رفض المكرر) لسه
@@ -47,8 +48,8 @@
   يعني الأغلب الباكلوج ناقصه سطور
 
 ## ⚪ مخطّط (Planned)
-- ⚪ **تحديث البيانات** — إما (أ) AR/AP لحظي من REST لو التحقيق قال إنه مضبوط،
-  أو (ب) سكربت ليلي: download أحدث `.bak` من Drive → RESTORE → بيانات بفارق يوم
+- ⚪ **تحديث SQL المرجعي** — AR/AP بقت لحظية من REST؛ يفضل سكربت backup ليلي اختياري
+  لتحديث المرجع الكامل: download أحدث `.bak` من Drive → RESTORE → بيانات بفارق يوم
 - ⚪ **Layer 4 — AI Orchestrator**: شات فريق بيتكلم كإنسان · مدير مبيعات ذكي · محصّل ذكي · مؤشر صحة الشركة
 - ⚪ **Layer 5 — Write workflows**: إنشاء صنف فعلي (name-builder) · اعتماد فواتير — audited + HITL
 - ⚪ **ربط حصر المهندس بنما** (PD2) — فحص التكرار موجود أصلًا في `/api/v1/nama/invitem/exists`
@@ -61,4 +62,5 @@
 - ⚪ فتح الـ 3 Google Sheets (RESOURCES.md) كمصادر بيانات
 
 ## 🔴 بند مفتوح (Open)
+- 🔴 `modules/platform/hub.public.html`: يتشال ولا يعتمد `/api/v1/map`؟ مستني قرار المالك.
 - 🔴 **تغيير المفاتيح المكشوفة** (Anthropic أولًا) — مؤجّل بطلب المالك. `secrets/gates-keys.backup.md`
