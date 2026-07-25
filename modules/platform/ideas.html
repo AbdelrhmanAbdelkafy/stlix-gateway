@@ -16,26 +16,32 @@ h1{font-size:21px;margin:0;font-weight:800}.tag{color:#9fb4b4;font-size:12.5px}
 .kpi .v{font-size:19px;font-weight:800}.kpi .l{font-size:10.5px;color:#9fb4b4}
 .bar{position:sticky;top:0;z-index:9;background:var(--bg);border-bottom:1px solid var(--ln);padding:11px 0 10px;margin-bottom:16px}
 .bar .row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
-#q{flex:1;min-width:200px;background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:9px 13px;color:var(--tx);font:inherit;font-size:13.5px}
+#q{flex:1;min-width:190px;background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:9px 13px;color:var(--tx);font:inherit;font-size:13.5px}
 #q:focus{outline:none;border-color:var(--ac)}
-.pill{background:var(--card);border:1px solid var(--ln);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;color:var(--sub)}
+#sysSel{background:var(--card);border:1px solid var(--ln);border-radius:10px;padding:8px 10px;color:var(--tx);font:inherit;font-size:12.5px;max-width:210px}
+.pill{background:var(--card);border:1px solid var(--ln);border-radius:999px;padding:5px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--sub)}
 .pill.on{background:var(--ac);border-color:var(--ac);color:#04211f}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
 .chip{background:var(--card);border:1px solid var(--ln);border-radius:8px;padding:3px 9px;font-size:11.5px;cursor:pointer;color:var(--sub)}
 .chip.on{background:var(--acd);border-color:var(--ac);color:#fff}
 .chip b{color:var(--tx);font-weight:700}.chip.on b{color:#fff}
-.count{font-size:11.5px;color:var(--sub);margin-top:8px}
+.count{font-size:11.5px;color:var(--sub);margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .count b{color:var(--ac)}
-.count .clr{color:var(--warn);cursor:pointer;text-decoration:underline;margin-inline-start:8px}
+.tok{background:var(--card2);border:1px solid var(--ln);border-radius:999px;padding:2px 9px;cursor:pointer;color:var(--tx)}
+.tok:hover{border-color:var(--warn);color:var(--warn)}
+.clr{color:var(--warn);cursor:pointer;text-decoration:underline}
 h2{font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:var(--ac);margin:26px 0 2px;font-weight:700;display:flex;align-items:baseline;gap:8px}
 h2 .n{color:var(--sub);font-size:11px;letter-spacing:0}
 .h2ar{font-size:16.5px;font-weight:800;margin:0 0 12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:11px}
-.idea{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--ln);border-radius:13px;padding:12px 14px;transition:transform .1s,border-color .1s}
-.idea:hover{transform:translateY(-2px);border-color:var(--ac)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:11px}
+.idea{background:var(--card);border:1px solid var(--ln);border-radius:13px;padding:12px 14px;transition:border-color .1s}
+.idea:hover{border-color:var(--ac)}
 .idea:target{border-color:var(--ac);box-shadow:0 0 0 3px rgba(43,196,196,.25)}
 .idea .top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
-.idea .id{font-size:10.5px;font-weight:800;background:var(--card2);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;color:var(--sub);font-family:ui-monospace,monospace}
+.idea .id{font-size:10.5px;font-weight:800;background:var(--card2);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;color:var(--sub);font-family:ui-monospace,monospace;text-decoration:none}
+.idea .sys{margin-inline-start:auto;background:var(--card2);border:1px solid var(--ln);border-radius:999px;padding:1px 9px;font:inherit;font-size:10.5px;font-weight:700;color:var(--sub);cursor:pointer}
+.idea .sys.live{color:var(--ac);border-color:var(--acd)}
+.idea .sys.new{border-style:dashed;cursor:default;color:var(--plan)}
 .idea .t{font-size:13.5px;font-weight:600;line-height:1.5}
 .idea .meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px;align-items:center}
 .b{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px}
@@ -46,10 +52,18 @@ h2 .n{color:var(--sub);font-size:11px;letter-spacing:0}
 .b-blocked{background:rgba(200,90,90,.15);color:#d9756f}
 .b-src{background:var(--card2);color:var(--sub);border:1px solid var(--ln)}
 .b-eng{background:rgba(43,196,196,.15);color:var(--ac)}
-.idea .need{font-size:11px;color:#d9756f;margin-top:7px;font-weight:600}
-.idea .need.ok{color:var(--sub);font-weight:400}
+.idea .need{font-size:11.5px;margin-top:8px;color:var(--tx)}
+.idea .need .lbl{color:var(--sub);font-size:10.5px}
 .idea .note{font-size:11px;color:var(--sub);margin-top:7px;border-top:1px dashed var(--ln);padding-top:6px}
-.idea .go{font-size:11px;color:var(--ac);margin-top:7px;font-weight:700}
+.idea .src{margin-top:8px;padding-top:7px;border-top:1px dashed var(--ln);display:flex;flex-wrap:wrap;gap:5px}
+.idea .src .lbl{flex-basis:100%;font-size:10.5px;color:var(--sub);margin-bottom:2px}
+.idea .ep{font-size:10.5px;font-family:ui-monospace,monospace;text-decoration:none;background:var(--card2);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;color:var(--ac);direction:ltr}
+.idea .ep:hover{border-color:var(--ac)}
+.idea .ep.tpl{color:var(--sub);border-style:dashed;cursor:help}
+.idea .ws{font-size:10.5px;text-decoration:none;background:var(--card2);border:1px solid var(--ln);border-radius:6px;padding:1px 7px;color:var(--sub)}
+.idea .none{margin-top:8px;padding-top:7px;border-top:1px dashed var(--ln);font-size:11px;color:var(--sub)}
+.idea .none a{color:var(--warn)}
+.idea .go{display:inline-block;font-size:11.5px;color:var(--ac);margin-top:8px;font-weight:700;text-decoration:none}
 .empty{text-align:center;color:var(--sub);padding:50px 0;font-size:14px}
 .foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--ln);font-size:11px;color:var(--sub);text-align:center;line-height:1.9}
 .foot code{background:var(--card2);padding:1px 6px;border-radius:5px}
@@ -58,7 +72,7 @@ h2 .n{color:var(--sub);font-size:11px;letter-spacing:0}
 <div class="hero"><div class="wrap" style="padding-bottom:0">
   <div class="brand">
     <div class="logo">SG</div>
-    <div><h1>الأفكار والمتطلبات</h1><div class="tag">كل فكرة قلتها — لينك تقدر تفتحه · المصدر <code>BACKLOG.md</code></div></div>
+    <div><h1>الأفكار والمتطلبات</h1><div class="tag">كل فكرة قلتها — موصولة بالنظام والكنكتور والداتا · المصدر <code>BACKLOG.md</code></div></div>
     <a class="back" href="/tools/platform">← الهَب</a>
   </div>
   <div class="kpis" id="kpis"></div>
@@ -68,89 +82,159 @@ h2 .n{color:var(--sub);font-size:11px;letter-spacing:0}
   <div class="bar">
     <div class="row">
       <input id="q" type="search" placeholder="دوّر على أي فكرة… (اكتب / للتركيز)" autocomplete="off">
-      <button class="pill on" data-rd="" data-reset="1">الكل</button>
+      <select id="sysSel" title="النظام"><option value="">كل الأنظمة</option></select>
+      <button class="pill" id="all">الكل</button>
       <button class="pill" data-rd="done">✅ اتعمل</button>
       <button class="pill" data-rd="ready">🟢 الكنكتور جاهز</button>
       <button class="pill" data-rd="partial">🟡 كنكتور ناقص</button>
       <button class="pill" data-rd="blocked">⛔ محتاج تكامل جديد</button>
+      <button class="pill" id="dataTog" title="الأفكار اللي داتاها الخام موجودة دلوقتي">📡 عنده داتا</button>
     </div>
     <div class="chips" id="chips"></div>
     <div class="count" id="count"></div>
   </div>
   <div id="out"></div>
   <div class="foot">
-    كل فكرة ليها <b>معرّف ثابت</b> ولينك مباشر — مثال <code>/tools/ideas#T14</code> أو <code>/api/v1/ideas/T14</code>.
+    كل فكرة ليها <b>معرّف ثابت</b> ولينك مباشر — <code>/tools/ideas#T14</code> · <code>/api/v1/ideas/T14</code> · <code>/api/v1/map</code>.
+    <div><b>روابط الداتا مش تقارير جاهزة</b> — دي الأماكن اللي فيها الأرقام الخام اللي التقرير هيتبني عليها.</div>
     <div>عايز تضيف فكرة؟ ضيف سطر في <code>BACKLOG.md</code> — تظهر هنا فورًا من غير أي تعديل كود.</div>
   </div>
 </div>
 
 <script>
-var KEY="__GATEWAY_API_KEY__",ALL=[],SUM={},rd="",dom="";
+var KEY="__GATEWAY_API_KEY__",ALL=[],SUM={},DOMS=[],SYS={};
+// One state object. The controls are a VIEW of it, never a second source of
+// truth — an earlier bug left a domain filter silently active because a click
+// handler mutated a DOM class and a variable in two different places.
+var F={q:"",rd:"",dom:"",sys:"",conn:"",ep:"",section:"",engine:"",data:false};
+var LBLF={q:"بحث",rd:"الجاهزية",dom:"الدومين",sys:"النظام",conn:"الكنكتور",
+          ep:"الـ endpoint",section:"القسم",engine:"المحرّك",data:"داتا"};
 
 function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
-// BACKLOG.md is markdown: render the **bold** the owner writes, escape the rest.
+// BACKLOG.md is markdown: render the **bold** the owner writes, escape the rest,
+// and drop the "→ Engine" tail (it is shown as its own badge).
 function fmt(s){return esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\s*→\s*[^|]+$/,"")}
-var LBL={live:"شغّال",next:"التالي",planned:"مخطّط"};
+function shortEp(p){return p.replace(/^\/api\/v1\//,"").replace(/^\//,"")}
+// A templated path is not clickable: /api/v1/nama/lists/{entity} needs an entity
+// name, and shipping it as a link would be a guaranteed dead click.
+function epHtml(p){
+  return p.indexOf("{")>-1
+    ? '<span class="ep tpl" title="اكتب اسم الكيان مكان '+esc(p.replace(/^.*\{/,"{").replace(/\}.*$/,"}"))+'">'+esc(shortEp(p))+'</span>'
+    : '<a class="ep" href="'+esc(p)+'">'+esc(shortEp(p))+'</a>';
+}
+
 // readiness = can we build it today? (does every connector it needs exist)
 var RD={done:["✅ اتعمل","b-live"],ready:["🟢 الكنكتور جاهز","b-ready"],
         partial:["🟡 كنكتور ناقص","b-next"],blocked:["⛔ محتاج تكامل جديد","b-blocked"]};
 var CONN={nama:"نما",crm:"CRM (Vtiger)",sql:"نما SQL",gateway:"الجيتواي","front-end":"واجهة",
+  banks:"البنوك",inventory:"الجرد",attendance:"الحضور",
   "all-connectors":"كل الكنكتورات","ai-layer":"طبقة الذكاء (Layer 4)","new-system":"نظام جديد",
   external:"API خارجي",email:"إيميل",omnichannel:"واتساب/وي شات",voice:"صوت عربي",sso:"SSO",
-  portal:"بوابة حكومية",telco:"شركة اتصالات",custody:"العهدة","bank-feed":"تغذية بنكية"};
+  portal:"بوابة حكومية",telco:"شركة اتصالات",custody:"العهدة","bank-feed":"تغذية بنكية",
+  marketdata:"أسعار السوق"};
+
+function readURL(){
+  var p=new URLSearchParams(location.search);
+  F.q=p.get("q")||"";F.rd=p.get("rd")||"";F.dom=(p.get("dom")||"").toUpperCase();
+  F.sys=p.get("sys")||"";F.conn=p.get("conn")||"";F.ep=p.get("ep")||"";
+  F.section=p.get("section")||"";F.engine=p.get("engine")||"";F.data=p.get("data")==="1";
+}
+function writeURL(){
+  var p=new URLSearchParams();
+  ["q","rd","dom","sys","conn","ep","section","engine"].forEach(function(k){if(F[k])p.set(k,F[k])});
+  if(F.data)p.set("data","1");
+  var qs=p.toString();
+  history.replaceState(null,"",location.pathname+(qs?"?"+qs:"")+location.hash);
+}
+function setF(patch){for(var k in patch)F[k]=patch[k];writeURL();paint()}
+function clearAll(){setF({q:"",rd:"",dom:"",sys:"",conn:"",ep:"",section:"",engine:"",data:false})}
+
+function match(){
+  var q=F.q.trim().toLowerCase();
+  return ALL.filter(function(i){
+    if(F.rd&&i.readiness!==F.rd)return false;
+    if(F.dom&&i.prefix!==F.dom)return false;
+    if(F.sys&&i.systems.indexOf(F.sys)<0)return false;
+    if(F.conn&&i.connectors.indexOf(F.conn)<0)return false;
+    if(F.ep&&i.data_endpoints.indexOf(F.ep)<0)return false;
+    if(F.section&&i.workspace_section!==F.section)return false;
+    if(F.engine&&(i.engine||"")!==F.engine)return false;
+    if(F.data&&!i.data_endpoints.length)return false;
+    if(!q)return true;
+    return (i.id+" "+i.title+" "+i.domain+" "+i.domain_en+" "+i.source+" "+(i.needs||"")+" "+(i.engine||"")).toLowerCase().indexOf(q)>-1;
+  });
+}
+
+function activeTokens(){
+  var domName=function(p){for(var i=0;i<DOMS.length;i++)if(DOMS[i].prefix===p)return DOMS[i].domain;return p};
+  return [["q",F.q],["rd",F.rd&&RD[F.rd][0]],["dom",F.dom&&domName(F.dom)],
+          ["sys",F.sys&&((SYS[F.sys]||{}).name_ar||F.sys)],["conn",F.conn&&(CONN[F.conn]||F.conn)],
+          ["ep",F.ep&&shortEp(F.ep)],["section",F.section],["engine",F.engine],
+          ["data",F.data&&"عنده داتا"]].filter(function(t){return t[1]});
+}
 
 function kpis(){
-  var r=SUM.readiness||{};
+  var r=SUM.readiness||{},withData=ALL.filter(function(i){return i.data_endpoints.length}).length;
   var k=[[SUM.total,"إجمالي الأفكار"],[r.done,"✅ اتعمل"],[r.ready,"🟢 كنكتوره جاهز"],
-         [r.partial,"🟡 ناقص جزء"],[r.blocked,"⛔ محتاج تكامل"],[SUM.domains,"دومين"]];
+         [r.partial,"🟡 ناقص جزء"],[r.blocked,"⛔ محتاج تكامل"],[withData,"📡 داتاه موجودة"],[SUM.domains,"دومين"]];
   document.getElementById("kpis").innerHTML=k.map(function(p){
     return '<div class="kpi"><div class="v">'+(p[0]==null?"—":p[0])+'</div><div class="l">'+p[1]+'</div></div>'
   }).join("");
 }
 
-function chips(doms){
-  document.getElementById("chips").innerHTML=
-    '<span class="chip'+(dom===""?" on":"")+'" data-d="">كل الدومينات <b>'+ALL.length+'</b></span>'+
-    doms.map(function(d){
-      return '<span class="chip'+(dom===d.prefix?" on":"")+'" data-d="'+d.prefix+'">'+d.icon+" "+esc(d.domain)+' <b>'+d.total+'</b></span>'
-    }).join("");
-}
-
 function card(i){
-  var planned=i.status==="planned";
-  var r=RD[i.readiness]||RD.blocked;
-  var go = planned
-    ? (i.related?'<div class="go">↪ أقرب حاجة موجودة: '+esc(i.related)+'</div>':"")
-    : '<div class="go">← افتحها</div>';
-  // Name what is missing — that is the actual answer to "why isn't this built".
-  var need = i.missing_connectors.length
-    ? '<div class="need">ناقص: '+i.missing_connectors.map(function(c){return esc(CONN[c]||c)}).join(" · ")+'</div>'
-    : (i.connectors.length?'<div class="need ok">الكنكتور موجود: '+i.connectors.map(function(c){return esc(CONN[c]||c)}).join(" · ")+'</div>':"");
-  return '<a class="idea" id="'+esc(i.id)+'" href="'+esc(planned&&i.related?i.related:i.link)+'">'+
-    '<div class="top"><span class="id">'+esc(i.id)+'</span><span>'+i.icon+'</span></div>'+
+  var planned=i.status==="planned",r=RD[i.readiness]||RD.blocked;
+  var s=SYS[i.primary_system]||{name_ar:i.primary_system,status:"planned"};
+  var chip='<button class="sys'+(s.status==="live"?" live":"")+'" data-sys="'+esc(i.primary_system)+'" '+
+    'title="النظام المسؤول — اضغط لتصفية">'+(s.status==="live"?"🟢":"⚪")+" "+esc(s.name_ar)+'</button>'+
+    (i.proposed_system?'<span class="sys new" title="نظام مقترح مش على الخريطة">＋'+esc(i.proposed_system)+'</span>':"");
+
+  // The label carries the honesty contract: raw data, not a finished report.
+  var src=i.data_endpoints.length
+    ? '<div class="src"><span class="lbl">'+(planned?"الداتا الخام موجودة هنا — التقرير نفسه لسه مخطّط":"مصدر الداتا")+'</span>'+
+        i.data_endpoints.map(epHtml).join("")+
+        (i.workspace_section?'<a class="ws" href="/api/v1/workspace#ws-'+esc(i.workspace_section)+'">🗂 في اللوحة</a>':"")+
+      '</div>'
+    : '<div class="none">مفيش داتا موصولة لسه'+
+       (i.unblock?' — <a href="'+esc(i.unblock)+'">شوف اللي ناقص</a>':"")+'</div>';
+
+  var conns=i.missing_connectors.length
+    ? '<div class="need"><span class="lbl">ناقص كنكتور:</span> '+
+        i.missing_connectors.map(function(c){return '<a class="ep" href="/connectors/'+esc(c)+'">'+esc(CONN[c]||c)+'</a>'}).join(" ")+'</div>'
+    : (i.connectors.length?'<div class="need"><span class="lbl">الكنكتور موجود:</span> '+
+        i.connectors.map(function(c){return esc(CONN[c]||c)}).join(" · ")+'</div>':"");
+
+  return '<article class="idea" id="'+esc(i.id)+'">'+
+    '<div class="top"><a class="id" href="#'+esc(i.id)+'">'+esc(i.id)+'</a><span>'+i.icon+'</span>'+chip+'</div>'+
     '<div class="t">'+fmt(i.title)+'</div>'+
     '<div class="meta"><span class="b '+r[1]+'">'+r[0]+'</span>'+
       '<span class="b b-src">'+esc(i.source)+'</span>'+
       (i.engine?'<span class="b b-eng">⚙ '+esc(i.engine)+'</span>':"")+
-    '</div>'+need+
-    (i.note?'<div class="note">'+fmt(i.note)+'</div>':"")+go+'</a>';
+    '</div>'+
+    (i.needs?'<div class="need"><span class="lbl">ناقص:</span> '+esc(i.needs)+'</div>':"")+
+    conns+
+    (i.note?'<div class="note">'+fmt(i.note)+'</div>':"")+
+    src+
+    // Only a delivered idea gets an "open it" link. A planned one never does.
+    (i.deliverable?'<a class="go" href="'+esc(i.deliverable)+'">← افتحها</a>':"")+
+  '</article>';
 }
 
-function render(){
-  var q=document.getElementById("q").value.trim().toLowerCase();
-  var rows=ALL.filter(function(i){
-    if(rd&&i.readiness!==rd)return false;
-    if(dom&&i.prefix!==dom)return false;
-    if(!q)return true;
-    return (i.id+" "+i.title+" "+i.domain+" "+i.domain_en+" "+i.source+" "+(i.engine||"")).toLowerCase().indexOf(q)>-1;
-  });
-  // Filters are easy to forget you set — always say what is being hidden.
-  var active=(rd?1:0)+(dom?1:0)+(q?1:0);
+function paint(){
+  document.getElementById("q").value=F.q;
+  document.getElementById("sysSel").value=F.sys;
+  document.getElementById("dataTog").classList.toggle("on",F.data);
+  document.querySelectorAll(".pill[data-rd]").forEach(function(b){b.classList.toggle("on",b.dataset.rd===F.rd)});
+  document.querySelectorAll(".chip").forEach(function(c){c.classList.toggle("on",c.dataset.d===F.dom)});
+  var toks=activeTokens();
+  document.getElementById("all").classList.toggle("on",toks.length===0);
+
+  var rows=match();
+  // Never hide a filter: everything active is listed and individually removable.
   document.getElementById("count").innerHTML=
-    "بيظهر <b>"+rows.length+"</b> من "+ALL.length+
-    (active?' <span class="clr" id="clr">امسح الفلاتر</span>':"");
-  var c=document.getElementById("clr");
-  if(c)c.onclick=function(){resetAll();render()};
+    "<span>بيظهر <b>"+rows.length+"</b> من "+ALL.length+"</span>"+
+    toks.map(function(t){return '<span class="tok" data-off="'+t[0]+'">'+esc(LBLF[t[0]])+": "+esc(t[1])+' ✕</span>'}).join("")+
+    (toks.length?'<span class="clr" id="clr">امسح الكل</span>':'<span style="opacity:.6">مفيش فلاتر</span>');
 
   var out=document.getElementById("out");
   if(!rows.length){out.innerHTML='<div class="empty">مفيش نتيجة — جرّب تمسح الفلاتر.</div>';return}
@@ -167,37 +251,53 @@ function render(){
   if(location.hash){var t=document.getElementById(location.hash.slice(1));if(t)t.scrollIntoView({block:"center"})}
 }
 
-function resetAll(){
-  rd="";dom="";document.getElementById("q").value="";
-  document.querySelectorAll(".pill").forEach(function(x){x.classList.toggle("on",x.dataset.reset==="1")});
-  document.querySelectorAll(".chip").forEach(function(x){x.classList.toggle("on",x.dataset.d==="")});
+function chips(){
+  document.getElementById("chips").innerHTML=
+    '<span class="chip'+(F.dom===""?" on":"")+'" data-d="">كل الدومينات <b>'+ALL.length+'</b></span>'+
+    DOMS.map(function(d){
+      return '<span class="chip'+(F.dom===d.prefix?" on":"")+'" data-d="'+d.prefix+'">'+d.icon+" "+esc(d.domain)+' <b>'+d.total+'</b></span>'
+    }).join("");
 }
 
-document.getElementById("q").addEventListener("input",render);
+function systemSelect(){
+  var used={};ALL.forEach(function(i){i.systems.forEach(function(s){used[s]=(used[s]||0)+1})});
+  var keys=Object.keys(used).sort(function(a,b){return used[b]-used[a]});
+  document.getElementById("sysSel").innerHTML='<option value="">كل الأنظمة</option>'+
+    keys.map(function(k){
+      var n=(SYS[k]||{}).name_ar||k;
+      return '<option value="'+esc(k)+'">'+((SYS[k]||{}).status==="live"?"🟢 ":"⚪ ")+esc(n)+" ("+used[k]+")</option>"
+    }).join("");
+}
+
+// One delegated listener for the whole toolbar — a single code path, so the
+// "stale invisible filter" class of bug cannot come back.
+document.querySelector(".bar").addEventListener("click",function(e){
+  var t=e.target.closest("[data-off]");
+  if(t){var p={};p[t.dataset.off]=t.dataset.off==="data"?false:"";return setF(p)}
+  if(e.target.closest("#clr")||e.target.closest("#all"))return clearAll();
+  var b=e.target.closest(".pill[data-rd]");if(b)return setF({rd:F.rd===b.dataset.rd?"":b.dataset.rd});
+  var c=e.target.closest(".chip");if(c)return setF({dom:F.dom===c.dataset.d?"":c.dataset.d});
+  if(e.target.closest("#dataTog"))return setF({data:!F.data});
+});
+document.getElementById("out").addEventListener("click",function(e){
+  var s=e.target.closest(".sys[data-sys]");
+  if(s)setF({sys:F.sys===s.dataset.sys?"":s.dataset.sys});
+});
+document.getElementById("sysSel").addEventListener("change",function(){setF({sys:this.value})});
+document.getElementById("q").addEventListener("input",function(){setF({q:this.value})});
 document.addEventListener("keydown",function(e){
   if(e.key==="/"&&document.activeElement.id!=="q"){e.preventDefault();document.getElementById("q").focus()}
 });
-document.querySelectorAll(".pill").forEach(function(b){
-  b.addEventListener("click",function(){
-    // "الكل" means all — clear the domain chip too, not just the readiness.
-    if(b.dataset.reset==="1"){resetAll();render();return}
-    document.querySelectorAll(".pill").forEach(function(x){x.classList.remove("on")});
-    b.classList.add("on");rd=b.dataset.rd;render();
-  });
-});
-document.getElementById("chips").addEventListener("click",function(e){
-  var c=e.target.closest(".chip");if(!c)return;
-  dom=c.dataset.d;
-  document.querySelectorAll(".chip").forEach(function(x){x.classList.toggle("on",x===c)});
-  render();
-});
 
+readURL();
 Promise.all([
   fetch("/api/v1/ideas",{headers:{"X-API-Key":KEY}}).then(function(r){return r.json()}),
-  fetch("/api/v1/ideas/domains",{headers:{"X-API-Key":KEY}}).then(function(r){return r.json()})
+  fetch("/api/v1/ideas/domains",{headers:{"X-API-Key":KEY}}).then(function(r){return r.json()}),
+  fetch("/systems?format=json",{headers:{"X-API-Key":KEY}}).then(function(r){return r.json()})
 ]).then(function(res){
-  ALL=res[0].ideas||[];SUM=res[0].summary||{};
-  kpis();chips(res[1].domains||[]);render();
+  ALL=res[0].ideas||[];SUM=res[0].summary||{};DOMS=res[1].domains||[];
+  (res[2].systems||[]).forEach(function(s){SYS[s.key]=s});
+  kpis();chips();systemSelect();paint();
 }).catch(function(err){
   document.getElementById("out").innerHTML='<div class="empty">تعذّر تحميل الأفكار: '+esc(err.message)+'</div>';
 });

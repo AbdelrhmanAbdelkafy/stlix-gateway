@@ -14,8 +14,8 @@ from . import registry
 
 router = APIRouter(prefix="/ideas", tags=["ideas"], dependencies=[Depends(require_api_key)])
 
-_COLUMNS = ["id", "title", "domain", "source", "status", "readiness",
-            "missing_connectors", "engine", "link"]
+_COLUMNS = ["id", "title", "domain", "primary_system", "readiness",
+            "data_endpoints", "needs", "link"]
 
 
 @router.get("")
@@ -29,8 +29,17 @@ async def list_ideas(
         description="ready = every connector it needs already exists",
     ),
     engine: str | None = Query(None, description="One of the reusable engines"),
+    system: str | None = Query(None, description="registry.SYSTEMS key, e.g. nama / crm / banks"),
+    connector: str | None = Query(None, description="Catalog connector key, e.g. sql / crm"),
+    endpoint: str | None = Query(None, description="Only ideas whose raw data this route holds"),
+    section: str | None = Query(None, description="Workspace section key"),
+    has_data: bool | None = Query(None, description="true = at least one live data endpoint"),
 ):
-    """Every requirement the owner has voiced — no cap, filters optional."""
+    """Every requirement the owner has voiced — no cap, filters optional.
+
+    The filters are the edges of the map: from a system, a connector, an
+    endpoint or a workspace section you can ask what it carries.
+    """
     rows = registry.as_dicts()
     if domain:
         d = domain.strip().upper()
@@ -42,6 +51,18 @@ async def list_ideas(
     if engine:
         e = engine.strip().lower()
         rows = [r for r in rows if (r["engine"] or "").lower() == e]
+    if system:
+        s = system.strip().lower()
+        rows = [r for r in rows if s in r["systems"]]
+    if connector:
+        c = connector.strip().lower()
+        rows = [r for r in rows if c in r["connectors"]]
+    if endpoint:
+        rows = [r for r in rows if endpoint in r["data_endpoints"]]
+    if section:
+        rows = [r for r in rows if r["workspace_section"] == section.strip().lower()]
+    if has_data is not None:
+        rows = [r for r in rows if bool(r["data_endpoints"]) is has_data]
     if q:
         needle = q.strip().lower()
         rows = [
@@ -52,9 +73,12 @@ async def list_ideas(
     data = {
         "summary": registry.summary(),
         "returned": len(rows),
-        "filters": {"q": q, "domain": domain, "status": status,
-                    "readiness": readiness, "engine": engine},
+        "data_endpoints_mean": "raw data already queryable there — NOT a built report",
+        "filters": {"q": q, "domain": domain, "status": status, "readiness": readiness,
+                    "engine": engine, "system": system, "connector": connector,
+                    "endpoint": endpoint, "section": section, "has_data": has_data},
         "page": "/tools/ideas",
+        "map": "/api/v1/map",
         "ideas": rows,
     }
     return respond(request, data, title=f"الأفكار والمتطلبات ({len(rows)})",
@@ -63,11 +87,12 @@ async def list_ideas(
 
 @router.get("/domains")
 async def list_domains(request: Request):
-    """One row per domain with its live/next/planned counts."""
+    """One row per domain: its counts, its systems, and how much has live data."""
     rows = registry.domains()
     data = {"summary": registry.summary(), "domains": rows}
     return respond(request, data, title="دومينات الأفكار", rows=rows,
-                   columns=["prefix", "domain", "domain_en", "total", "live", "next", "planned"])
+                   columns=["prefix", "domain", "domain_en", "total", "ready",
+                            "with_data", "systems", "page"])
 
 
 @router.get("/{idea_id}")

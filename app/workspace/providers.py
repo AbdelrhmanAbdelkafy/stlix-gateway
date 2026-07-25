@@ -14,6 +14,7 @@ from ..core.metrics import metrics
 from ..ideas import registry as ideas
 from ..integrations.banks.connector import BanksConnector
 from ..integrations.crm.connector import CrmConnector
+from ..integrations.finance.connector import FinanceConnector
 from ..integrations.inventory.connector import InventoryConnector
 from ..integrations.nama.connector import NamaConnector
 from ..registry import as_dicts
@@ -28,11 +29,22 @@ class Section:
     rows: list | None = None
     columns: list | None = None
     error: str | None = None
+    # Where this section sits in the platform. Filled in by `collect_all`, so a
+    # section is never just a table: you can walk from it to the endpoint that
+    # produced it, the system it belongs to, and the requirements it serves.
+    api: str | None = None
+    system: str | None = None
+    connector: str | None = None
+    ideas: dict | None = None
+    board: str | None = None
 
 
 class Provider:
     key: str = "?"
     title: str = "?"
+    api: str | None = None       # the endpoint a reader can open for the raw data
+    system: str | None = None    # registry.SYSTEMS key this section shows
+    connector: str | None = None  # catalog connector behind it
 
     async def collect(self, settings: Settings, limit: int) -> Section:  # pragma: no cover
         raise NotImplementedError
@@ -40,6 +52,7 @@ class Provider:
 
 class OverviewProvider(Provider):
     key, title = "overview", "نظرة عامة · Overview"
+    api, system, connector = "/systems", None, None
 
     async def collect(self, settings: Settings, limit: int) -> Section:
         systems = as_dicts()
@@ -59,6 +72,7 @@ class OverviewProvider(Provider):
 
 class NamaProvider(Provider):
     key, title = "nama", "موظفو نما · Nama"
+    api, system, connector = "/api/v1/nama/employees", "nama", "nama"
 
     async def collect(self, settings: Settings, limit: int) -> Section:
         if not settings.nama_configured:
@@ -72,6 +86,7 @@ class NamaProvider(Provider):
 
 class CrmProvider(Provider):
     key, title = "crm", "CRM · Vtiger"
+    api, system, connector = "/api/v1/crm/contacts", "crm", "crm"
 
     async def collect(self, settings: Settings, limit: int) -> Section:
         if not settings.crm_configured:
@@ -84,6 +99,7 @@ class CrmProvider(Provider):
 
 class BanksProvider(Provider):
     key, title = "banks", "حسابات البنوك · Bank Accounts"
+    api, system, connector = "/api/v1/banks", "banks", "banks"
 
     async def collect(self, settings: Settings, limit: int) -> Section:
         if not settings.nama_configured:
@@ -95,6 +111,7 @@ class BanksProvider(Provider):
 
 class InventoryProvider(Provider):
     key, title = "inventory", "الجرد · Stocktake"
+    api, system, connector = "/api/v1/inventory", "inventory", "inventory"
 
     async def collect(self, settings: Settings, limit: int) -> Section:
         if not settings.inventory_configured:
@@ -105,8 +122,34 @@ class InventoryProvider(Provider):
                        rows=p["counted_items"][:limit], columns=["code", "q", "u", "counter"])
 
 
+class FinanceProvider(Provider):
+    """Real money, from the Nama SQL connector.
+
+    The unified workspace shipped without it — the one source of true balances,
+    and the thing `/tools/finance-reports` is built on, was missing from the
+    dashboard that claims to unify everything.
+    """
+
+    key, title = "finance", "المالية · Finance (SQL)"
+    api, system, connector = "/api/v1/finance/kpis", "nama", "sql"
+
+    async def collect(self, settings: Settings, limit: int) -> Section:
+        if not settings.nama_sql_configured:
+            return Section(self.key, self.title, "not_configured",
+                           {"configured": False, "why": "NAMA_SQL_* not set in .env"})
+        data = await FinanceConnector(settings).kpis()
+        if not data.get("available"):
+            return Section(self.key, self.title, "not_configured", data)
+        rows = [{"metric": k, "value": v} for k, v in data.items()
+                if k not in ("available", "source")]
+        return Section(self.key, self.title, "ok",
+                       {"source": data.get("source"), "metrics": len(rows)},
+                       rows=rows, columns=["metric", "value"])
+
+
 class IdeasProvider(Provider):
     key, title = "ideas", "الأفكار والمتطلبات · Ideas"
+    api, system, connector = "/api/v1/ideas", None, "gateway"
 
     async def collect(self, settings: Settings, limit: int) -> Section:
         s = ideas.summary()
@@ -124,6 +167,7 @@ class IdeasProvider(Provider):
 
 class MonitoringProvider(Provider):
     key, title = "monitoring", "مراقبة · Monitoring"
+    api, system, connector = "/metrics", None, "gateway"
 
     async def collect(self, settings: Settings, limit: int) -> Section:
         snap = metrics.snapshot()
@@ -146,6 +190,7 @@ PROVIDERS: list[Provider] = [
     CrmProvider(),
     BanksProvider(),
     InventoryProvider(),
+    FinanceProvider(),
     IdeasProvider(),
     MonitoringProvider(),
 ]
@@ -153,6 +198,25 @@ PROVIDERS: list[Provider] = [
 
 def register(provider: Provider) -> None:
     PROVIDERS.append(provider)
+
+
+def _place(section: Section, provider: Provider) -> Section:
+    """Give a section its coordinates: its endpoint, system, and requirements.
+
+    A section used to be a title and a table with no way out of it.
+    """
+    section.api = provider.api
+    section.system = provider.system
+    section.connector = provider.connector
+    mine = [i for i in ideas.as_dicts() if i["workspace_section"] == section.key]
+    if mine:
+        section.ideas = {
+            "total": len(mine),
+            "ready": sum(1 for i in mine if i["readiness"] == "ready"),
+            "done": sum(1 for i in mine if i["readiness"] == "done"),
+        }
+        section.board = f"/tools/ideas?section={section.key}"
+    return section
 
 
 async def collect_all(settings: Settings, limit: int = 8) -> list[Section]:
@@ -163,7 +227,6 @@ async def collect_all(settings: Settings, limit: int = 8) -> list[Section]:
     sections: list[Section] = []
     for provider, res in zip(PROVIDERS, results):
         if isinstance(res, Exception):
-            sections.append(Section(provider.key, provider.title, "error", {}, error=str(res)))
-        else:
-            sections.append(res)
+            res = Section(provider.key, provider.title, "error", {}, error=str(res))
+        sections.append(_place(res, provider))
     return sections

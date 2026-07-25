@@ -33,13 +33,17 @@ SYSTEMS: list[System] = [
     System("crm", "CRM", "سي آر إم", Status.LIVE, "Vtiger: contacts, leads, accounts (read-only)."),
     System("callcenter", "Call Center", "الكول سنتر", Status.PLANNED, "Calls, tickets, IVR."),
     System("email", "Email", "الإيميل", Status.PLANNED, "Send/receive, templates."),
-    System("website", "Website", "الويب سايت", Status.PLANNED, "Public site / forms."),
-    System("ai", "AI Services", "الذكاء الاصطناعي", Status.PLANNED, "LLM/agent endpoints."),
-    System("archive", "Archive", "الأرشيف", Status.PLANNED, "Document archive."),
+    System("website", "Website", "الويب سايت", Status.PLANNED,
+           "Public site / forms + traffic analytics (MK7)."),
+    System("ai", "AI Services", "الذكاء الاصطناعي", Status.PLANNED,
+           "LLM/agent endpoints + Arabic speech-to-text (UX3/PA4 — same vendor class)."),
+    System("archive", "Archive", "الأرشيف", Status.PLANNED,
+           "Document & record store: contracts, licenses, certificates, Form 4."),
     System("inventory", "Inventory / Stocktaking", "الجرد", Status.LIVE,
            "Stlix stocktake counting app (count/sync.php): counts, manual items, progress (read-only)."),
     System("academy", "Academy", "الأكاديمية", Status.PLANNED, "Training / LMS."),
-    System("regulations", "Regulations", "اللوائح", Status.PLANNED, "Policies & bylaws."),
+    System("regulations", "Regulations", "اللوائح", Status.PLANNED,
+           "Internal policies & bylaws (the document store itself is `archive`)."),
     System("surveillance", "Surveillance & Alarm", "المراقبة والإنذار", Status.PLANNED,
            "CCTV cameras, alarms, access control, events."),
     System("movement", "Movement & Gate", "الحركة", Status.PLANNED,
@@ -52,6 +56,20 @@ SYSTEMS: list[System] = [
            "Meal eligibility & catering reports."),
     System("banks", "Bank Accounts", "حسابات البنوك", Status.LIVE,
            "Bank accounts (Nama): bank, GL account, currency. Balances = separate pending report."),
+    # Upstream parties the backlog already depends on. Each is a distinct
+    # counterparty with its own credentials and lifecycle — the test that
+    # separates a system from a mere capability. Added because connectors in
+    # catalog.py already pointed at four of these keys with nothing behind them.
+    System("marketdata", "Market Data Feeds", "أسعار السوق والصرف", Status.PLANNED,
+           "External price feeds: FX, gold, oil (T7, MD1-MD5). Quotes only, not a Nama source."),
+    System("portal", "Government Portals", "البوابات الحكومية", Status.PLANNED,
+           "ETA e-invoicing + Nafeza single window (T6, LG8). Statutory submit/read."),
+    System("idp", "Identity Provider (SSO)", "الدخول الموحّد", Status.PLANNED,
+           "Google Workspace / OAuth IdP behind SSO + RBAC (PA2, PA3). Auth, not a data source."),
+    System("omnichannel", "Omnichannel Messaging", "قنوات التواصل", Status.PLANNED,
+           "WhatsApp / WeChat and further channels behind one API (PA1). Sending is a WRITE."),
+    System("telco", "Telco / Company Lines", "خطوط الشركة", Status.PLANNED,
+           "Mobile operator CDRs & billing for company staff lines (CM3)."),
 ]
 
 

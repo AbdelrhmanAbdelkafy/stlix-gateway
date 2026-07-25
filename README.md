@@ -4,24 +4,22 @@
 system so clients (mobile apps, website, internal tools) talk to *one* API with
 *one* auth, and never hold each system's secrets.
 
-## Systems landscape
+## The map
 
-| Key | System | العربية | Status |
-|-----|--------|---------|--------|
-| `nama` | Nama ERP | نما | ✅ live |
-| `attendance` | Attendance & Fingerprint | البصمة والحضور | ✅ live |
-| `crm` | CRM | سي آر إم | 🕓 planned |
-| `callcenter` | Call Center | الكول سنتر | 🕓 planned |
-| `email` | Email | الإيميل | 🕓 planned |
-| `website` | Website | الويب سايت | 🕓 planned |
-| `ai` | AI Services | الذكاء الاصطناعي | 🕓 planned |
-| `archive` | Archive | الأرشيف | 🕓 planned |
-| `inventory` | Inventory / Stocktaking | الجرد | 🕓 planned |
-| `academy` | Academy | الأكاديمية | 🕓 planned |
-| `regulations` | Regulations | اللوائح | 🕓 planned |
+Nothing about the landscape is written down here, because a copied table goes
+stale silently — this one still called `crm` and `inventory` "planned" long
+after both went live. The running service is the map:
 
-Live map at runtime: **`GET /systems`**. Planned systems already answer at
-`/api/v1/<key>` with `501 Not Implemented` so the whole surface is visible.
+| Endpoint | Answers |
+|---|---|
+| `GET /systems` · `GET /systems/{key}` | every company system, and the requirements waiting on it |
+| `GET /connectors` · `GET /connectors/{key}` | every connector, its mode, its routes, and what it unblocks |
+| `GET /api/v1/map` | the whole graph: systems × connectors × endpoints × ideas × engines |
+| `GET /tools/platform` | the hub — the human entry point |
+| `GET /tools/ideas` | all 181 owner requirements, each wired to its data |
+
+Planned systems answer at `/api/v1/<key>` with `501` **and name what building
+them would unlock**, so the whole surface is visible and nothing is a dead end.
 
 ## Run locally
 
@@ -68,11 +66,20 @@ Set `GATEWAY_API_KEY` in `.env` to require clients to send `X-API-Key`. Leave it
 blank in dev to disable the check. Nama's `clientId`/`clientSecret` stay
 server-side and are never exposed to clients.
 
+Browsers get the same key back as an `sg_key` cookie when the gateway serves a
+`/tools/*` page, because a plain `<a href="/api/v1/...">` cannot send a header —
+without it every endpoint link on the hub and the ideas board would 401. The
+cookie is HttpOnly, SameSite=lax, and **accepted for GET/HEAD only**, so an
+ambient credential can never write.
+
 ## Adding a new system
 
 1. `app/integrations/<key>/` → `client.py`, `router.py`, `schemas.py`.
-2. Include its router in `app/main.py` and add `<key>` to `live_keys`.
+2. Include its router in `app/main.py`.
 3. Flip its `status` to `Status.LIVE` in `app/registry.py`.
+4. Add its connector and its routes to `app/catalog.py` — `tests/test_catalog.py`
+   fails if the app and the map disagree in either direction.
+5. Optionally add a `workspace/providers.py` Provider so it joins the dashboard.
 
 ## Tests
 

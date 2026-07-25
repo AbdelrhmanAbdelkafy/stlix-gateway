@@ -29,12 +29,12 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 ## Sales & Collection (مبيعات وتحصيل)
 | # | Item | Source | Status |
 |---|------|--------|--------|
-| S1 | المبيعات: المخطط / الفعلي / كاش / آجل | Nama | ⚪ |
-| S2 | التحصيل اليوم: المخطط / الفعلي | Nama | ⚪ |
+| S1 | المبيعات: المخطط / الفعلي / كاش / آجل → Planned-vs-Actual | Nama | ⚪ |
+| S2 | التحصيل اليوم: المخطط / الفعلي → Planned-vs-Actual | Nama | ⚪ |
 | S3 | أداء مسؤولي المبيعات | Nama / Vtiger | ⚪ |
 | S4 | عملاء غير نشطين | Vtiger / Nama | ⚪ |
 | S5 | Chinese leads — عملاء محتملين | Vtiger Leads | ⚪ ⚠ needs a China/segment field or tag on leads first (currently 15 leads, `country` empty, no Chinese marker) |
-| S6 | حصيلة مطلوبة (required collections / target receivables) | Nama | ⚪ |
+| S6 | حصيلة مطلوبة (required collections / target receivables) → Planned-vs-Actual | Nama | ⚪ |
 | S7 | مبيعات فرع (sales by branch) | Nama | ⚪ |
 | S8 | مبيعات مسؤول مبيعات (sales by rep) | Nama | ⚪ |
 | S9 | عملاء جدد — عدد ومصدر (new customers count & source) | Vtiger / Nama | ⚪ |
@@ -79,15 +79,15 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T1 | أرصدة البنوك (أرقام) | SQL / report | 🟡 |
 | T2 | شيكات في الخزينة لم تُحصّل + شيكات التزامات | Nama | ⚪ |
 | T3 | التأمينات · الضرائب · المدفوعات الحكومية | Nama | ⚪ |
-| T4 | التزامات متوقعة (expected obligations) | Nama | ⚪ |
+| T4 | التزامات متوقعة (expected obligations) → Renewals | Nama | ⚪ |
 | T5 | فواتير ثابتة (recurring / fixed invoices) | Nama | ⚪ |
 | T6 | فواتير بورتال (portal / e-invoicing — ETA?) | portal API / Nama | ⚪ |
-| T7 | أسعار الصرف اللحظية — يوان / دولار / يورو (real-time FX) | external FX API | ⚪ |
-| T8 | أقساط واجبة السداد (installments due) | Nama | ⚪ |
+| T7 | أسعار الصرف اللحظية — يوان / دولار / يورو (real-time FX) → Market-Feeds | external FX API | ⚪ |
+| T8 | أقساط واجبة السداد (installments due) → Renewals | Nama | ⚪ |
 | T9 | قوائم وتقارير مالية (financial statements & reports) | Nama / SQL | ⚪ |
 | T10 | قرارات مالية (financial decisions) | new | ⚪ |
-| T11 | مطابقة حركات البنوك مع نما (bank reconciliation) | bank feed + Nama | ⚪ |
-| T12 | فواتير لم تُحصّل — لكل بنك (uncashed invoices per bank) | Nama | ⚪ |
+| T11 | مطابقة حركات البنوك مع نما (bank reconciliation) → Reconciliation | bank feed + Nama | ⚪ |
+| T12 | فواتير لم تُحصّل — لكل بنك (uncashed invoices per bank) → Reconciliation | Nama | ⚪ |
 | T13 | تحليلي مصروف (analytical expense breakdown) | Nama | ⚪ |
 | T14 | أعمار الديون (AR / AP aging) | Nama | ⚪ |
 | T15 | نقطة التعادل — المجموعة و Stlix (breakeven per entity) | Nama | ⚪ |
@@ -169,7 +169,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 |---|------|--------|--------|
 | WH1 | تسليم واستلام بضائع (goods delivery & receipt) | Nama | ⚪ |
 | WH2 | مرتجعات مبيعات ومشتريات (sales & purchase returns) | Nama | ⚪ |
-| WH3 | تقارير مخزون لحظية + غير المسجّل بعد (real-time stock incl. unposted) | Nama | ⚪ |
+| WH3 | تقارير مخزون لحظية + غير المسجّل بعد (real-time stock incl. unposted) → Live-vs-Pending | Nama | ⚪ |
 | WH4 | رواكد — مخزون راكد (slow-moving / dead stock) | Nama | ⚪ |
 | WH5 | مرتجع بواقي أوردر (order-remnant returns) | Nama | ⚪ |
 | WH6 | مخزن الاسكراب — زاد/نقص/تالف (scrap warehouse changes) | Nama | ⚪ |
@@ -189,9 +189,9 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 ## Logistics, Shipping & Customs (شحن وجمارك)
 | # | Item | Source | Status |
 |---|------|--------|--------|
-| LG1 | شحنات على وصول (incoming / in-transit shipments) | Nama / new | ⚪ |
+| LG1 | شحنات على وصول (incoming / in-transit shipments) → Live-vs-Pending | Nama / new | ⚪ |
 | LG2 | شحنات مطلوبة (required shipments) | Nama / new | ⚪ |
-| LG3 | شحنات تحت التجهيز + عروض أسعار مشتريات + عروض شحن + طلب عرض سعر شحن | Nama / new | ⚪ |
+| LG3 | شحنات تحت التجهيز + عروض أسعار مشتريات + عروض شحن + طلب عرض سعر شحن → Live-vs-Pending | Nama / new | ⚪ |
 | LG4 | نموذج 4 (Form 4 — customs / insurance) | new | ⚪ |
 | LG5 | شحن داخلي (domestic shipping) | Nama / new | ⚪ |
 | LG6 | مخلّصين (customs clearance agents) | new | ⚪ |
@@ -207,7 +207,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 ## Governance & Watchlist (حوكمة وقوائم حظر)
 | # | Item | Source | Status |
 |---|------|--------|--------|
-| GV1 | Blacklist — موظف / مورد / عميل (cross-domain) | Nama / Vtiger | ⚪ |
+| GV1 | Blacklist — موظف / مورد / عميل (cross-domain) → Watchlist | Nama / Vtiger | ⚪ |
 | GV2 | عمل إيه على نما يوميًا — سجل نشاط المستخدمين (daily user activity/audit) | Nama / SQL | ⚪ |
 
 ## Communications (تواصل)
@@ -229,11 +229,11 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 ## Market Data & Rates (بيانات السوق والأسعار)
 | # | Item | Source | Status |
 |---|------|--------|--------|
-| MD1 | أسعار الذهب (gold prices) | external API | ⚪ |
-| MD2 | البترول بالبرميل (oil per barrel) | external API | ⚪ |
-| MD3 | المحروقات (fuel prices / consumption) | external / Nama | ⚪ |
+| MD1 | أسعار الذهب (gold prices) → Market-Feeds | external API | ⚪ |
+| MD2 | البترول بالبرميل (oil per barrel) → Market-Feeds | external API | ⚪ |
+| MD3 | المحروقات (fuel prices / consumption) → Market-Feeds | external / Nama | ⚪ |
 | MD4 | توقعات أسعار الجنيه (EGP forecast) | external / AI | ⚪ |
-| MD5 | أسعار الصرف اللحظية (FX) → see T7 | external FX API | ⚪ |
+| MD5 | أسعار الصرف اللحظية (FX) — نفس T7 → Market-Feeds | external FX API | ⚪ |
 
 ## Quality (جودة / QC)
 | # | Item | Source | Status |
@@ -243,8 +243,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 ## Admin & Compliance (شؤون إدارية وامتثال)
 | # | Item | Source | Status |
 |---|------|--------|--------|
-| AC1 | التأشيرات — تنبيه تجديد (visas, renewal alerts) | new | ⚪ |
-| AC2 | التراخيص والسجلات والمرور (licenses, registers, traffic) | new / Nama | ⚪ |
+| AC1 | التأشيرات — تنبيه تجديد (visas, renewal alerts) → Renewals | new | ⚪ |
+| AC2 | التراخيص والسجلات والمرور (licenses, registers, traffic) → Renewals | new / Nama | ⚪ |
 | AC3 | أوراق مطلوب تجديدها (documents due for renewal) → Renewals | new | ⚪ |
 | AC4 | إيجارات شارفت على الانتهاء (leases nearing expiry) → Renewals | Nama / new | ⚪ |
 | AC5 | اشتراكات شارفت على الانتهاء (subscriptions nearing expiry) → Renewals | Nama / new | ⚪ |
@@ -313,7 +313,12 @@ Cross-cutting platform capabilities — apply everywhere, not one screen. **Ever
 | PA3 | **RBAC** — صلاحيات المستخدم الداخل + احترام صلاحيات كل connector (بوابة مزدوجة) | gateway auth + connectors | ⚪ |
 | PA4 | بحث/كتابة بالصوت بالعربي عبر كل المنصّة → see UX3 | front-end / Arabic STT | ⚪ |
 
-## Registered systems (map placeholders, not yet built)
-call-center · email · website · AI · archive · inventory (الجرد) · academy ·
-regulations (اللوائح) · surveillance & alarm · movement (الحركة) ·
-housing (التسكين) · custody (العهدة) · meals (التغذية)
+## Registered systems
+> ⚠️ **مش هنا.** الخريطة الحيّة للأنظمة بقت في الكود: [`/systems`](/systems) —
+> وكل نظام بيقول كام متطلب مستنيه وأي كنكتور بيغذّيه. القائمة اللي كانت هنا
+> كانت نص حر مالوش أي ربط بالمتطلبات، وكانت لسه بتقول إن الجرد "مش مبني"
+> بعد ما بقى كنكتور حيّ.
+
+**أنظمة على الخريطة ومفيش ولا متطلب مكتوب ليها** (يا إما الخريطة زيادة، يا إما
+الباكلوج ناقص — الاتنين محتاجين قرار منك): التسكين (`housing`) · التغذية
+(`meals` — دي هدف مشروع البصمة، المفروض يكون ليها سطر هنا).

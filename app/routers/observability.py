@@ -2,10 +2,31 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, PlainTextResponse
 
+from .. import catalog
 from ..core.metrics import metrics
 from ..core.render import html_page, table, wants_html
 
 router = APIRouter(tags=["monitoring"])
+
+
+def _by_connector(by_path: dict) -> list[dict]:
+    """Traffic rolled up per connector.
+
+    `by_path` alone cannot answer "how much load is the banks connector taking"
+    — the paths are raw strings with no idea which system they belong to.
+    """
+    agg: dict[str, dict] = {}
+    for path, v in by_path.items():
+        ep = catalog.get_endpoint(path)
+        key = ep.connector if ep and ep.connector else "—"
+        row = agg.setdefault(key, {"connector": key, "count": 0, "errors": 0})
+        row["count"] += v.get("count", 0)
+        row["errors"] += v.get("errors", 0)
+    rows = sorted(agg.values(), key=lambda r: -r["count"])
+    for r in rows:
+        conn = catalog.get_connector(r["connector"])
+        r["system"] = conn.system if conn else ""
+    return rows
 
 
 @router.get("/metrics")
@@ -33,6 +54,8 @@ async def get_metrics(request: Request):
         body = (
             '<p class="s" style="margin:.25rem 0 .5rem;font-weight:600;">Summary</p>'
             + table(summary, ["metric", "value"])
+            + '<p class="s" style="margin:1rem 0 .5rem;font-weight:600;">By connector</p>'
+            + table(_by_connector(snap["by_path"]), ["connector", "system", "count", "errors"])
             + '<p class="s" style="margin:1rem 0 .5rem;font-weight:600;">By route</p>'
             + table(path_rows, ["path", "count", "errors", "avg_ms"])
         )
@@ -43,6 +66,8 @@ async def get_metrics(request: Request):
         return html_page("Metrics", body, snap, badges=badges)
 
     if fmt == "json" or ("application/json" in accept and fmt != "prom"):
-        return JSONResponse(metrics.snapshot())
+        snap = metrics.snapshot()
+        snap["by_connector"] = _by_connector(snap["by_path"])
+        return JSONResponse(snap)
 
     return PlainTextResponse(metrics.prometheus(), media_type="text/plain; version=0.0.4")

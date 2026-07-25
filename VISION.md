@@ -52,7 +52,11 @@
 | Governance | blacklist · قرارات إدارية · توجهات/أفكار | new |
 
 ## الطبقات (حالة)
-1 Gateway ✅ · 2 Connectors (4 live) · 3 Workspace ✅ · 4 AI Orchestrator ⚪ · 5 n8n ⚪ · 6 Logs/Security ✅
+1 Gateway ✅ · 2 Connectors ✅ · 3 Workspace ✅ · 4 AI Orchestrator ⚪ · 5 n8n ⚪ · 6 Logs/Security ✅
+
+> الأرقام الحيّة مش مكتوبة هنا عشان ماتبوظش: [`/connectors`](/connectors) و[`/systems`](/systems)
+> و[`/api/v1/map`](/api/v1/map) بيقولوا كام كنكتور حيّ وكام متطلب مربوط بيه دلوقتي.
+> والمحرّكات الستة فوق دي بقى لكل واحد فيهم عدّاد حقيقي في `/api/v1/map?view=engines`.
 
 ## Modules (الواجهات فوق الجيتواي)
 الدومينات + المحرّكات بتظهر للمستخدم كـ**موديولات** (تطبيقات دور-مبنية فوق الجيتواي):

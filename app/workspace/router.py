@@ -17,10 +17,30 @@ router = APIRouter(prefix="/workspace", tags=["workspace"], dependencies=[Depend
 _BADGE = {"ok": "", "not_configured": "ro", "error": "ro", "degraded": "ro"}
 
 
+def _links_html(sec: Section) -> str:
+    """A section's way out: its raw endpoint, its system, its requirements."""
+    bits = []
+    if sec.api:
+        bits.append(f'<a href="{_html.escape(sec.api)}">الداتا الخام</a>')
+    if sec.system:
+        bits.append(f'<a href="/systems/{_html.escape(sec.system)}">النظام</a>')
+    if sec.connector:
+        bits.append(f'<a href="/connectors/{_html.escape(sec.connector)}">الكنكتور</a>')
+    if sec.board and sec.ideas:
+        bits.append(f'<a href="{_html.escape(sec.board)}">{sec.ideas["total"]} فكرة '
+                    f'({sec.ideas["ready"]} جاهزة)</a>')
+    if not bits:
+        return ""
+    return ('<p class="links" style="margin:.1rem 0 .5rem">'
+            + " &nbsp;·&nbsp; ".join(bits) + "</p>")
+
+
 def _section_html(sec: Section) -> str:
     parts = [
-        f'<h3 style="margin:1.3rem 0 .35rem;font-size:1.02rem;">{_html.escape(sec.title)} '
-        f'<span class="badge {_BADGE.get(sec.status, "")}">{_html.escape(sec.status)}</span></h3>'
+        f'<h3 style="margin:1.3rem 0 .35rem;font-size:1.02rem;" id="ws-{_html.escape(sec.key)}">'
+        f'{_html.escape(sec.title)} '
+        f'<span class="badge {_BADGE.get(sec.status, "")}">{_html.escape(sec.status)}</span></h3>',
+        _links_html(sec),
     ]
     if sec.summary:
         chips = " &nbsp;·&nbsp; ".join(

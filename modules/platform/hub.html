@@ -42,7 +42,10 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
     <span class="pill">SSO قيد التوصيل</span>
     <button class="btn" title="هيتفعّل مع Google Workspace / OAuth" disabled>دخول موحّد</button>
   </div>
-  <div class="kpis" id="kpis"><div class="kpi"><div class="v">5</div><div class="l">كنكتورات حيّة</div></div><div class="kpi"><div class="v">SQL</div><div class="l">أرصدة حقيقية</div></div><div class="kpi"><div class="v" id="k-ar">—</div><div class="l">مستحق لنا AR</div></div><div class="kpi"><div class="v" id="k-ap">—</div><div class="l">مستحق علينا AP</div></div><div class="kpi"><div class="v">44</div><div class="l">اختبار يعدّي</div></div></div>
+  <!-- Every number here is read from the running platform. Hardcoded counts
+       went stale silently (the strip claimed 5 connectors and 44 tests long
+       after both had changed). -->
+  <div class="kpis" id="kpis"><div class="kpi"><div class="v" id="k-conn">—</div><div class="l">كنكتور حيّ</div></div><div class="kpi"><div class="v" id="k-sys">—</div><div class="l">نظام على الخريطة</div></div><div class="kpi"><div class="v" id="k-ideas">—</div><div class="l">متطلب</div></div><div class="kpi"><div class="v" id="k-ready">—</div><div class="l">جاهز للبناء</div></div><div class="kpi"><div class="v" id="k-ar">—</div><div class="l">مستحق لنا AR</div></div><div class="kpi"><div class="v" id="k-ap">—</div><div class="l">مستحق علينا AP</div></div></div>
 </div></div>
 
 <div class="wrap">
@@ -54,12 +57,18 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
     <a class="mod" href="/tools/finance-reports"><div class="ic">📊</div><div class="t">التقارير المالية</div><div class="d">AR · AP · KPIs · أعمار ديون — أرقام نما الحقيقية من SQL</div><span class="s s-live">حيّ · SQL</span></a>
     <a class="mod" href="/tools/name-builder"><div class="ic">🏷️</div><div class="t">إنشاء الأصناف</div><div class="d">نص حر → كود وصفي + اسم · تصحيح إملائي + autocomplete · فحص تكرار</div><span class="s s-read">حيّ · قراءة</span></a>
     <a class="mod" href="/tools/ideas"><div class="ic">💡</div><div class="t">الأفكار والمتطلبات</div><div class="d">كل فكرة قلتها — لينك تفتحه · فلتر بالكنكتور: جاهز / ناقص / محتاج تكامل</div><span class="s s-live" id="ideas-badge">حيّ</span></a>
-    <a class="mod" href="/api/v1/workspace"><div class="ic">🗂️</div><div class="t">اللوحة الموحّدة</div><div class="d">تجميع لحظي لكل الأقسام (نما · CRM · بنوك · جرد · مراقبة)</div><span class="s s-live">حيّ</span></a>
-    <a class="mod" href="/systems"><div class="ic">🧭</div><div class="t">الأنظمة</div><div class="d">خريطة كل أنظمة الشركة (live / planned)</div><span class="s s-live">حيّ</span></a>
-    <a class="mod" href="/connectors"><div class="ic">🔌</div><div class="t">الكنكتورات</div><div class="d">نما · حضور · CRM · بنوك · جرد — كلها قراءة أولًا</div><span class="s s-live">حيّ</span></a>
+    <a class="mod" href="/api/v1/map"><div class="ic">🗺️</div><div class="t">الخريطة الموحّدة</div><div class="d">الأنظمة × الكنكتورات × الـ endpoints × المتطلبات — كلها مربوطة في رسم واحد</div><span class="s s-live" id="map-badge">حيّ</span></a>
+    <a class="mod" href="/api/v1/workspace"><div class="ic">🗂️</div><div class="t">اللوحة الموحّدة</div><div class="d">تجميع لحظي لكل الأقسام (نما · CRM · بنوك · جرد · مالية · مراقبة)</div><span class="s s-live">حيّ</span></a>
+    <a class="mod" href="/systems"><div class="ic">🧭</div><div class="t">الأنظمة</div><div class="d">خريطة كل أنظمة الشركة — وكل نظام بيقول كام متطلب مستنيه</div><span class="s s-live" id="sys-badge">حيّ</span></a>
+    <a class="mod" href="/connectors"><div class="ic">🔌</div><div class="t">الكنكتورات</div><div class="d">كل كنكتور: وضعه · endpoints بتاعته · وبيفكّ كام فكرة</div><span class="s s-live" id="conn-badge">حيّ</span></a>
+    <a class="mod" href="/tools/library"><div class="ic">📚</div><div class="t">مكتبة الوثائق</div><div class="d">الرَنبوك · القرارات · المهام · الرؤية — من جوّه المنصّة نفسها</div><span class="s s-live">حيّ</span></a>
     <a class="mod" href="/metrics"><div class="ic">📈</div><div class="t">المراقبة</div><div class="d">Prometheus · JSON · HTML — كل الطلبات والأخطاء</div><span class="s s-live">حيّ</span></a>
-    <a class="mod" href="/health"><div class="ic">❤️</div><div class="t">الصحة</div><div class="d">حالة الجيتواي + وصول نما</div><span class="s s-live">حيّ</span></a>
+    <a class="mod" href="/health"><div class="ic">❤️</div><div class="t">الصحة</div><div class="d">حالة الجيتواي + الكنكتورات + وصول نما</div><span class="s s-live">حيّ</span></a>
   </div>
+
+  <h2>الدومينات · Domains</h2>
+  <div class="h2ar">كل دومين — وكام متطلب فيه جاهز نبنيه دلوقتي</div>
+  <div class="grid" id="domains"><div class="ph"><div class="t">بيحمّل…</div></div></div>
 
   <h2>قيد التخطيط · Placeholders</h2>
   <div class="h2ar">المتطلبات المتبقية — بتترّكب على نفس النمط</div>
@@ -81,14 +90,39 @@ h2{font-size:12px;text-transform:uppercase;letter-spacing:1.3px;color:var(--ac);
 </div>
 
 <script>
-fetch("/api/v1/finance/kpis",{headers:{"X-API-Key":"__GATEWAY_API_KEY__"}}).then(r=>r.json()).then(k=>{
+var KEY="__GATEWAY_API_KEY__",H={headers:{"X-API-Key":KEY}};
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v}
+
+fetch("/api/v1/finance/kpis",H).then(r=>r.json()).then(k=>{
   if(!k||!k.available)return;const M=n=>n==null?"—":(Math.abs(n)>=1e6?(n/1e6).toFixed(1)+"M":n);
-  document.getElementById("k-ar").textContent=M(k.arOutstanding);
-  document.getElementById("k-ap").textContent=M(k.apOutstanding);
+  set("k-ar",M(k.arOutstanding));set("k-ap",M(k.apOutstanding));
 }).catch(function(){});
-fetch("/api/v1/ideas/domains",{headers:{"X-API-Key":"__GATEWAY_API_KEY__"}}).then(r=>r.json()).then(d=>{
-  var s=d.summary;if(!s)return;
-  document.getElementById("ideas-badge").textContent=s.total+" فكرة · "+s.readiness.ready+" جاهزة";
+
+// One call feeds the whole page: KPIs, card badges and the domain grid all read
+// the same graph, so the hub can never disagree with /systems or the board.
+fetch("/api/v1/map?format=json",H).then(r=>r.json()).then(function(g){
+  var c=g.coverage,live=g.connectors.filter(function(x){return x.live});
+  set("k-conn",live.length);set("k-sys",c.systems);
+  set("k-ideas",c.ideas);set("k-ready",g.ideas.filter(function(i){return i.readiness==="ready"}).length);
+  set("ideas-badge",c.ideas+" متطلب · "+c.ideas_with_data+" داتاه موجودة");
+  set("map-badge",c.systems+" نظام × "+c.ideas+" متطلب");
+  set("sys-badge",c.systems_live+" حيّ من "+c.systems);
+  set("conn-badge",live.length+" حيّ من "+g.connectors.length);
 }).catch(function(){});
+
+fetch("/api/v1/ideas/domains",H).then(r=>r.json()).then(function(d){
+  var doms=(d.domains||[]).slice().sort(function(a,b){return b.total-a.total});
+  document.getElementById("domains").innerHTML=doms.map(function(x){
+    return '<a class="mod" href="/tools/ideas?dom='+esc(x.prefix)+'">'+
+      '<div class="ic">'+x.icon+'</div>'+
+      '<div class="t">'+esc(x.domain)+'</div>'+
+      '<div class="d">'+x.total+' متطلب · '+x.with_data+' داتاه موجودة · '+
+        esc((x.systems||[]).slice(0,3).join(" · "))+'</div>'+
+      '<span class="s '+(x.ready?"s-live":"s-read")+'">'+x.ready+' جاهز للبناء</span></a>'
+  }).join("");
+}).catch(function(){
+  document.getElementById("domains").innerHTML='<div class="ph"><div class="t">تعذّر تحميل الدومينات</div></div>';
+});
 </script>
 </body></html>

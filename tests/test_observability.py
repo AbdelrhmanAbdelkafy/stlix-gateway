@@ -55,15 +55,35 @@ def test_api_keys_property_merges_single_and_list():
     assert s.api_keys == {"k1", "k2", "k3"}
 
 
+def _req(method: str = "GET"):
+    """Minimal ASGI scope — require_api_key only reads request.method."""
+    from starlette.requests import Request
+
+    return Request({"type": "http", "method": method, "headers": [], "path": "/"})
+
+
 def test_require_api_key_accepts_any_configured_key():
     import fastapi
 
     s = Settings(gateway_api_keys="a,b")
     # valid key -> no raise
-    require_api_key(x_api_key="b", settings=s)
+    require_api_key(_req(), x_api_key="b", settings=s)
     # invalid -> 401
     try:
-        require_api_key(x_api_key="zzz", settings=s)
+        require_api_key(_req(), x_api_key="zzz", settings=s)
         assert False, "expected 401"
+    except fastapi.HTTPException as exc:
+        assert exc.status_code == 401
+
+
+def test_browser_cookie_is_read_only():
+    """The cookie lets a plain <a> into /api/v1/*; it must never allow a write."""
+    import fastapi
+
+    s = Settings(gateway_api_keys="a,b")
+    require_api_key(_req("GET"), sg_key="a", settings=s)      # navigation: fine
+    try:
+        require_api_key(_req("POST"), sg_key="a", settings=s)  # write: never
+        assert False, "expected 401 — a cookie must not authorise a write"
     except fastapi.HTTPException as exc:
         assert exc.status_code == 401

@@ -4,13 +4,14 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import __version__
+from . import __version__, graph
 from .config import get_settings
-from .core.errors import NotImplementedYet, register_error_handlers
+from .core.errors import register_error_handlers
 from .core.logging_conf import configure_logging
 from .core.middleware import ObservabilityMiddleware, RateLimitMiddleware
 from .core.render import respond
 from .core.security import require_api_key
+from .ideas import registry as ideas
 from .ideas.router import router as ideas_router
 from .integrations.attendance.router import router as attendance_router
 from .integrations.banks.router import router as banks_router
@@ -19,6 +20,7 @@ from .integrations.finance.router import router as finance_router
 from .integrations.inventory.router import router as inventory_router
 from .integrations.nama.router import router as nama_router
 from .registry import SYSTEMS, Status
+from .routers.graph import router as graph_router
 from .routers.meta import router as meta_router
 from .routers.observability import router as observability_router
 from .routers.tools import router as tools_router
@@ -28,13 +30,32 @@ API_PREFIX = "/api/v1"
 
 
 def _placeholder_router(key: str, name_en: str) -> APIRouter:
-    """A PLANNED system still gets a mount point that returns 501, so the
-    gateway advertises the whole landscape and clients get a clear signal."""
+    """A PLANNED system still gets a mount point, so the gateway advertises the
+    whole landscape.
+
+    It answers 501 but is not a dead end: the body names the requirements
+    waiting on this system and where to read about them, so hitting a planned
+    route tells you what building it would unlock.
+    """
     r = APIRouter(prefix=f"/{key}", tags=[key], dependencies=[Depends(require_api_key)])
 
-    @r.get("", summary=f"{name_en} (planned)")
-    async def _not_ready() -> dict:  # noqa: ANN202
-        raise NotImplementedYet(key)
+    @r.get("", summary=f"{name_en} (planned)", status_code=501)
+    async def _not_ready(request: Request):  # noqa: ANN202
+        node = graph.system(key) or {}
+        rows = [i for i in ideas.as_dicts() if key in i["systems"]]
+        data = {
+            "error": "NotImplementedYet",
+            "detail": f"System '{key}' is planned but not wired yet.",
+            "system": key,
+            "ideas_waiting": len(rows),
+            "connectors": node.get("connectors", []),
+            "see": f"/systems/{key}",
+            "board": f"/tools/ideas?sys={key}",
+        }
+        resp = respond(request, data, title=f"{name_en} — مخطّط (501)",
+                       rows=rows or None, columns=["id", "title", "readiness", "needs"])
+        resp.status_code = 501
+        return resp
 
     return r
 
@@ -73,21 +94,31 @@ def create_app() -> FastAPI:
     app.include_router(finance_router, prefix=API_PREFIX)
     app.include_router(workspace_router, prefix=API_PREFIX)
     app.include_router(ideas_router, prefix=API_PREFIX)
+    app.include_router(graph_router, prefix=API_PREFIX)
 
     # planned integrations -> 501 placeholders (keeps the map complete)
-    live_keys = {"nama", "attendance", "crm", "banks", "inventory"}
     for s in SYSTEMS:
-        if s.status is Status.PLANNED and s.key not in live_keys:
+        if s.status is Status.PLANNED:
             app.include_router(_placeholder_router(s.key, s.name_en), prefix=API_PREFIX)
 
     @app.get("/", tags=["meta"])
     async def root(request: Request):
-        data = {"service": settings.app_name, "version": __version__, "docs": "/docs", "systems": "/systems"}
+        cov = graph.coverage()
+        data = {
+            "service": settings.app_name, "version": __version__,
+            "docs": "/docs", "systems": "/systems", "map": "/api/v1/map",
+            "coverage": cov,
+        }
+        # Counts are computed, never typed in — the old page advertised
+        # "11 systems" long after there were 22.
         rows = [
+            {"link": "/tools/platform", "purpose": "الهَب — نقطة الدخول"},
+            {"link": "/api/v1/map", "purpose": f"الخريطة الموحّدة ({cov['systems']} systems × {cov['ideas']} ideas)"},
+            {"link": "/tools/ideas", "purpose": f"لوحة الأفكار ({cov['ideas']} requirement)"},
+            {"link": "/api/v1/workspace", "purpose": "Unified workspace (all sections)"},
+            {"link": "/systems", "purpose": f"All {cov['systems']} systems (live/planned)"},
+            {"link": "/connectors", "purpose": "Connectors, mode, and what each unblocks"},
             {"link": "/health", "purpose": "Liveness + Nama reachability"},
-            {"link": "/systems", "purpose": "All 11 systems (live/planned)"},
-            {"link": "/connectors", "purpose": "Live connectors + mode"},
-            {"link": "/api/v1/nama/employees", "purpose": "List employees (read-only)"},
             {"link": "/docs", "purpose": "Interactive Swagger UI"},
         ]
         return respond(request, data, title=settings.app_name, rows=rows, columns=["link", "purpose"])

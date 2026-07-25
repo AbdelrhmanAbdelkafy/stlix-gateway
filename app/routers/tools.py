@@ -7,17 +7,20 @@ the item WRITE path stays gated behind a deliberate read_write workflow.
 """
 from __future__ import annotations
 
+import html as _html
 from pathlib import Path
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 
 from ..config import Settings, get_settings
+from ..core.render import html_page
 
 router = APIRouter(prefix="/tools", tags=["tools"])
 
 # Project root = parent of the `app` package -> modules/ lives beside it.
-_MODULES = Path(__file__).resolve().parent.parent.parent / "modules"
+_ROOT = Path(__file__).resolve().parent.parent.parent
+_MODULES = _ROOT / "modules"
 
 
 def _serve(rel_path: str, settings: Settings) -> HTMLResponse:
@@ -25,7 +28,21 @@ def _serve(rel_path: str, settings: Settings) -> HTMLResponse:
     protected API. Sensitive upstream creds (Nama/Vtiger/Anthropic) stay server-side."""
     html = (_MODULES / rel_path).read_text(encoding="utf-8")
     key = next(iter(settings.api_keys), "")
-    return HTMLResponse(html.replace("__GATEWAY_API_KEY__", key))
+    resp = HTMLResponse(html.replace("__GATEWAY_API_KEY__", key))
+    if key:
+        # A page full of links into /api/v1/* is useless if every click 401s:
+        # a plain <a> cannot send X-API-Key. Hand the browser the same key it
+        # already received, as a credential it can send by navigating.
+        #
+        # HttpOnly    - page scripts cannot read it back out (stricter than the
+        #               injected key they already hold).
+        # SameSite=lax- another site cannot use it for a cross-site request.
+        # GET only    - enforced in require_api_key, so this can never write.
+        resp.set_cookie(
+            "sg_key", key, httponly=True, samesite="lax", path="/",
+            max_age=8 * 3600, secure=settings.app_env not in ("dev", "test"),
+        )
+    return resp
 
 
 @router.get("/name-builder", response_class=HTMLResponse)
@@ -60,3 +77,53 @@ async def platform_hub(settings: Settings = Depends(get_settings)) -> HTMLRespon
     """Unified platform hub — the single entry point. Links every live module and
     shows placeholders for the planned domains/engines. SSO entry (placeholder)."""
     return _serve("platform/hub.html", settings)
+
+
+# --- the project's own documents ------------------------------------------
+# `BACKLOG.md` was the only file in the repo the running platform could see;
+# the runbook, the decision log and the vision were unreachable from inside the
+# thing they describe. Served read-only, from a fixed allow-list.
+_DOC_DIRS = ("", "docs", "docs/enterprise-platform", "reference/finance-mvp")
+
+
+def _library() -> dict[str, Path]:
+    """slug -> file. Built by scanning, so a request can never name a path."""
+    out: dict[str, Path] = {}
+    for rel in _DOC_DIRS:
+        base = _ROOT / rel if rel else _ROOT
+        if not base.is_dir():
+            continue
+        for f in sorted(base.glob("*.md")):
+            out[str(f.relative_to(_ROOT)).replace("\\", "/")] = f
+    return out
+
+
+@router.get("/library", response_class=HTMLResponse)
+async def library() -> HTMLResponse:
+    """Every markdown document in the repo, reachable from inside the platform."""
+    docs = _library()
+    rows = [
+        {"doc": f'<a href="/tools/library/{name}">{_html.escape(name)}</a>',
+         "size_kb": round(path.stat().st_size / 1024, 1)}
+        for name, path in docs.items()
+    ]
+    body = (
+        '<p class="muted">وثائق المشروع — تُقرأ من نفس الريبو الشغّال.</p>'
+        + "<table><thead><tr><th>doc</th><th>size_kb</th></tr></thead><tbody>"
+        + "".join(f'<tr><td>{r["doc"]}</td><td>{r["size_kb"]}</td></tr>' for r in rows)
+        + "</tbody></table>"
+    )
+    return html_page("مكتبة الوثائق", body, {"count": len(docs), "docs": list(docs)},
+                     badges=f'<span class="badge">{len(docs)} docs</span>')
+
+
+@router.get("/library/{name:path}", response_class=HTMLResponse)
+async def library_doc(name: str) -> HTMLResponse:
+    """One document, as text. Markdown is served raw — no renderer, no dependency."""
+    path = _library().get(name)
+    if path is None:
+        raise HTTPException(status_code=404, detail=f"No document '{name}' in the library")
+    text = path.read_text(encoding="utf-8", errors="replace")
+    body = (f'<p class="links"><a href="/tools/library">← المكتبة</a></p>'
+            f"<pre>{_html.escape(text)}</pre>")
+    return html_page(name, body, {"doc": name, "bytes": len(text.encode("utf-8"))})

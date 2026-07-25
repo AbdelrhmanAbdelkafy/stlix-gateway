@@ -13,6 +13,9 @@ import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from .. import catalog
+from . import wiring
+
 _BACKLOG = Path(__file__).resolve().parent.parent.parent / "BACKLOG.md"
 
 # A backlog id: one-to-three letters + digits (+ optional letter suffix). S1, WH13, UX1b.
@@ -38,37 +41,36 @@ _ENGINE_KEYWORDS = (
     ("ai", "AI"),
 )
 
-# Source text -> the connector it needs, and whether that connector exists yet.
-# This is what answers "which of these could we build today?": an idea whose
-# connectors are all live only needs a report on top; one with a missing
-# connector needs the integration built first.
+# Source text -> the connector it needs. Whether that connector exists is NOT
+# repeated here: it is read from `catalog.is_live()`, so a connector going live
+# updates every idea's readiness at once instead of drifting out of sync.
 # Checked in order, so specific tokens come before generic ones.
-_CONNECTOR_MAP: tuple[tuple[str, str, bool], ...] = (
-    # (substring in source, connector key, is it live today)
-    ("vtiger", "crm", True),
-    ("sql", "sql", True),
-    ("nama", "nama", True),
-    ("gateway", "gateway", True),
-    ("front-end", "front-end", True),
-    ("bank feed", "bank-feed", False),
-    ("imap", "email", False),
-    ("email", "email", False),
-    ("whatsapp", "omnichannel", False),
-    ("wechat", "omnichannel", False),
-    ("stt", "voice", False),
-    ("idp", "sso", False),
-    ("oauth", "sso", False),
-    ("telco", "telco", False),
-    ("portal", "portal", False),
-    ("nafeza", "portal", False),
-    ("custody", "custody", False),
-    ("analytics", "external", False),
-    ("research", "external", False),
-    ("external", "external", False),
-    ("api", "external", False),
-    ("ai", "ai-layer", False),
-    ("new", "new-system", False),
-    ("all", "all-connectors", True),   # "all" = reads across every live connector
+_CONNECTOR_MAP: tuple[tuple[str, str], ...] = (
+    # (substring in source, catalog connector key)
+    ("vtiger", "crm"),
+    ("sql", "sql"),
+    ("nama", "nama"),
+    ("gateway", "gateway"),
+    ("front-end", "front-end"),
+    ("bank feed", "bank-feed"),
+    ("imap", "email"),
+    ("email", "email"),
+    ("whatsapp", "omnichannel"),
+    ("wechat", "omnichannel"),
+    ("stt", "voice"),
+    ("idp", "sso"),
+    ("oauth", "sso"),
+    ("telco", "telco"),
+    ("portal", "portal"),
+    ("nafeza", "portal"),
+    ("custody", "custody"),
+    ("analytics", "external"),
+    ("research", "external"),
+    ("external", "external"),
+    ("api", "external"),
+    ("ai", "ai-layer"),
+    ("new", "new-system"),
+    ("all", "all-connectors"),   # "all" = reads across every live connector
 )
 
 # Domain icon by id prefix — purely cosmetic, keeps the grid scannable.
@@ -81,33 +83,13 @@ _ICONS = {
 
 # Where a *delivered* idea actually lives. Only ever populated for ideas whose
 # backlog status is 🟢/🟡 — a planned idea must never link somewhere that implies
-# it is built.
+# it is built. The "nearest existing thing" for a planned idea is no longer a
+# hand-kept hint list: `wiring.py` now names the exact endpoints holding its raw
+# data, for all 181 rows, labelled as data sources rather than as the report.
 _BUILT_LINKS = {
     "T25": "/api/v1/banks",
     "T1": "/tools/finance-reports",
     "UX1": "/tools/name-builder",
-}
-
-# The closest thing that already exists for a still-planned idea. Shown as a
-# secondary "nearest live endpoint" hint, never as the idea's own link.
-_RELATED = {
-    "T14": "/tools/finance-reports",
-    "T9": "/tools/finance-reports",
-    "T21": "/tools/finance-reports",
-    "S5": "/api/v1/crm/leads",
-    "S4": "/api/v1/crm/accounts",
-    "S9": "/api/v1/crm/accounts",
-    "UX1b": "/tools/name-builder",
-    "AT1": "/api/v1/nama/employees",
-    "AT2": "/api/v1/nama/employees",
-    "H1": "/api/v1/nama/employees",
-    "H9": "/api/v1/nama/employees",
-    "WH3": "/api/v1/inventory",
-    "WH9": "/api/v1/inventory",
-    "WH13": "/api/v1/inventory/counts",
-    "WH15": "/api/v1/inventory",
-    "A1": "/tools/platform",
-    "A2": "/tools/name-builder",
 }
 
 
@@ -124,11 +106,24 @@ class Idea:
     engine: str | None   # one of the 6 reusable engines, when tagged
     note: str            # trailing caveat from the status/notes cell
     link: str            # where to go: the built thing, else the idea's own card
-    related: str | None  # nearest existing endpoint, for a still-planned idea
     api: str             # always addressable as JSON
     connectors: list[str]       # the connectors this idea reads from
     missing_connectors: list[str]  # …of those, the ones not built yet
     readiness: str       # done | ready | partial | blocked
+    # --- where it sits in the platform (app/ideas/wiring.py) ---
+    systems: list[str]          # registry.SYSTEMS keys, most responsible first
+    primary_system: str
+    proposed_system: str | None  # a system worth adding that is not on the map
+    data_endpoints: list[str]    # live routes holding its RAW data — never a report
+    workspace_section: str       # the section that would surface it
+    needs: str                   # the one missing thing, in Arabic
+    # The built thing, or None. Separate from `link` so "is it delivered?" is a
+    # field rather than a string comparison, and so it can never be set for a
+    # planned idea.
+    deliverable: str | None
+    # Where to go to understand why this is not built. An idea with no data
+    # endpoints would otherwise be a dead end saying only "nothing connected".
+    unblock: str | None
 
 
 def _split_heading(raw: str) -> tuple[str, str]:
@@ -160,12 +155,12 @@ def _connectors_of(source: str) -> tuple[list[str], list[str]]:
     low = source.lower()
     needed: list[str] = []
     missing: list[str] = []
-    for token, key, is_live in _CONNECTOR_MAP:
+    for token, key in _CONNECTOR_MAP:
         if key in needed:
             continue
         if re.search(rf"\b{re.escape(token)}\b", low):
             needed.append(key)
-            if not is_live:
+            if not catalog.is_live(key):
                 missing.append(key)
     return needed, missing
 
@@ -234,6 +229,17 @@ def _parse(md: str) -> list[Idea]:
         if engine == "AI" and "ai-layer" not in needed:
             needed.append("ai-layer")      # an AI-tagged idea always needs Layer 4
             missing.append("ai-layer")
+
+        wire = wiring.wire_for(idea_id, prefix)
+        # An endpoint that actually holds this idea's data proves its connector
+        # is involved, whatever the Source cell happens to say. Only live
+        # connectors can arrive this way, so readiness can improve but never
+        # silently worsen.
+        for path in wire.endpoints:
+            ep = catalog.get_endpoint(path)
+            if ep and ep.connector not in needed:
+                needed.append(ep.connector)
+
         ideas.append(
             Idea(
                 id=idea_id,
@@ -247,11 +253,18 @@ def _parse(md: str) -> list[Idea]:
                 engine=engine,
                 note=note,
                 link=built or f"/tools/ideas#{idea_id}",
-                related=None if built else _RELATED.get(idea_id),
                 api=f"/api/v1/ideas/{idea_id}",
                 connectors=needed,
                 missing_connectors=missing,
                 readiness=_readiness(status, needed, missing),
+                systems=list(wire.systems),
+                primary_system=wire.primary,
+                proposed_system=wire.proposed_system or None,
+                data_endpoints=list(wire.endpoints),
+                workspace_section=wire.section,
+                needs=wire.needs,
+                deliverable=built,
+                unblock=f"/connectors/{missing[0]}" if missing else None,
             )
         )
     return ideas
@@ -284,17 +297,51 @@ def get(idea_id: str) -> dict | None:
 
 
 def domains() -> list[dict]:
-    """One entry per domain, in backlog order, with its counts."""
+    """One entry per domain, in backlog order, with its counts and its systems.
+
+    The chip source for both the board and the hub, so it carries the edges too:
+    which systems a domain sits on, and how much of it already has live data.
+    """
     out: dict[str, dict] = {}
     for i in all_ideas():
         d = out.setdefault(
             i.prefix,
             {"prefix": i.prefix, "domain": i.domain, "domain_en": i.domain_en,
-             "icon": i.icon, "total": 0, "live": 0, "next": 0, "planned": 0},
+             "icon": i.icon, "total": 0, "live": 0, "next": 0, "planned": 0,
+             "ready": 0, "with_data": 0, "systems": [],
+             "page": f"/tools/ideas?dom={i.prefix}"},
         )
         d["total"] += 1
         d[i.status] += 1
+        if i.readiness == "ready":
+            d["ready"] += 1
+        if i.data_endpoints:
+            d["with_data"] += 1
+        for s in i.systems:
+            if s not in d["systems"]:
+                d["systems"].append(s)
     return list(out.values())
+
+
+def by_connector() -> dict[str, dict]:
+    """The reverse of `Idea.connectors`: what each connector carries.
+
+    Read forwards it says "this idea needs Vtiger"; read backwards it answers
+    the question that actually drives sequencing — *what does building this
+    connector unblock?*
+    """
+    out: dict[str, dict] = {}
+    for i in all_ideas():
+        for key in i.connectors:
+            d = out.setdefault(
+                key,
+                {"connector": key, "total": 0, "done": 0, "ready": 0,
+                 "partial": 0, "blocked": 0, "ids": []},
+            )
+            d["total"] += 1
+            d[i.readiness] += 1
+            d["ids"].append(i.id)
+    return out
 
 
 def summary() -> dict:

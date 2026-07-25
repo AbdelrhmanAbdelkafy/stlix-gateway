@@ -20,26 +20,36 @@
 stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --reload)
 ```
 - **أعِد التشغيل بعد أي تعديل Python / registry / config.** ملفات HTML/JS في `modules/` بتتقري fresh كل طلب (مش محتاجة restart).
-- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **44 passing**.
+- venv: `.venv` (Python 3.14). الاختبارات: `.venv/Scripts/python.exe -m pytest -q` → **83 passing**.
 - الأسرار في `.env` (gitignored). نسخة احتياطية للمفاتيح: `secrets/gates-keys.backup.md`.
 
 ## 2) الصفحات (افتحها في المتصفح)
 | الرابط | إيه هو |
 |---|---|
-| `/tools/platform` | **الهَب الموحّد** — نقطة الدخول · live modules + placeholders + SSO |
+| `/tools/platform` | **الهَب الموحّد** — نقطة الدخول · أرقامه كلها حيّة من `/api/v1/map` · 26 كارت دومين بيوصّلوا للوحة مفلترة |
+| `/api/v1/map` | **الخريطة الموحّدة** — أنظمة × كنكتورات × endpoints × متطلبات × محرّكات في رد واحد |
+| `/tools/ideas` | **لوحة الأفكار** — كل متطلب مربوط بنظامه وكنكتوره و**الـ endpoints اللي فيها داتاه الخام** · فلاتر بالـ URL |
 | `/tools/finance-reports` | **التقارير المالية الحقيقية** (100% من SQL) — الواجهة المالية الإنتاجية |
 | `/tools/finance-os` | الكوكبيت بالأدوار (Demo prototype) — KPIs + عملاء/موردين حقيقي، الباقي ديمو |
-| `/tools/ideas` | **لوحة الأفكار** — كل متطلب قاله المالك كـ لينك · بحث + فلتر بجاهزية الكنكتور · مصدرها `BACKLOG.md` |
 | `/tools/name-builder` | إنشاء الأصناف (قراءة) |
-| `/api/v1/workspace` · `/systems` · `/connectors` · `/metrics` · `/health` | اللوحة/الخريطة/المراقبة |
+| `/tools/library` | وثائق المشروع نفسها (الرَنبوك · القرارات · الرؤية) من جوّه المنصّة |
+| `/systems` · `/systems/{key}` | خريطة الأنظمة — وكل نظام بيقول كام متطلب مستنيه |
+| `/connectors` · `/connectors/{key}` | كل كنكتور + وضعه + **اللي مستنيه** |
+| `/api/v1/workspace` · `/metrics` · `/health` | اللوحة/المراقبة/الصحة |
+
+**كله مربوط في الاتجاهين:** من الهَب → الدومين → الفكرة → الـ endpoint → القسم في اللوحة → ورجوع.
+أي صفحة API بتقول فوقها: الأفكار اللي بتتغذّى منها · الكنكتور · النظام.
 
 ## 3) البنية — 6 طبقات
-1. **Gateway** ✅ · 2. **Connectors** (5 live + SQL finance) · 3. **Unified Workspace** ✅ ·
+1. **Gateway** ✅ · 2. **Connectors** (6 حيّة + 3 داخلية) · 3. **Unified Workspace** ✅ (8 أقسام) ·
 4. **AI Orchestrator** ⚪ · 5. **Workflows/Write** ⚪ · 6. **Logs/Monitoring/Security** ✅.
 
 ## 4) الكنكتورات (كلها read-only)
-`nama` (ERP) · `attendance` (بصمة) · `crm` (Vtiger) · `banks` · `inventory` (الجرد).
-**النمط:** `app/integrations/<key>/{client,connector,router}.py` + سجّل في `main.py` + `registry.py` + `workspace/providers.py` + test. سكافولد في `templates/`.
+`nama` (ERP) · `sql` (الأرصدة الحقيقية) · `attendance` (بصمة) · `crm` (Vtiger) · `banks` · `inventory` (الجرد).
+**النمط:** `app/integrations/<key>/{client,connector,router}.py` → سجّل في `main.py` + `registry.py`
++ **`catalog.py` (الكنكتور والـ endpoints بتاعته)** + `workspace/providers.py` + test. سكافولد في `templates/`.
+> الخطوة الجديدة هي `catalog.py`، ومن غيرها `tests/test_catalog.py` بيقع — وده مقصود:
+> مايبقاش فيه endpoint شغّال ومش على الخريطة، ولا خريطة بتوعد بحاجة مش موجودة.
 
 ## 5) 🎯 الأرصدة الحقيقية (المحور المهم)
 - **نما REST مابيدّيش أرصدة** (CRUD كيانات فقط — اتأكد من OpenAPI). الحل: **SQL مباشر**.
@@ -68,13 +78,30 @@ stlix-gateway        # uvicorn app.main:app على 127.0.0.1:8000 (بدون --re
 - **كتابة (write):** اقلب الكنكتور `read_write` **عمدًا**، خلف workflow مدقّق + HITL.
 - **بعد أي تعديل:** `pytest -q` → restart preview → verify live.
 
-## 8b) الأفكار والمتطلبات (181 بند)
+## 8b) الأفكار والمتطلبات (181 بند) — والخريطة اللي بتربطهم
 - **مصدر الحقيقة `BACKLOG.md`** — سطر markdown لكل فكرة. `app/ideas/registry.py` بيقراه ويطلّع:
   الدومين · المصدر · الحالة · المحرّك · **جاهزية الكنكتور**. **ضيف سطر → يظهر في اللوحة فورًا** (مفيش كود).
 - **الجاهزية:** `done` اتعمل · `ready` كل كنكتوراته موجودة (محتاج تقرير بس) · `partial` ناقص جزء · `blocked` محتاج تكامل جديد.
-- **الأرقام دلوقتي:** 1 اتعمل · **107 كنكتورها جاهز** · 43 ناقص جزء · 30 محتاج تكامل جديد.
-- أكتر الكنكتورات الناقصة طلبًا: نظام جديد (47) · API خارجي (15) · **طبقة الذكاء Layer 4 (9)**.
+- **الأرقام دلوقتي:** 1 اتعمل · **107 كنكتورها جاهز** · 44 ناقص جزء · 29 محتاج تكامل جديد · **135 داتاها الخام موجودة دلوقتي**.
+- أكتر الكنكتورات الناقصة طلبًا: نظام جديد (47) · API خارجي (15) · **طبقة الذكاء Layer 4 (10)**.
 - `/api/v1/ideas?readiness=ready` = اللي نقدر نبنيه النهاردة.
+
+### `app/ideas/wiring.py` — مكان كل متطلب في المنصّة
+لكل واحد من الـ181: **الأنظمة** اللي بيقع تحتها · **الـ endpoints** اللي فيها داتاه الخام ·
+**القسم** في اللوحة الموحّدة · و**"ناقص إيه"** بجملة عربية واحدة.
+- الجدول صريح (181 سطر) عشان الربط ده حُكم لكل فكرة مش قاعدة — لكن أي سطر جديد في
+  `BACKLOG.md` بيرث دومينه من `DOMAIN_DEFAULTS` فمابيقعش برّه الخريطة.
+- **قاعدة مقفولة باختبار:** الـ endpoint = *داتا خام*، **مش تقرير جاهز**. فكرة مخطّطة عمرها
+  ما تاخد لينك لصفحة مبنية (`tests/test_graph.py`).
+- التفاصيل الكاملة + سبب كل ربط: `docs/ideas-wiring.md`.
+
+### `app/catalog.py` — الجيتواي بيوصف نفسه
+كل كنكتور (20) وكل endpoint (54 بما فيهم الـ501 placeholders). منه بتتحسب الجاهزية
+(`is_live`)، ومنه `/connectors`. **`tests/test_catalog.py` بيقع لو الكود والخريطة اختلفوا في أي اتجاه.**
+
+### `app/graph.py` — الوصلة الواحدة
+`/systems` و`/connectors` و`/api/v1/map` واللوحة كلهم بيقطعوا من نفس الـ join، فمستحيل
+رقم يختلف من صفحة لصفحة.
 
 ## 9) المتبقّي (الأولويات)
 شوف `NEXT_STEP.md` (المهمة الواحدة) و`TASKS.md` (الكل). أهمها: أتمتة تحديث البيانات · Layer 4 (AI/صوت) · Layer 5 (write) · أول محرّك (Renewals) · SSO/RBAC · Omnichannel.

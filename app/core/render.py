@@ -77,9 +77,11 @@ _PAGE = """<!doctype html>
   <h1>{title}</h1>{badges}
 </header>
 <nav>
+  <a href="/tools/platform">الهَب</a><a href="/tools/ideas">الأفكار</a><a href="/api/v1/map">الخريطة</a>
   <a href="/api/v1/workspace">workspace</a><a href="/systems">systems</a><a href="/connectors">connectors</a>
   <a href="/health">health</a><a href="/metrics">metrics</a><a href="/docs">docs</a>
 </nav>
+{context}
 {body}
 <details><summary>عرض JSON الخام / raw JSON</summary>
 <pre>{raw}</pre></details>
@@ -87,11 +89,34 @@ _PAGE = """<!doctype html>
 </body></html>"""
 
 
-def html_page(title: str, body_html: str, data: Any, badges: str = "") -> HTMLResponse:
+def html_page(title: str, body_html: str, data: Any, badges: str = "",
+              context: str = "") -> HTMLResponse:
     raw = html.escape(json.dumps(data, ensure_ascii=False, indent=2))
     return HTMLResponse(
-        _PAGE.format(title=html.escape(title), body=body_html, raw=raw, badges=badges)
+        _PAGE.format(title=html.escape(title), body=body_html, raw=raw,
+                     badges=badges, context=context)
     )
+
+
+def _context_for(path: str) -> str:
+    """Where this endpoint sits in the platform — shown above the data.
+
+    Without it an API page is a leaf: it shows rows and tells you nothing about
+    which system it belongs to or which requirements it feeds.
+    """
+    from .. import catalog  # local import: catalog imports config, not render
+
+    ep = catalog.get_endpoint(path)
+    if ep is None:
+        return ""
+    conn = catalog.get_connector(ep.connector)
+    bits = [f'<a href="/tools/ideas?ep={html.escape(path)}">الأفكار اللي بتتغذّى من هنا</a>']
+    if conn:
+        bits.append(f'<a href="/connectors/{conn.key}">كنكتور: {html.escape(conn.name_ar)}</a>')
+        if conn.system:
+            bits.append(f'<a href="/systems/{conn.system}">نظام: {html.escape(conn.system)}</a>')
+    return ('<p class="links" style="margin:.2rem 0 .8rem">'
+            + " &nbsp;·&nbsp; ".join(bits) + "</p>")
 
 
 def respond(
@@ -106,4 +131,5 @@ def respond(
     if not wants_html(request):
         return JSONResponse(data)
     body = _table(rows, columns) if rows is not None else ""
-    return html_page(title, body, data, badges=badges)
+    return html_page(title, body, data, badges=badges,
+                     context=_context_for(request.url.path))
