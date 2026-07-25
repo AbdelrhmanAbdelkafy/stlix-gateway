@@ -33,6 +33,11 @@
 - ✅ **AR/AP/KPIs لحظية من Nama REST** — الفاتورة `net − paid` اتطابقت مع SQL:
   فرق غير مفسَّر 0.17 ج في AR و0.16 ج في AP على كل المجتمع. `?source=live` + لقطة خلفية
   كل ساعة + source/age/exclusions ظاهرين + SQL المُرستَر يفضل المرجع الكامل.
+- ✅ **`live` بقى الافتراضي** (قرار المالك 2026-07-25) — `FINANCE_DEFAULT_SOURCE=live`،
+  فالصفحات المالية بترد من **إنتاج نما** (`stlixvalley.namasoft.net`) من غير `?source=`.
+  الرجوع نفس السطر. المسح الخلفي كل ساعة (`LIVE_FINANCE_REFRESH_SECONDS=3600`).
+- ✅ **`hub.public.html` اتوصّل** (قرار المالك) — بقى يقرا من `/api/v1/map` على
+  `/tools/platform/public`؛ كان يتيم وفيه AR/AP وتاريخ مكتوبين بالإيد
 - ✅ **كوكي المتصفح** (GET/HEAD بس) — لينك `<a>` على `/api/v1/*` كان هيموت 401 أول ما نحطّ مفتاح
 - ✅ 115 اختبار + توثيق نما (OpenAPI CRUD-only، دلالات الـ400، paging/drafts، SQL/live)
 - ✅ **نقل الكتاب المرجعي (83 فصل)** جوه الريبو → `docs/enterprise-platform/` + `reference/finance-mvp/`
@@ -62,5 +67,4 @@
 - ⚪ فتح الـ 3 Google Sheets (RESOURCES.md) كمصادر بيانات
 
 ## 🔴 بند مفتوح (Open)
-- 🔴 `modules/platform/hub.public.html`: يتشال ولا يعتمد `/api/v1/map`؟ مستني قرار المالك.
 - 🔴 **تغيير المفاتيح المكشوفة** (Anthropic أولًا) — مؤجّل بطلب المالك. `secrets/gates-keys.backup.md`

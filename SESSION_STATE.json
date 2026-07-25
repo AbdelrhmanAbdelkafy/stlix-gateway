@@ -57,7 +57,7 @@
       "apOutstanding": 186710932
     },
     "freshness": "as-of = latest restored .bak (2026-07-14). Newer daily backups (hardsteel<date>.bak, ~5.7GB) on Google Drive folder 1yvCI6unRWALtzf1yiU9kiHAPaBB56Xtt. Refresh = download+RESTORE (can't read .bak in place). Automate as nightly job.",
-    "default_source": "FINANCE_DEFAULT_SOURCE in .env decides which source answers /api/v1/finance/* when the caller passes no ?source=. Ships as 'sql'. Owner's decision: flip to 'live' once scripts/reconcile_live_vs_sql.py passes on the serving machine.",
+    "default_source": "FINANCE_DEFAULT_SOURCE=live as of 2026-07-25 (owner's decision). /api/v1/finance/* answers from Nama PRODUCTION REST documents (https://stlixvalley.namasoft.net/erp/rest/v1) unless ?source=sql is asked for. Background sweep hourly (LIVE_FINANCE_REFRESH_SECONDS=3600). Going back is the same single line. NOTE: for ~8 minutes after each restart the finance pages report 'no snapshot yet' rather than falling back to SQL — deliberate, chosen by the owner over an ambiguous source.",
     "party_join": "Join on subsidiaryId, NOT customer_id (NULL on 5,263 of 6,845 posted invoices) and NOT subsidiaryCode (4,950 rows carry a legacy code; 226 distinct values do not exist in Customer at all). Nama's REST resolves subsidiary.code to the CURRENT code — measured on SV00001: SQL holds C00002, REST returns C2000001 — so the live path is immune to this."
   },
   "pages_served": {
@@ -172,11 +172,12 @@
       "PaymentVoucher (supplier payments)",
       "JournalEntry"
     ],
-    "not_live": "every computed BALANCE (AR/AP/KPIs) - served from a restored backup",
+    "not_live": "nothing, for AR/AP/KPIs — they are rebuilt from production REST documents as of the last hourly sweep. The restored SQL copy remains the complete reference at ?source=sql.",
     "why": "Nama REST exposes no computed balances, AND direct SQL to the Namasoft cloud tenant is unreachable: tcp/1433 and 1434 to stlixvalley.namasoft.net both time out (measured, not assumed).",
     "freshness_is_visible": "every finance response carries freshness{as_of, age_days, live, stale}; shown on the hub and /tools/finance-reports, which previously badged 11-day-old figures as 'حيّ'.",
     "local_backups_on_disk": "D:/hardsteel20260715.bak - only ONE day newer than what is restored (2026-07-14). Not worth a restore.",
-    "reconciliation": "scripts/reconcile_live_vs_sql.py --rest local (same data, zero tolerance) and --rest cloud (later settlements explained; gross/net movement or a payment moving backwards is not). No money figure ships before it passes. Hardened by the concurrent session before its first run: fiscalPeriod is NOT a column on SalesInvoice (verified via INFORMATION_SCHEMA) so period filtering now uses issueDate bounds; duplicate document codes are preserved rather than collapsed by a dict; and a payment moving backwards needs an explicit --allow-reversal <code>."
+    "reconciliation": "scripts/reconcile_live_vs_sql.py --rest local (same data, zero tolerance) and --rest cloud (later settlements explained; gross/net movement or a payment moving backwards is not). No money figure ships before it passes. Hardened by the concurrent session before its first run: fiscalPeriod is NOT a column on SalesInvoice (verified via INFORMATION_SCHEMA) so period filtering now uses issueDate bounds; duplicate document codes are preserved rather than collapsed by a dict; and a payment moving backwards needs an explicit --allow-reversal <code>.",
+    "reconciled_residual": "0.17 EGP AR / 0.16 EGP AP over the full population, after explaining movement that post-dates the backup. The single backwards payment (FP22026060000105, a voucher cancelled after the backup) must be named explicitly via --allow-reversal; it does not pass as explained on its own."
   },
   "nama_400_semantics": {
     "finding": "Nama answers HTTP 400 for TWO different things and the client conflated them.",
