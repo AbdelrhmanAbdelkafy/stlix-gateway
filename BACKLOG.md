@@ -102,6 +102,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T24 | الحسابات المفضلة لاستلام تحويلات العملاء (preferred collection accounts) → enhances Banks connector | Nama | ⚪ |
 | T25 | حسابات البنوك لدينا (our bank accounts) — ✅ built (banks connector) | Nama | 🟢 |
 | T26 | إيصالات دفع (payment slips / receipts) — سند صرف/قبض قابل للطباعة | Nama | ⚪ |
+| T27 | **العهدة** — رصيد افتتاحي يُعدّ باليد لا يُنقل من نما (رقم نما كاذب: 7.9M على E000004 سلّة لناس تانيين) · append-only · القرش وحدة الحساب (من REP) | REP / custody / Nama | ⚪ |
+| T28 | **تحقق IBAN بـ MOD-97** — 18 حساب · 11 عدّوا · 3 تعارضات · `BankAccount.iban` في نما مش بيحمل IBAN (من REP) → Data-Quality | REP / banks | ⚪ |
 
 ## Maintenance (صيانة)
 | # | Item | Source | Status |
@@ -116,6 +118,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | FL1 | تكلفة السيارة — يوميًا / شهريًا (vehicle cost daily/monthly, TCO) | Nama | ⚪ |
 | FL2 | تكلفة البنزين (fuel cost) | Nama | ⚪ |
 | FL3 | تكلفة الصيانات (vehicle maintenance cost) | Nama | ⚪ |
+| FL4 | **محرك الحركة** — 57% قرار تلقائي · دمج رحلات · تصعيد · يقول «ليه» (من REP) · 9 عربيات والعداد فاضي في الكل | REP / movement | ⚪ |
 
 ## IT & Electronic Assets (أصول تقنية)
 | # | Item | Source | Status |
@@ -147,6 +150,12 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | H20 | الجزاءات لكل شهر (monthly penalties / deductions) | Nama | ⚪ |
 | H21 | أداء العاملين (workers performance) | Nama | ⚪ |
 | H22 | مشاكل الموظفين على نما (employee issues logged on Nama) | Nama | ⚪ |
+| H23 | **قاموس المسميات الوظيفية** — 73 مسمّى في نما → 13 مسمّى معياري (من REP) | REP / Nama | ⚪ |
+| H24 | **تنظيف أرقام موبايل الموظفين** — نما فيها 46 من 206 · 8 أرقام مكررة على 17 موظف · REP هو المصدر النظيف (D-10) → Data-Quality | REP / Nama | ⚪ |
+| H25 | **محرك الجزاءات** — قانون 14/2025: م.139 ثمانية جزاءات فقط · م.138 مهلة 30 يوم · م.148 الفصل للمحكمة العمالية (من REP، اختُبر 7 سيناريو) | REP / regulations | ⚪ |
+| H26 | **اللوائح الـ18** — صفر مصدّقة من المديرية (المادة 137) · النسخة لسه بتتعدل فماينفعش منطق يعتمد عليها | REP / regulations | ⚪ |
+| H27 | **الأكاديمية** — 9 مسارات · 47 درس · القفل حسب مسار نما (من REP / نوشن) | REP / academy | ⚪ |
+| H28 | **الوجبات** — معادلة 9ص · 37 وجبة · الفلتر الصحيح `employeeState=Working` (44 موظف) لا Other3 (من REP) | REP / attendance / meals | ⚪ |
 
 ## Marketing (تسويق)
 | # | Item | Source | Status |
@@ -250,6 +259,8 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | AC4 | إيجارات شارفت على الانتهاء (leases nearing expiry) → Renewals | Nama / new | ⚪ |
 | AC5 | اشتراكات شارفت على الانتهاء (subscriptions nearing expiry) → Renewals | Nama / new | ⚪ |
 | AC6 | الحراسة (security guarding / shifts) — ties to surveillance system | Nama / new | ⚪ |
+| AC7 | **الكيانات القانونية الثلاثة** — 01 المجموعة المصرية · 02 ستليكس فالي · 005 STLIX GLOBAL HOLDING (من REP) — الفواتير فيها `legalEntity` فالتقارير محتاجة تعرفهم | REP / Nama | ⚪ |
+| AC8 | **كتالوج كيانات نما — 599 كيان** (من REP) — عندنا قراءة عامة لأي كيان بس مافيش كتالوج يقول فيه إيه | REP / Nama | ⚪ |
 
 ## Operations & Production (عمليات وإنتاج)
 | # | Item | Source | Status |
@@ -314,6 +325,10 @@ Cross-cutting platform capabilities — apply everywhere, not one screen. **Ever
 | PA2 | **SSO** — دخول موحّد (Single Sign-On) | IdP (Google Workspace / OAuth) | ⚪ |
 | PA3 | **RBAC** — صلاحيات المستخدم الداخل + احترام صلاحيات كل connector (بوابة مزدوجة) | gateway auth + connectors | ⚪ |
 | PA4 | بحث/كتابة بالصوت بالعربي عبر كل المنصّة → see UX3 | front-end / Arabic STT | ⚪ |
+| PA5 | **التوقيع الرقمي كآلية HITL** — ECDSA P-256 · `extractable:false` · المفتاح الخاص مايسيبش الجهاز · اختُبر بـ4 هجمات كلها مرفوضة (من REP) — دي آلية الموافقة البشرية اللي Layer 5 محتاجها | REP / gateway | ⚪ |
+| PA6 | **الدور يُحسَب لا يُعطَى** — «مين انت» × «حالة الحاجة» = دورك، بدون شاشة إدارة أدوار (من REP D-07) | REP / idp | ⚪ |
+| PA7 | **ثلاثة أسطح — السطح يتبع البيئة مش الهوية** — داكن للمكتب · فاتح للمخزن (الداكن مش مقروء في الشمس) · ورقي للطباعة (من REP D-06) | REP / front-end | ⚪ |
+| PA8 | 🔴 **تغيير مفتاح نما الأدمن بتاع REP** — اعتماد منفصل عن مفاتيح الجيتواي (بصمة مختلفة) ومكشوف plaintext في حزمة REP · ومفتاح مزامنة الجرد مشترك بين الاتنين | REP / gateway | ⚪ |
 
 ## Registered systems
 > ⚠️ **مش هنا.** الخريطة الحيّة للأنظمة بقت في الكود: [`/systems`](/systems) —

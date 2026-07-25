@@ -42,6 +42,15 @@ SYSTEMS: list[System] = [
     System("inventory", "Inventory / Stocktaking", "الجرد", Status.LIVE,
            "Stlix stocktake counting app (count/sync.php): counts, manual items, progress (read-only)."),
     System("academy", "Academy", "الأكاديمية", Status.PLANNED, "Training / LMS."),
+    # REP is the operational front-end layer for everything Nama and the CRM do
+    # not own — 11 built modules (custody, movement, meals, people, policies,
+    # academy, banks, stocktake, alerts, documents, home). PLANNED here because
+    # none of it is bridged yet: it reads Nama directly with its own admin
+    # credential, which is the thing this gateway exists to end. See
+    # docs/rep-integration.md.
+    System("rep", "REP Operations", "REP التشغيلية", Status.PLANNED,
+           "Operational front-ends for what the ERP does not own: custody, movement, "
+           "meals, people/dictionary, policies, academy, alerts, signed documents."),
     System("regulations", "Regulations", "اللوائح", Status.PLANNED,
            "Internal policies & bylaws (the document store itself is `archive`)."),
     System("surveillance", "Surveillance & Alarm", "المراقبة والإنذار", Status.PLANNED,

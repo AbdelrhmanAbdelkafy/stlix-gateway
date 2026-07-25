@@ -63,6 +63,7 @@ _CONNECTOR_MAP: tuple[tuple[str, str], ...] = (
     ("telco", "telco"),
     ("portal", "portal"),
     ("nafeza", "portal"),
+    ("rep", "rep"),
     ("custody", "custody"),
     ("analytics", "external"),
     ("research", "external"),

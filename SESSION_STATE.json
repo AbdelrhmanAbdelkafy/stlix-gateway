@@ -84,13 +84,12 @@
       "/api/v1/ideas/{id}"
     ],
     "counts_2026-07-25": {
-      "total": 183,
+      "total": 198,
       "domains": 26,
       "done": 2,
-      "ready": 107,
-      "partial": 45,
-      "blocked": 29,
-      "with_live_data": 136
+      "ready": 114,
+      "partial": 46,
+      "blocked": 36
     },
     "readiness_meaning": "ready = every connector it needs already exists, so it only needs a report built",
     "top_missing_connectors": {
@@ -152,10 +151,10 @@
     "module": "app/graph.py",
     "why": "four maps existed and never met; this is the join they were missing",
     "counts": {
-      "systems": 22,
-      "connectors": 21,
+      "systems": 23,
+      "connectors": 22,
       "endpoints": 58,
-      "ideas": 183
+      "ideas": 198
     },
     "systems_without_ideas": []
   },
@@ -194,5 +193,22 @@
     ],
     "open_question": "ANSWERED: yes. Rebuilt net/paid matched SQL to the piastre on live documents, and the reconciliation is now a repeatable script (scripts/reconcile_live_vs_sql.py, exit 1 on any unexplained difference) rather than a one-off check."
   },
-  "invariants_locked_by_tests": []
+  "invariants_locked_by_tests": [],
+  "rep_merge": {
+    "what": "REP is an 11-module operational front-end (custody, movement, meals, people, policies, academy, banks, stocktake, alerts, documents, home), built and tested, 0 of 11 bridged. Registered as system `rep` + connector `rep` (not live).",
+    "resolution": "REP = front-ends, gateway = integration beneath it. Duplicated reads (banks, stocktake, employees, attendance) are deleted from REP and served by the gateway; REP's unique knowledge becomes reference; the rest merges.",
+    "detail": "docs/rep-integration.md",
+    "nama_write_rules_from_rep": [
+      "addRecord:true on an existing code REPLACES the record silently — snapshot before any bulk write",
+      "updating a collection replaces the WHOLE array — read, merge, send complete",
+      "re-saving an @draft through the API commits it PERMANENTLY — critical for Layer 5",
+      "Arabic codes fail findByIdOrCode (URL encoding) — use POST /list with textCriteria",
+      "pageSize truncation is per-entity: 1000 works on invoices, silently truncates InvItem (8,384)"
+    ],
+    "credentials": "REP holds a SEPARATE Nama admin credential (different fingerprint from the gateway's) in plaintext in its SESSION_STATE.json and runbook, and in the browser. The stocktake sync key is SHARED with the gateway's INVENTORY_KEY (same fingerprint). Rotating the gateway's keys does not cover REP's.",
+    "open_conflicts": {
+      "item_count": "8,346 (count app) vs 8,384 (Nama REST) vs 17,439 (InvItem in SQL) — three numbers, unexplained",
+      "platform_claim": "REP D-01 says REP is the platform; the gateway says it is the integration layer. Resolved as front-end vs integration."
+    }
+  }
 }

@@ -55,6 +55,12 @@ CONNECTORS: tuple[Connector, ...] = (
               "nama_configured", "banks_mode", "Accounts master; balances need SQL."),
     Connector("inventory", "الجرد", "Stocktake", "inventory", "Stlix count app (sync.php)", True,
               "inventory_configured", "inventory_mode"),
+    # Not live: REP holds its own Nama admin key in the browser today. Turning it
+    # live means REP calling /api/v1/* instead — which is exactly what removes the
+    # credential from the browser. docs/rep-integration.md.
+    Connector("rep", "REP التشغيلية", "REP Operations", "rep",
+              "REP single-file PWA (11 modules)", False,
+              note="11 وحدة مبنية ومختبرة، صفر منها موصّل عبر الجيتواي لسه"),
     Connector("gateway", "الجيتواي نفسه", "Gateway itself", "", "in-process", True,
               note="Workspace, ideas, systems map, metrics."),
     Connector("front-end", "واجهات الموديولات", "Module front-ends", "", "served from /tools", True,
