@@ -4,7 +4,7 @@
 
 ```powershell
 cd "D:\Nama Code project\stlix-gateway"
-.\deploy.ps1
+.\deploy.bat
 ```
 
 بيجهّز البيئة، بيتأكد إن فيه مفتاح، بيشغّل الاختبارات، بيعمل فحص ما قبل العرض، وبعدين

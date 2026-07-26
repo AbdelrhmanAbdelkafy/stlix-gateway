@@ -9,8 +9,14 @@
 
 ```powershell
 cd "D:\Nama Code project\stlix-gateway"
-.\deploy.ps1
+.\deploy.bat
 ```
+
+> `deploy.bat` مش زيادة — ويندوز بيمنع تشغيل ملفات `.ps1` افتراضيًا
+> («running scripts is disabled on this system»)، والـ`.bat` مش محكوم بالمنع ده،
+> وبينده الاسكربت بـ`-ExecutionPolicy Bypass` **للتشغيلة دي بس** من غير ما يغيّر
+> أي إعداد في الجهاز. لو حابب تنده `.ps1` مباشرة:
+> `powershell -ExecutionPolicy Bypass -File .\deploy.ps1`
 
 بيعمل بالترتيب — وبيقف عند أول خطوة توقع:
 
