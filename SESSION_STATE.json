@@ -271,5 +271,29 @@
     ],
     "usage": "Mic bottom-start on every page · Ctrl+M toggles, Esc stops · language button ar-EG <-> en-US · writes into the focused field, else the page's search box.",
     "verified_in_a_real_browser": "Playwright with a stubbed recogniser: mic renders, dictation lands in the hub's #q, exactly one input event fires, focus is on the right field, language toggles."
+  },
+  "release": {
+    "version": "1.0.0 — 2026-07-25. First version shown to people who did not build it.",
+    "how": "deploy.ps1 in the repo root: venv+pip -> ensure GATEWAY_API_KEY -> full test suite -> preflight -> uvicorn on 0.0.0.0 -> prints the LAN URLs -> opens Chrome. Stops at the first failing step.",
+    "start_page": "/tools/tour — every number fetched at open time, every claim carrying the link that proves it, and a final section listing what is NOT working, built from live state rather than a maintained list.",
+    "preflight": "scripts/preflight.py. Blocking: an advertised page that 500s, catalogue/route drift, a connector in read_write, an empty key while binding publicly. Warning: no model attached, no statutes loaded. Runs in-process — no server, no network, no ERP call — so it cannot itself break the demo.",
+    "two_real_bugs_this_release": [
+      "The Docker image copied `app` alone. It built, started, /health returned 200, and every page 500'd — /tools/* reads modules/, the ideas board parses BACKLOG.md, the expert indexes the markdown, the counsel reads corpus/legal. A container that comes up green and fails on the first page opened is worse than one that refuses to start. tests/test_deploy.py now derives the runtime dirs from the code itself.",
+      "The tour had <section id=\"money\"> and <div id=\"money\"> on the same page. getElementById returns the first with no warning, so writing innerHTML wiped the whole section and took #fresh with it; same collision on #ai and #gaps. Found by opening the page in a real browser, not by a test."
+    ],
+    "security_for_a_lan_demo": "GATEWAY_API_KEY was empty. Pages are meant to open for any colleague (the cookie is set for them) but the raw API must not. deploy.ps1 generates a key into .env when it is missing. No SSO and no RBAC yet: anyone who can reach the address sees everything — fine for an internal room, not beyond it.",
+    "say_this_out_loud": [
+      "no ANTHROPIC_API_KEY -> the expert and the counsel return sources, not composed answers",
+      "corpus/legal is empty -> the counsel says «I do not have that law» to every question",
+      "FINANCE_DEFAULT_SOURCE=live -> start the server 15 minutes before the room fills, the first sweep takes minutes",
+      "no SSO/RBAC · REP's 11 modules still outside the gateway"
+    ],
+    "counts": {
+      "tests": 213,
+      "connectors_live": 12,
+      "endpoints": 80,
+      "pages": 12,
+      "ideas": 214
+    }
   }
 }

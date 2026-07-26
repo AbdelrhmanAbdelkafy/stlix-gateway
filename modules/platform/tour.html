@@ -1,0 +1,348 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STLIX Gateway — الجولة</title>
+<!--
+  The page to open in front of colleagues.
+
+  Every number on it is fetched from the running platform, and every claim
+  carries the link that proves it — so a skeptical person in the room can click
+  and see the raw data instead of taking the slide's word for it. That is the
+  demo: not "look what it says", but "check it".
+
+  Section 7 is the one that earns the room. It lists what is NOT working, read
+  from live state rather than from a list someone maintains. A tour that only
+  shows the good parts gets believed for ten minutes.
+-->
+<style>
+:root{color-scheme:light dark;--bg:#0e131a;--card:#151c26;--card2:#1b2431;--ln:#232e3d;--tx:#e9edf3;--sub:#7e8ba0;--ac:#2bc4c4;--acd:#0a6a6a;--ok:#2fbd6b;--warn:#e0a53a;--bad:#e0483a;--plan:#8497b0}
+@media(prefers-color-scheme:light){:root{--bg:#f5f7f8;--card:#fff;--card2:#eef1f4;--ln:#e3e7ec;--tx:#131922;--sub:#6a7688;--ac:#0c8a8a;--acd:#0a6a6a;--ok:#15914b;--warn:#c07a0a;--bad:#c0392b;--plan:#5b6b82}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",system-ui,Tahoma,sans-serif;line-height:1.75;font-size:15.5px}
+a{color:var(--ac)}
+.hero{color:#eaf2f2;padding:44px 22px 40px;
+ background:#0b121c radial-gradient(900px 460px at 82% 45%,rgba(43,196,196,.17),transparent 62%)}
+.wrap{max-width:940px;margin:0 auto;padding:0 22px}
+.hero h1{font-size:34px;margin:0 0 6px;font-weight:800;letter-spacing:-.4px}
+.hero .sub{color:#9fb4b4;font-size:16px;max-width:640px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:10px;margin-top:26px}
+.kpi{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px}
+.kpi .v{font-size:24px;font-weight:800;line-height:1.2}
+.kpi .l{font-size:11px;color:#9fb4b4;margin-top:2px}
+nav{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--ln);padding:9px 0}
+nav .in{max-width:940px;margin:0 auto;padding:0 22px;display:flex;gap:5px;flex-wrap:wrap}
+nav a{font-size:12.5px;font-weight:700;text-decoration:none;color:var(--sub);padding:5px 11px;border-radius:999px;border:1px solid transparent}
+nav a:hover{color:var(--tx);border-color:var(--ln)}
+section{padding:40px 0 6px}
+h2{font-size:11.5px;text-transform:uppercase;letter-spacing:1.4px;color:var(--ac);margin:0 0 4px;font-weight:700}
+h3{font-size:25px;font-weight:800;margin:0 0 14px;letter-spacing:-.3px}
+p{margin:0 0 14px;max-width:74ch}
+.lead{font-size:17px;color:var(--tx)}
+.muted{color:var(--sub)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:16px}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:15px 17px;text-decoration:none;color:inherit;display:block;transition:transform .12s,border-color .12s}
+a.card:hover{transform:translateY(-2px);border-color:var(--ac)}
+.card .ic{font-size:22px}
+.card .t{font-weight:800;font-size:15px;margin:7px 0 4px}
+.card .d{font-size:12.5px;color:var(--sub)}
+.tag{font-size:10px;font-weight:700;padding:2px 9px;border-radius:999px;display:inline-block;margin-top:9px}
+.t-live{background:rgba(47,189,107,.15);color:var(--ok)}
+.t-read{background:rgba(43,196,196,.15);color:var(--ac)}
+.t-plan{background:rgba(132,151,176,.16);color:var(--plan)}
+.t-warn{background:rgba(224,165,58,.16);color:var(--warn)}
+.rule{background:var(--card);border:1px solid var(--ln);border-inline-start:3px solid var(--ac);border-radius:0 13px 13px 0;padding:14px 17px;margin-bottom:11px}
+.rule .q{font-weight:800;font-size:16px;margin-bottom:5px}
+.rule .how{font-size:13.5px;color:var(--sub)}
+.rule .how b{color:var(--tx)}
+.proof{display:inline-block;font-size:11.5px;font-weight:700;margin-top:8px;background:var(--card2);border:1px solid var(--ln);border-radius:999px;padding:3px 11px;text-decoration:none}
+.proof:hover{border-color:var(--ac)}
+.money{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px}
+.big{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:17px 19px}
+.big .v{font-size:29px;font-weight:800;direction:ltr;text-align:start;unicode-bidi:isolate}
+.big .l{font-size:12px;color:var(--sub)}
+.fresh{font-size:12.5px;color:var(--sub);margin-top:11px}
+.gap{background:var(--card2);border:1px dashed var(--ln);border-radius:13px;padding:13px 16px;margin-bottom:9px}
+.gap .t{font-weight:700;font-size:14.5px}
+.gap .w{font-size:12.5px;color:var(--sub);margin-top:3px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+th,td{text-align:right;padding:7px 10px;border-bottom:1px solid var(--ln)}
+th{color:var(--sub);font-size:11px;text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+.mono{font-family:ui-monospace,Consolas,monospace;direction:ltr;font-size:12px}
+footer{margin-top:46px;padding:22px 0 60px;border-top:1px solid var(--ln);font-size:12px;color:var(--sub);text-align:center;line-height:2}
+.load{color:var(--sub);font-size:13px}
+</style></head><body>
+
+<div class="hero"><div class="wrap">
+  <h1>STLIX Gateway</h1>
+  <div class="sub">نقطة تكامل واحدة لكل أنظمة الشركة. نما تفضل مصدر الحقيقة —
+  الجيتواي بيوحّد الوصول ليها وللباقي، ويحطّ قواعد على اللي يتعرض.</div>
+  <div class="kpis" id="kpis">
+    <div class="kpi"><div class="v" id="k-sys">—</div><div class="l">نظام على الخريطة</div></div>
+    <div class="kpi"><div class="v" id="k-conn">—</div><div class="l">كنكتور حيّ</div></div>
+    <div class="kpi"><div class="v" id="k-ep">—</div><div class="l">endpoint</div></div>
+    <div class="kpi"><div class="v" id="k-pages">—</div><div class="l">شاشة</div></div>
+    <div class="kpi"><div class="v" id="k-ideas">—</div><div class="l">متطلب مسجّل</div></div>
+    <div class="kpi"><div class="v" id="k-ready">—</div><div class="l">جاهز للبناء</div></div>
+  </div>
+</div></div>
+
+<nav><div class="in">
+  <a href="#idea">الفكرة</a><a href="#rules">القواعد</a><a href="#live">شغّال دلوقتي</a>
+  <a href="#money">الأرقام</a><a href="#ai">الذكاء</a><a href="#gaps">اللي لسه</a>
+  <a href="/tools/platform">→ الهَب</a>
+</div></nav>
+
+<div class="wrap">
+
+<section id="idea">
+  <h2>The idea</h2><h3>ليه المنصّة دي موجودة</h3>
+  <p class="lead">كل نظام عندنا شغّال لوحده: نما فيها الفلوس والموظفين، الـCRM فيه العملاء،
+  الجرد في تطبيق تاني، والعقود في الدرايف. علشان تجاوب سؤال واحد بيمسّ اتنين منهم،
+  بتفتح شاشتين وتجمع بإيدك — والرقم اللي بتطلع بيه محدش يعرف جه منين.</p>
+  <p><b>الجيتواي مش نظام جديد بيستبدل حاجة.</b> نما تفضل مصدر الحقيقة المالية والقانونية،
+  والـCRM يفضل بتاع العميل. الجيتواي بيبقى <b>الباب الوحيد</b> اللي بيتقرا منه كل ده،
+  وبيفرض عليه قواعد. أي نظام جديد بيتوصّل مرة واحدة هنا بدل ما يتوصّل بكل حاجة تانية.</p>
+  <p class="muted">وكل حاجة <b>read-only</b> بشكل افتراضي. أي كتابة في نما محتاجة workflow
+  مدقّق وموافقة بشرية — مافيش شاشة هنا بتعدّل في الـERP.</p>
+  <a class="proof" href="/api/v1/map">الخريطة الكاملة كـ JSON ↗</a>
+  <a class="proof" href="/systems">كل الأنظمة ↗</a>
+  <a class="proof" href="/connectors">الكنكتورات وأوضاعها ↗</a>
+</section>
+
+<section id="rules">
+  <h2>The rules</h2><h3>أربع قواعد، ومعاها الآلية اللي بتفرضها</h3>
+  <p>دي مش نوايا. كل واحدة فيهم متحوّلة لكود بيفشل لو حد كسرها.</p>
+
+  <div class="rule">
+    <div class="q">١ · مافيش رقم فلوس مكتوب في صفحة</div>
+    <div class="how">أي رقم بتشوفه جاي من endpoint. الكوكبيت كان فيه أرصدة بنوك موهومة
+    <b>جنب</b> أرقام حقيقية — وده أوحش من إن كله يكون موهوم، لأن الحقيقي بيخلّي الموهوم
+    يبان حقيقي. دلوقتي <b>اختبار بيفشل</b> لو أي صفحة موصّلة فيها رقم مكتوب بالإيد.</div>
+    <a class="proof" href="/tools/finance-os">شوف الكوكبيت ↗</a>
+  </div>
+
+  <div class="rule">
+    <div class="q">٢ · عمر الرقم ظاهر، وصحّته كمان</div>
+    <div class="how">كل رد مالي شايل <b>وقت آخر تحديث</b>. وبعد كل سحب، حارس بيعيد مطابقة
+    <b>شهر مقفول كامل</b> مع SQL — لأن الرقم ممكن يكون جديد وناقص في نفس الوقت لو نما
+    غيّرت اسم حقل. لو الحارس لقى انحراف، المنصّة بترجع لـSQL لوحدها وبتقول كده.</div>
+    <a class="proof" href="/api/v1/finance/live">حالة اللقطة ↗</a>
+  </div>
+
+  <div class="rule">
+    <div class="q">٣ · الذكاء بيجاوب من مصدر، مش من حفظه</div>
+    <div class="how">الخبير والمستشار بيقروا من وثائقنا ومن خريطة المنصّة، وكل جملة معاها
+    مصدرها. ولو مفيش موديل موصول <b>ما بيصيغوش كلام</b> — بيسلّموك المقاطع نفسها.
+    ومستشار القانون فيه حارس بيشيل أي رقم مادة مش موجود في نصّ محمّل.</div>
+    <a class="proof" href="/tools/expert">Nama Expert ↗</a>
+    <a class="proof" href="/tools/legal">المستشار القانوني ↗</a>
+  </div>
+
+  <div class="rule">
+    <div class="q">٤ · المنصّة بتوصف نفسها</div>
+    <div class="how">مافيش قايمة مكتوبة بالإيد لأي حاجة. الشاشات والأنظمة والـendpoints
+    والمتطلبات كلها بتتقرا من <b>خريطة واحدة</b>، و<b>اختبار بيفشل</b> لو endpoint اتضاف
+    من غير ما يظهر عليها. علشان كده الأرقام اللي فوق مش شرايح — دي قراءة حيّة.</div>
+    <a class="proof" href="/tools/ideas">كل متطلب اتقال ↗</a>
+  </div>
+</section>
+
+<section id="live">
+  <h2>Live</h2><h3>شغّال دلوقتي</h3>
+  <p class="muted">الكروت دي متولّدة من الخريطة — مش مكتوبة في الصفحة.</p>
+  <div class="grid" id="pages"><div class="load">بيحمّل…</div></div>
+  <h3 style="margin-top:30px;font-size:19px">الأنظمة الموصّلة</h3>
+  <div class="grid" id="systems"><div class="load">بيحمّل…</div></div>
+</section>
+
+<section id="money">
+  <h2>The numbers</h2><h3>الأرقام المالية — دلوقتي، من نما</h3>
+  <div class="money" id="money-grid"><div class="load">بيحمّل…</div></div>
+  <div class="fresh" id="fresh"></div>
+  <p class="muted" style="margin-top:14px">الرقمين دول اتبنوا من مستندات نما نفسها
+  (فاتورة فاتورة) واتطابقوا مع نسخة SQL — الفرق كان <b>أقل من جنيه</b> على المجتمع كله.
+  والحارس بيعيد المطابقة بعد كل سحب.</p>
+  <a class="proof" href="/tools/finance-reports">التقارير التفصيلية ↗</a>
+  <a class="proof" href="/api/v1/finance/kpis">الأرقام كـ JSON ↗</a>
+</section>
+
+<section id="ai">
+  <h2>AI</h2><h3>طبقة الذكاء — وحدودها</h3>
+  <div class="grid" id="ai-grid"><div class="load">بيحمّل…</div></div>
+</section>
+
+<section id="gaps">
+  <h2>Not yet</h2><h3>اللي لسه مش شغّال</h3>
+  <p>الجزء ده مقروء من حالة المنصّة نفسها دلوقتي، مش من قايمة حد بيحدّثها.
+  جولة بتعرض الحلو بس بيتصدّقها عشر دقايق.</p>
+  <div id="gaps-list"><div class="load">بيحمّل…</div></div>
+</section>
+
+</div>
+
+<footer>
+  <span id="ver">STLIX Gateway</span> ·
+  <a href="/tools/platform">الهَب</a> ·
+  <a href="/tools/ideas">لوحة المتطلبات</a> ·
+  <a href="/tools/library">وثائق المشروع</a> ·
+  <a href="/health">الصحة</a><br>
+  كل رقم في الصفحة دي اتقرا من المنصّة وقت ما فتحتها · كل الكنكتورات read-only
+</footer>
+
+<script>
+const H = { "X-API-Key": "__GATEWAY_API_KEY__" };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+// Container ids are suffixed (-grid, -list) because the sections they live in
+// already use the bare name as a nav anchor. Two elements with one id is not a
+// warning anywhere: getElementById silently returns the first, so writing
+// innerHTML wiped the entire section and took the sibling nodes with it.
+const $ = id => document.getElementById(id);
+const set = (id, v) => { const e = $(id); if (e) e.textContent = v; };
+const money = n => (n === null || n === undefined || isNaN(n)) ? "—"
+  : Number(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+
+const ICONS = {"/tools/expert":"🤖","/tools/legal":"⚖️","/tools/finance-os":"💼",
+  "/tools/finance-reports":"📊","/tools/name-builder":"🏷️","/tools/certificate":"📜",
+  "/tools/engineer":"🛢️","/tools/ideas":"💡","/tools/library":"📚",
+  "/tools/platform":"🏠","/tools/platform/public":"🌐","/tools/tour":"🧭"};
+
+const gaps = [];
+
+fetch("/api/v1/map?format=json", { headers: H }).then(r => r.json()).then(g => {
+  const c = g.coverage, live = g.connectors.filter(x => x.live);
+  set("k-sys", c.systems); set("k-conn", live.length);
+  set("k-ep", g.endpoints.length); set("k-ideas", c.ideas);
+  set("k-ready", g.ideas.filter(i => i.readiness === "ready").length);
+
+  // Pages, from the catalogue. The tour cannot advertise a screen that is not
+  // actually served — that is the point of reading the map instead of a list.
+  const pages = g.endpoints.filter(e => e.kind === "page" && !e.path.includes("{")
+                                        && !e.path.endsWith(".js") && e.path !== "/tools/tour");
+  set("k-pages", pages.length);
+  $("pages").innerHTML = pages.map(e =>
+    `<a class="card" href="${esc(e.path)}"><div class="ic">${ICONS[e.path] || "▸"}</div>
+     <div class="t">${esc(e.title_ar)}</div>
+     <div class="d mono">${esc(e.path)}</div>
+     <span class="tag t-read">شغّالة</span></a>`).join("");
+
+  const sys = g.systems.filter(s => s.status === "live");
+  $("systems").innerHTML = sys.map(s =>
+    `<div class="card"><div class="t">${esc(s.name_ar)}</div>
+     <div class="d">${esc(s.description || s.name_en)}</div>
+     <span class="tag t-live">موصّل</span></div>`).join("");
+
+  // Everything planned is a gap, straight off the map.
+  const planned = g.systems.filter(s => s.status !== "live");
+  if (planned.length) gaps.push({
+    t: `${planned.length} نظام على الخريطة ولسه ماتوصّلش`,
+    w: planned.map(s => s.name_ar).join(" · "),
+    href: "/systems"
+  });
+  const dead = g.connectors.filter(x => !x.live);
+  if (dead.length) gaps.push({
+    t: `${dead.length} كنكتور مبنيش لسه`,
+    w: dead.map(x => x.name_ar).join(" · "),
+    href: "/connectors"
+  });
+  const blocked = g.ideas.filter(i => i.readiness === "blocked").length;
+  if (blocked) gaps.push({
+    t: `${blocked} متطلب متوقّف على نظام لسه مابنيناهوش`,
+    w: "مسجّلين كلهم على اللوحة بأسبابهم — مش منسيين.",
+    href: "/tools/ideas"
+  });
+  paintGaps();
+}).catch(e => { $("pages").innerHTML = `<div class="load">الجيتواي مش رادّ: ${esc(e.message)}</div>`; });
+
+fetch("/api/v1/finance/kpis?format=json", { headers: H }).then(r => r.json()).then(d => {
+  const k = d.kpis || d, f = d.freshness || {};
+  // The endpoint answers 200 with `available:false` while the first sweep runs.
+  // Saying why beats four dashes — in a room, "it is still building" is an
+  // answer and "—" is a failure.
+  if (d.available === false) {
+    $("money-grid").innerHTML =
+      `<div class="big" style="grid-column:1/-1"><div class="l">${esc(d.reason || "الأرقام لسه مش جاهزة")}</div></div>`;
+    $("fresh").textContent = "";
+    gaps.push({ t: "اللقطة اللحظية لسه بتتبني",
+                w: "السحب الكامل من نما بياخد دقايق بعد كل restart — شغّل السيرفر قبل العرض بربع ساعة.",
+                href: "/api/v1/finance/live" });
+    paintGaps();
+    return;
+  }
+  $("money-grid").innerHTML =
+    `<div class="big"><div class="v">${money(k.ar_total ?? k.receivables)}</div>
+     <div class="l">مستحق لنا · AR (ج.م)</div></div>
+     <div class="big"><div class="v">${money(k.ap_total ?? k.payables)}</div>
+     <div class="l">مستحق علينا · AP (ج.م)</div></div>` +
+    (k.customers != null ? `<div class="big"><div class="v">${money(k.customers)}</div>
+     <div class="l">عميل عليه رصيد</div></div>` : "") +
+    (k.suppliers != null ? `<div class="big"><div class="v">${money(k.suppliers)}</div>
+     <div class="l">مورّد له رصيد</div></div>` : "");
+
+  let s = "";
+  if (f.as_of) {
+    const age = f.age_minutes != null
+      ? (f.age_minutes < 60 ? Math.round(f.age_minutes) + " دقيقة" : (f.age_minutes / 60).toFixed(1) + " ساعة")
+      : (f.age_days != null ? f.age_days + " يوم" : "");
+    s = `المصدر: <b>${esc(d.source || f.source || "—")}</b> · بتاريخ <b>${esc(f.as_of)}</b>` +
+        (age ? ` · عمرها ${age}` : "");
+    const gd = f.guard || {};
+    if (gd.status === "pass") s += ` · <span style="color:var(--ok)">✔ المطابقة عدّت على ${esc(gd.period || "")}</span>`;
+    else if (gd.status === "drift") s += ` · <span style="color:var(--bad)">⚠ انحراف — رجعنا لـSQL</span>`;
+    else if (gd.status) s += ` · <span class="muted">المطابقة لسه ماتفحصتش</span>`;
+  } else {
+    s = "مافيش لقطة لسه — أول سحب بعد التشغيل بياخد دقايق.";
+    gaps.push({ t: "اللقطة اللحظية لسه بتتبني",
+                w: "السحب الكامل بياخد دقايق بعد كل restart. الأرقام بتظهر لما يخلص.",
+                href: "/api/v1/finance/live" });
+    paintGaps();
+  }
+  $("fresh").innerHTML = s;
+}).catch(() => { $("money-grid").innerHTML = '<div class="load">الأرقام مش متاحة دلوقتي.</div>'; });
+
+Promise.all([
+  fetch("/api/v1/expert?format=json", { headers: H }).then(r => r.json()).catch(() => null),
+  fetch("/api/v1/legal?format=json", { headers: H }).then(r => r.json()).catch(() => null)
+]).then(([ex, lg]) => {
+  let h = "";
+  if (ex) {
+    const grounded = ex.mode === "grounded";
+    h += `<a class="card" href="/tools/expert"><div class="ic">🤖</div>
+      <div class="t">Nama Expert</div>
+      <div class="d">بيجاوب عن نما وعن المنصّة من <b>${ex.index.chunks}</b> مقطع
+      من <b>${ex.index.documents.length}</b> وثيقة — وكل جملة بمصدرها. سكرين شوت وصوت.</div>
+      <span class="tag ${grounded ? "t-live" : "t-warn"}">${grounded ? "موديل موصول" : "بيرجّع المصادر — مفيش موديل"}</span></a>`;
+    if (!grounded) gaps.push({
+      t: "مفيش موديل موصول للصياغة",
+      w: "الخبير والمستشار شغّالين وبيرجّعوا المصادر، بس مش بيصيغوا إجابة. مفتاح واحد في .env بيفتح ده.",
+      href: "/api/v1/expert" });
+  }
+  if (lg) {
+    const arts = lg.corpus.statute_articles;
+    h += `<a class="card" href="/tools/legal"><div class="ic">⚖️</div>
+      <div class="t">المستشار القانوني</div>
+      <div class="d">اسأل · اكتب عقد · راجع مستند · افحص المواد. كل رقم مادة بيتأكَّد من
+      النصّ المحمّل، واللي مش متأكَّد منه بيتشال من الجملة نفسها.</div>
+      <span class="tag ${arts ? "t-live" : "t-warn"}">${arts} مادة محمّلة · ${lg.corpus.loaded_of_expected}/${lg.corpus.expected} قانون</span></a>`;
+    if (!arts) gaps.push({
+      t: "نصوص القوانين لسه ماترفعتش",
+      w: `المحرّك والحارس والصيغ شغّالين، والمجلد فاضي — فالمستشار بيقول «القانون ده مش عندي» بدل ما يخمّن. ${lg.corpus.expected} قانون مطلوب.`,
+      href: "/api/v1/legal/coverage" });
+  }
+  h += `<div class="card"><div class="ic">🎙</div><div class="t">البحث الصوتي</div>
+    <div class="d">مايك واحد على كل صفحة — بيكتب في الحقل اللي معاه الفوكس أو في مربع
+    البحث. <span class="mono">Ctrl+M</span>. من متصفحك نفسه: مافيش مورّد ومافيش مفتاح.</div>
+    <span class="tag t-live">شغّال في كل الشاشات</span></div>`;
+  $("ai-grid").innerHTML = h;
+  paintGaps();
+});
+
+function paintGaps() {
+  if (!gaps.length) return;
+  $("gaps-list").innerHTML = gaps.map(g =>
+    `<div class="gap"><div class="t">${esc(g.t)}</div><div class="w">${g.w}</div>
+     ${g.href ? `<a class="proof" href="${esc(g.href)}">شوف بنفسك ↗</a>` : ""}</div>`).join("");
+}
+
+fetch("/?format=json", { headers: H }).then(r => r.json())
+  .then(d => set("ver", `${d.service} v${d.version}`)).catch(() => {});
+</script>
+</body></html>

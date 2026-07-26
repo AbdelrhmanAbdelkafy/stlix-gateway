@@ -195,6 +195,7 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/api/v1/legal/verify", "افحص أرقام المواد في أي نص", "legal", method="POST"),
     Endpoint("/api/v1/legal/reindex", "إعادة قراءة مجلد النصوص", "legal", method="POST"),
     # pages
+    Endpoint("/tools/tour", "الجولة — صفحة العرض", "front-end", kind="page"),
     Endpoint("/tools/platform", "الهَب", "front-end", kind="page"),
     Endpoint("/tools/platform/public", "الهَب — العرض العام", "front-end", kind="page"),
     Endpoint("/tools/certificate", "شهادة الجودة (استيراد)", "front-end", kind="page"),

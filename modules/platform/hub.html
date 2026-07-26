@@ -6,8 +6,8 @@
 @media(prefers-color-scheme:light){:root{--bg:#f5f7f8;--card:#fff;--card2:#eef1f4;--ln:#e3e7ec;--tx:#131922;--sub:#6a7688;--ac:#0c8a8a;--acd:#0a6a6a;--ok:#15914b;--warn:#c07a0a;--plan:#5b6b82}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",system-ui,Tahoma,sans-serif;line-height:1.55}
 .wrap{max-width:1120px;margin:0 auto;padding:0 18px 60px}
-.hero{background:#0b121c;color:#eaf2f2;border-radius:0 0 22px 22px;padding:26px 24px 30px;margin-bottom:24px;position:relative;overflow:hidden}
-.hero::after{content:"";position:absolute;inset-block:-40%;inset-inline-start:-10%;width:55%;background:radial-gradient(circle at 30% 50%,rgba(43,196,196,.2),transparent 70%)}
+.hero{color:#eaf2f2;border-radius:0 0 22px 22px;padding:26px 24px 30px;margin-bottom:24px;
+ background:#0b121c radial-gradient(900px 420px at 82% 45%,rgba(43,196,196,.17),transparent 62%)}
 .brand{display:flex;align-items:center;gap:12px}
 .logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--ac),var(--acd));display:grid;place-items:center;color:#fff;font-weight:800}
 h1{font-size:22px;margin:0;font-weight:800}.tag{color:#9fb4b4;font-size:12.5px}
@@ -73,6 +73,7 @@ h2.hidden,.h2ar.hidden{display:none !important}
   <h2>شغّال دلوقتي · Live</h2>
   <div class="h2ar">الموديولات والأنظمة الموصّلة على المنصّة</div>
   <div class="grid">
+    <a class="mod" href="/tools/tour"><div class="ic">🧭</div><div class="t">الجولة</div><div class="d">ابدأ من هنا لو أول مرة تشوف المنصّة — الفكرة والقواعد وكل اللي شغّال، وكل رقم فيها بلينك يثبته</div><span class="s s-live">صفحة العرض</span></a>
     <a class="mod" href="/tools/expert"><div class="ic">🤖</div><div class="t">Nama Expert</div><div class="d">اسأله عن نما أو عن المنصّة — بيجاوب من وثائق المشروع والخريطة، بمصدر لكل جملة · سكرين شوت وصوت</div><span class="s s-live" id="expert-badge">بيتحقق من المصدر…</span></a>
     <a class="mod" href="/tools/legal"><div class="ic">⚖️</div><div class="t">المستشار القانوني</div><div class="d">اسأل · اكتب عقد · راجع مستند — وكل رقم مادة بيتأكَّد من النصّ المحمّل قبل ما يوصلك</div><span class="s s-live" id="legal-badge">بيتحقق من المصدر…</span></a>
     <a class="mod" href="/tools/finance-os"><div class="ic">💼</div><div class="t">Finance OS</div><div class="d">الكوكبيت — عملاء · موردين · بنوك · فواتير · قيود · تحصيلات · مدفوعات، كلها من endpoints حيّة</div><span class="s s-live" id="cockpit-badge">بيتحقق من المصدر…</span></a>

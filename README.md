@@ -1,5 +1,17 @@
 # Stlix Gateway
 
+## التشغيل للعرض
+
+```powershell
+cd "D:\Nama Code project\stlix-gateway"
+.\deploy.ps1
+```
+
+بيجهّز البيئة، بيتأكد إن فيه مفتاح، بيشغّل الاختبارات، بيعمل فحص ما قبل العرض، وبعدين
+بيشغّل على الشبكة ويطبع العنوان اللي الزملاء يفتحوه. **ابدأ من `/tools/tour`.**
+التفاصيل والتحذيرات في [`RELEASE.md`](RELEASE.md).
+
+
 **نقطة تكامل واحدة لكل الأنظمة** — one FastAPI service that fronts every company
 system so clients (mobile apps, website, internal tools) talk to *one* API with
 *one* auth, and never hold each system's secrets.

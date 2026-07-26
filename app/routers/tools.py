@@ -92,6 +92,22 @@ async def ideas_board(settings: Settings = Depends(get_settings)) -> HTMLRespons
     return _serve("platform/ideas.html", settings)
 
 
+@router.get("/tour", response_class=HTMLResponse)
+async def tour(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """The page to open in front of colleagues.
+
+    Every number on it is fetched from the running platform and every claim
+    carries the link that proves it, so a skeptical person in the room can click
+    through to the raw data instead of taking a slide's word for it.
+
+    Its last section lists what is *not* working, assembled from live state
+    rather than from a list somebody maintains — a planned system on the map, a
+    connector with nothing behind it, an empty legal corpus, no model attached.
+    A tour that shows only the working half gets believed for about ten minutes.
+    """
+    return _serve("platform/tour.html", settings)
+
+
 @router.get("/platform", response_class=HTMLResponse)
 async def platform_hub(settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """Unified platform hub — the single entry point. Links every live module and
