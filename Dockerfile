@@ -20,6 +20,7 @@ COPY app ./app
 # kind of broken, so `tests/test_deploy.py` now asserts that every directory the
 # code reads at runtime is copied here.
 COPY modules ./modules
+COPY data ./data
 COPY docs ./docs
 COPY reference ./reference
 COPY corpus ./corpus

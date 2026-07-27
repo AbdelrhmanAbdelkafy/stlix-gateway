@@ -63,9 +63,17 @@ SYSTEMS: list[System] = [
     # none of it is bridged yet: it reads Nama directly with its own admin
     # credential, which is the thing this gateway exists to end. See
     # docs/rep-integration.md.
-    System("rep", "REP Operations", "REP التشغيلية", Status.PLANNED,
-           "Operational front-ends for what the ERP does not own: custody, movement, "
-           "meals, people/dictionary, policies, academy, alerts, signed documents."),
+    # LIVE since custody + documents + movement were adopted: their data was
+    # extracted verbatim from rep-system.html into data/rep/ and is served at
+    # /api/v1/rep/* — the single-file PWA's records became a connector that
+    # management reports read, which was the point of merging REP at all. The
+    # other eight units (meals, people/dictionary, policies, academy, banks,
+    # stocktake, alerts, home) still live only in the original file.
+    System("rep", "REP Operations", "REP التشغيلية", Status.LIVE,
+           "Custody, signed-document templates and movement — adopted from the REP "
+           "single-file PWA, served as data with provenance and management rollups. "
+           "Remaining units (meals, dictionary, policies, academy…) not yet adopted.",
+           url="/tools/rep"),
     # LIVE since the counsel: /api/v1/legal/* reads real files and, more to the
     # point, /api/v1/legal/verify checks article citations against them with no
     # model in the path. Live means the code exists; the corpus starts empty and

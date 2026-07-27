@@ -76,6 +76,7 @@ h2.hidden,.h2ar.hidden{display:none !important}
     <a class="mod" href="/tools/tour"><div class="ic">🧭</div><div class="t">الجولة</div><div class="d">ابدأ من هنا لو أول مرة تشوف المنصّة — الفكرة والقواعد وكل اللي شغّال، وكل رقم فيها بلينك يثبته</div><span class="s s-live">صفحة العرض</span></a>
     <a class="mod" href="/tools/expert"><div class="ic">🤖</div><div class="t">Nama Expert</div><div class="d">اسأله عن نما أو عن المنصّة — بيجاوب من وثائق المشروع والخريطة، بمصدر لكل جملة · سكرين شوت وصوت</div><span class="s s-live" id="expert-badge">بيتحقق من المصدر…</span></a>
     <a class="mod" href="/tools/legal"><div class="ic">⚖️</div><div class="t">المستشار القانوني</div><div class="d">اسأل · اكتب عقد · راجع مستند — وكل رقم مادة بيتأكَّد من النصّ المحمّل قبل ما يوصلك</div><span class="s s-live" id="legal-badge">بيتحقق من المصدر…</span></a>
+    <a class="mod" href="/tools/rep"><div class="ic">🚚</div><div class="t">REP التشغيلية</div><div class="d">العهدة · المستندات · الحركة — داتا REP الأصلية بقت كنكتور بتقرير للإدارة العليا · قوالب تتطبع · محرك توزيع الرحلات</div><span class="s s-live" id="rep-badge">بيتحقق من المصدر…</span></a>
     <a class="mod" href="/tools/finance-os"><div class="ic">💼</div><div class="t">Finance OS</div><div class="d">الكوكبيت — عملاء · موردين · بنوك · فواتير · قيود · تحصيلات · مدفوعات، كلها من endpoints حيّة</div><span class="s s-live" id="cockpit-badge">بيتحقق من المصدر…</span></a>
     <a class="mod" href="/tools/finance-reports"><div class="ic">📊</div><div class="t">التقارير المالية</div><div class="d">AR · AP · KPIs — لقطة نما الحيّة مع SQL كمرجع كامل</div><span class="s s-live" id="finance-badge">بيتحقق من المصدر…</span></a>
     <a class="mod" href="/tools/name-builder"><div class="ic">🏷️</div><div class="t">إنشاء الأصناف</div><div class="d">نص حر → كود وصفي + اسم · تصحيح إملائي + autocomplete · فحص تكرار</div><span class="s s-read">حيّ · قراءة</span></a>
@@ -178,6 +179,11 @@ fetch("/api/v1/map?format=json",H).then(r=>r.json()).then(function(g){
   if(ex)set("expert-badge",ex.configured?"حيّ · موديل موصول":"حيّ · مصادر ومراجع");
   var lg=g.connectors.filter(function(x){return x.key==="legal"})[0];
   if(lg)set("legal-badge",lg.configured?"حيّ · موديل موصول":"حيّ · فحص المواد شغّال");
+  // REP: the badge states what the connector actually serves right now —
+  // counts fetched from the overview, like every other number on this page.
+  fetch("/api/v1/rep/overview?format=json",H).then(r=>r.json()).then(function(o){
+    set("rep-badge","حيّ · "+o.documents.templates+" قوالب · "+o.alert_count+" تنبيه مفتوح");
+  }).catch(function(){});
   // Only systems that actually have somewhere to open. A card linking to a host
   // that is not up yet is the same lie as a number with no date.
   // External only. `ai` carries an in-app address (/tools/expert) so the

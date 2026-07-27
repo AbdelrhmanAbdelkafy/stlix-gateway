@@ -2,6 +2,21 @@
 
 > ملف واحد، مهمة واحدة. لما تخلص، حدّثه بالمهمة اللي بعدها من `TASKS.md`.
 
+## 🔄 دلوقتي: أعد تشغيل السيرفر علشان REP تنوّر
+
+السيرفر الشغّال على 3900 اتشغّل **قبل** ما REP تتبني، فمش شايف `/tools/rep` ولا
+`/api/v1/rep/*`. اقفله (`Ctrl+C` في نافذته) وشغّله تاني بنفس السطر:
+
+```powershell
+cd "D:\Nama Code project\stlix-gateway"; .\.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 3900
+```
+
+وافتح `http://127.0.0.1:3900/tools/rep`.
+
+> **البورت 3900 مش 8000** — على جهازك فيه بروسيس تاني ماسك `127.0.0.1:8000` فأي فتح
+> محلي بيروح له، و8080 محجوز في ويندوز. `deploy.ps1` افتراضيه بقى 3900. التفاصيل في
+> `RELEASE.md`.
+
 ## 🚀 v1.0.0 — جاهزة للعرض
 
 ```powershell
@@ -30,15 +45,27 @@ cd "D:\Nama Code project\stlix-gateway"
 | الحارس | بعد كل مسح، شهر مقفول بيتطابق تاني · `pass`/`drift`/`unknown` |
 | الأرقام المخترعة | **صفر** في كل صفحة موصّلة — واختبار بيقفلها |
 | الفرع | `live-numbers` واحد فيه كل حاجة (و`main` سلف ليه) |
-| الاختبارات | **213 يعدّوا** |
+| الاختبارات | **227 يعدّوا** |
 
 **الصفحات كلها:** `/tools/platform` · `/tools/platform/public` · `/tools/expert` · `/tools/legal` ·
-`/tools/finance-os` · `/tools/finance-reports` · `/tools/ideas` · `/tools/engineer` ·
+`/tools/rep` · `/tools/finance-os` · `/tools/finance-reports` · `/tools/ideas` · `/tools/engineer` ·
 `/tools/name-builder` · `/tools/certificate` · `/tools/library` — كلها 200 وكل رقم فيها من
 endpoint.
 
 ⚠️ **بعد كل restart:** ~8 دقايق الصفحات المالية تقول «مافيش لقطة لسه» — مش بترجع لـ SQL.
 مقصود وباختيارك.
+
+---
+
+## ✅ اتبنى للتو: **REP — العهدة والمستندات والحركة ككنكتور** (T27 🟡 · FL4 · AC9 🟢)
+
+داتا الوحدات الثلاث اتقيّمت **زي ما هي** من `rep-system.html` → `data/rep/rep.json`،
+وبقت كنكتور: `/api/v1/rep/*` والصفحة `/tools/rep`. **تقرير الإدارة العليا**
+(`/api/v1/rep/overview`) كل رقم فيه محسوب من السجلات والتنبيهات الـ8 بتتحسب مش بتتنقل.
+تحذيرات المؤلّف الأصلي (مسافات افتراضية · رصيد E000155 = رقم نما «الكاذب» · عدادات فاضية)
+بتلف مع كل ردّ. القوالب السبعة بتتولّد وتتطبع بكود `PFX-YYYYMMDD-NNN` — التوقيع يدوي لحد
+PA5. محرك التوزيع متنقّل يشتغل فوق داتا الـAPI. **الباقي 8 وحدات** لسه في الملف الأصلي
+و`/api/v1/rep` بيسمّيها. التفاصيل: `docs/rep-integration.md` §7.
 
 ---
 
@@ -124,7 +151,7 @@ endpoint.
 
 ## المطلوب قبل ما تبدأ
 - اشتغل من `D:\Nama Code project\stlix-gateway-live` (فرع `live-numbers`).
-- شغّل السيرفر: preview `stlix-gateway` → `http://localhost:8000/tools/platform`.
+- شغّل السيرفر: preview `stlix-gateway` → `http://localhost:3900/tools/platform`.
 - اقرأ `MASTER_EXECUTION_RUNBOOK.md` + `HANDOFF.md`.
 
 ## بند مؤجّل

@@ -25,6 +25,7 @@ from .integrations.legal.router import router as legal_router
 from .integrations.finance.router import router as finance_router
 from .integrations.inventory.router import router as inventory_router
 from .integrations.nama.router import router as nama_router
+from .integrations.rep.router import router as rep_router
 from .registry import SYSTEMS, Status
 from .routers.graph import router as graph_router
 from .routers.meta import router as meta_router
@@ -125,6 +126,7 @@ def create_app() -> FastAPI:
     app.include_router(finance_router, prefix=API_PREFIX)
     app.include_router(expert_router, prefix=API_PREFIX)
     app.include_router(legal_router, prefix=API_PREFIX)
+    app.include_router(rep_router, prefix=API_PREFIX)
     app.include_router(workspace_router, prefix=API_PREFIX)
     app.include_router(ideas_router, prefix=API_PREFIX)
     app.include_router(graph_router, prefix=API_PREFIX)

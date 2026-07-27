@@ -53,6 +53,10 @@ _EP = {
     "ws": "/api/v1/workspace",
     "sys": "/systems",
     "map": "/api/v1/map",
+    "repc": "/api/v1/rep/custody",
+    "repm": "/api/v1/rep/movement",
+    "repd": "/api/v1/rep/documents",
+    "repo": "/api/v1/rep/overview",
 }
 
 
@@ -319,12 +323,14 @@ WIRING: dict[str, Wire] = {
               "المسارات والدروس عند REP من نوشن — الناقص كنكتور الأكاديمية"),
     "H28": _w("rep attendance meals nama", "nama", "emp",
               "معادلة الوجبات عند REP — الناقص كنكتور الوجبات فوق الحضور"),
-    "T27": _w("rep custody nama", "nama", "nama",
-              "العهدة مبنية عند REP برصيد افتتاحي يدوي — الناقص كنكتور العهدة"),
+    "T27": _w("rep custody nama", "nama", "repc repo",
+              "الداتا والتقرير الإداري live من كنكتور REP — الناقص دفتر القيد "
+              "الـappend-only (كتابة بموافقة، زي كل كتابة)"),
     "T28": _w("rep banks", "nama", "bank bankm",
               "مدقّق MOD-97 عند REP والحسابات حيّة عندنا — الناقص ضمّ المدقّق فوق الـ endpoint"),
-    "FL4": _w("rep movement nama", "nama", "nama",
-              "محرك الحركة مبني عند REP — الناقص كنكتور الحركة وقراءات العداد"),
+    "FL4": _w("rep movement nama", "nama", "repm repo",
+              "المحرك شغّال فوق كنكتور الحركة في /tools/rep — الناقص قراءات "
+              "العداد (فاضية في كل العربيات) وترحيل الرحلات server-side (كتابة)"),
     "PA5": _w("rep archive", "overview", "",
               "توقيع REP (ECDSA · مفتاح في الجهاز) هو آلية HITL لـ Layer 5 — الناقص طبقة الكتابة"),
     "PA6": _w("rep idp", "overview", "",
@@ -337,6 +343,9 @@ WIRING: dict[str, Wire] = {
               "الكيانات القانونية الثلاثة موثّقة عند REP ومش عندنا — الناقص إضافتها للخريطة"),
     "AC8": _w("rep nama", "nama", "nama",
               "كتالوج 599 كيان عند REP — الناقص فهرس للكيانات جوّه الجيتواي"),
+    "AC9": _w("rep archive", "overview", "repd",
+              "القوالب السبعة بتتولّد وتتطبع من /tools/rep — الناقص توقيع PA5 "
+              "الرقمي بدل الإمضا على الورق"),
     "LG9": _w("portal nama ai", "nama", "nama ent1",
               "كونكتور CargoX/ACID للتحقق والرفع + Layer 4 للشات بوت — داتا المستندات نفسها موجودة في نما"),
     # --- Safety / HSE · السلامة ---------------------------

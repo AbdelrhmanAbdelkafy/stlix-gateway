@@ -1,0 +1,287 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>REP التشغيلية — العهدة · المستندات · الحركة</title>
+<!--
+  The upgrade of rep-system.html's three adopted units.
+
+  The original page OWNED its data inside its own <script> tag; this one reads
+  the same records from /api/v1/rep/*, so the workspace, the tour and a
+  management report see exactly what this page sees. Nothing on this page
+  states a record of its own — every list, total and warning arrives from the
+  API, with REP's original caveats attached.
+
+  Daily entries (expense receipts against a custody, planned trips) stay in
+  localStorage exactly as the original did — they were never in the file, and
+  moving them server-side is a WRITE that follows the platform's write rules.
+  The dispatch planner is the original engine's rules, running client-side over
+  API-fetched cars/places/drivers.
+-->
+<style>
+:root{color-scheme:light dark;--bg:#0e131a;--card:#151c26;--card2:#1b2431;--ln:#232e3d;--tx:#e9edf3;--sub:#7e8ba0;--ac:#e8671a;--ac2:#2bc4c4;--ok:#2fbd6b;--warn:#e0a53a;--bad:#e0483a}
+@media(prefers-color-scheme:light){:root{--bg:#f6f4f1;--card:#fff;--card2:#efece7;--ln:#e3ded4;--tx:#191410;--sub:#6f675c;--ac:#c45510;--ac2:#0c8a8a;--ok:#15914b;--warn:#a9770a;--bad:#b3392c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",system-ui,Tahoma,sans-serif;line-height:1.65;font-size:14.5px}
+a{color:var(--ac2)}
+.hero{color:#f4ece2;padding:18px 20px;background:#141008 radial-gradient(700px 320px at 80% 40%,rgba(232,103,26,.16),transparent 60%)}
+.hero .in{max-width:1020px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--ac),#8a3c0a);display:grid;place-items:center;color:#fff;font-weight:900}
+h1{font-size:18px;margin:0;font-weight:800}
+.tag{color:#c2a98d;font-size:12px}
+.state{margin-inline-start:auto;display:flex;gap:6px;flex-wrap:wrap}
+.pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.08);color:#e7d7c3;border:1px solid rgba(255,255,255,.14)}
+.pill.bad{background:rgba(224,72,58,.2);color:#ef8074;border-color:transparent}
+.pill.ok{background:rgba(47,189,107,.16);color:#5fd695;border-color:transparent}
+.tabs{max-width:1020px;margin:0 auto;display:flex;gap:4px;padding:10px 18px 0;flex-wrap:wrap}
+.tab{background:none;border:1px solid var(--ln);border-bottom:0;border-radius:11px 11px 0 0;padding:8px 15px;font:inherit;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer}
+.tab[aria-selected=true]{background:var(--card);color:var(--tx);border-color:var(--ac)}
+main{max-width:1020px;margin:0 auto;padding:0 18px 40px}
+.panel{background:var(--card);border:1px solid var(--ln);border-radius:0 13px 13px 13px;padding:16px;display:none}
+.panel.on{display:block}
+.hint{font-size:12.5px;color:var(--sub);margin:0 0 12px}
+.hint b{color:var(--tx)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card2);border:1px solid var(--ln);border-radius:12px;padding:11px 13px}
+.kpi .v{font-size:22px;font-weight:800;direction:ltr;text-align:start;unicode-bidi:isolate}
+.kpi .l{font-size:10.5px;color:var(--sub)}
+.kpi.bad .v{color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+th,td{text-align:right;padding:7px 9px;border-bottom:1px solid var(--ln);vertical-align:top}
+th{color:var(--sub);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px}
+.mono{font-family:ui-monospace,Consolas,monospace;direction:ltr;font-size:12px;unicode-bidi:isolate}
+.warnbox{background:rgba(224,165,58,.1);border:1px solid var(--warn);border-radius:11px;padding:10px 13px;font-size:12px;margin:10px 0;line-height:1.8}
+.alert{border-inline-start:3px solid var(--warn);background:var(--card2);border-radius:0 9px 9px 0;padding:8px 12px;margin-bottom:7px;font-size:13px}
+.alert.bad{border-color:var(--bad)}
+label{display:block;font-size:11.5px;font-weight:700;color:var(--sub);margin:9px 0 3px}
+input,select,textarea{width:100%;background:var(--card2);border:1px solid var(--ln);border-radius:9px;padding:8px 11px;color:var(--tx);font-family:inherit;font-size:13.5px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);outline-offset:1px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0 10px}
+.go{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:9px 18px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;margin-top:11px;width:auto}
+.go.alt{background:var(--card2);color:var(--tx);border:1px solid var(--ln)}
+.verdict{margin-top:12px;background:var(--card2);border:1px solid var(--ln);border-radius:11px;padding:12px 14px;font-size:13px;line-height:1.9}
+.verdict.ok{border-color:var(--ok)}
+.verdict.no{border-color:var(--bad)}
+.doc{background:#fff;color:#111;border-radius:6px;padding:26px 30px;margin-top:12px;font-size:14px;line-height:1.9;white-space:pre-wrap;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.doc .hd{display:flex;justify-content:space-between;border-bottom:2px solid #333;padding-bottom:8px;margin-bottom:12px;font-weight:700}
+.doc .ft{border-top:1px dashed #999;margin-top:16px;padding-top:9px;font-size:11px;color:#555}
+.foot{max-width:1020px;margin:0 auto;font-size:11px;color:var(--sub);text-align:center;padding:14px 18px;line-height:1.9}
+.hid{display:none !important}
+@media print{body *{visibility:hidden}.doc,.doc *{visibility:visible}.doc{position:absolute;inset:0;box-shadow:none}}
+</style></head><body>
+
+<div class="hero"><div class="in">
+  <div class="logo">R</div>
+  <div><h1>REP التشغيلية</h1><div class="tag">العهدة · المستندات · الحركة — نفس داتا REP، متخدومة من الجيتواي</div></div>
+  <div class="state" id="state"><span class="pill">بيحمّل…</span></div>
+</div></div>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" data-p="over" aria-selected="true">تقرير الإدارة</button>
+  <button class="tab" role="tab" data-p="cust" aria-selected="false">💰 العهدة</button>
+  <button class="tab" role="tab" data-p="docs" aria-selected="false">📄 المستندات</button>
+  <button class="tab" role="tab" data-p="disp" aria-selected="false">🚚 الحركة</button>
+</div>
+
+<main>
+  <section class="panel on" id="p-over">
+    <p class="hint">كل رقم هنا <b>محسوب من السجلات</b> المستخرجة من rep-system.html — مش مكتوب في الصفحة.
+    نفس الأرقام دي بتطلع لأي تقرير من <span class="mono">/api/v1/rep/overview</span>.</p>
+    <div class="kpis" id="ov-kpis"></div>
+    <div id="ov-warn"></div>
+    <h3 style="font-size:15px;margin:16px 0 8px">التنبيهات المفتوحة</h3>
+    <div id="ov-alerts"></div>
+  </section>
+
+  <section class="panel" id="p-cust">
+    <p class="hint">حاملو العهدة وأرصدتهم الافتتاحية وعُهد العربيات — من
+    <span class="mono">/api/v1/rep/custody</span>. تسجيل إيصالات الصرف اليومي بيفضل على جهاز كل
+    حامل (زي REP الأصلي) — نقله للسيرفر عملية كتابة ليها قواعدها.</p>
+    <div class="kpis" id="c-kpis"></div>
+    <div id="c-holders"></div>
+    <h3 style="font-size:15px;margin:16px 0 4px">عُهد العربيات</h3>
+    <div id="c-cars"></div>
+  </section>
+
+  <section class="panel" id="p-docs">
+    <p class="hint">القوالب السبعة كما هي من REP — بالحقول والنصوص وسند كل قالب. املا واطبع.
+    التوقيع الرقمي (ECDSA) لسه محتاج آلية PA5 — لحد ما تتبني، المستند بيتطبع بخانة توقيع يدوي.</p>
+    <label for="d-tpl">القالب</label><select id="d-tpl"></select>
+    <div class="warnbox" id="d-why"></div>
+    <div class="row" id="d-fields"></div>
+    <button class="go" id="d-make">حضّر المستند</button>
+    <button class="go alt hid" id="d-print">🖨 اطبع</button>
+    <div id="d-out"></div>
+  </section>
+
+  <section class="panel" id="p-disp">
+    <p class="hint">محرّك الحركة الأصلي بقواعده — شغّال على داتا متسحبة من
+    <span class="mono">/api/v1/rep/movement</span>. <b>⚠️ المسافات والأزمنة افتراضية</b> —
+    التحذير ده من الملف الأصلي نفسه ومسافر مع الداتا.</p>
+    <div class="kpis" id="m-kpis"></div>
+    <div id="m-team"></div>
+    <h3 style="font-size:15px;margin:18px 0 4px">جرّب المحرّك: اطلب مشوار</h3>
+    <div class="row">
+      <div><label for="t-to">إلى فين</label><select id="t-to"></select></div>
+      <div><label for="t-when">ميعاد الخروج</label><input id="t-when" type="time" value="09:00"></div>
+      <div><label for="t-ppl">كام فرد</label><input id="t-ppl" type="number" value="1" min="1"></div>
+      <div><label for="t-load">شايلين إيه</label><select id="t-load"></select></div>
+    </div>
+    <button class="go" id="t-go">شغّل المحرّك</button>
+    <div id="t-out"></div>
+  </section>
+</main>
+
+<div class="foot">
+  المصدر: rep-system.html (مستخرَج حرفيًا) ·
+  <a href="/api/v1/rep">حالة الكنكتور</a> ·
+  <a href="/api/v1/rep/overview">تقرير الإدارة JSON</a> ·
+  <a href="/tools/platform">الهَب</a>
+</div>
+
+<script>
+const H = { "X-API-Key": "__GATEWAY_API_KEY__" };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $ = id => document.getElementById(id);
+const eg = n => Number(n || 0).toLocaleString("en-US");
+const hm = m => String(Math.floor(m/60)).padStart(2,"0") + ":" + String(m%60).padStart(2,"0");
+const mn = t => { const [h,m] = String(t).split(":").map(Number); return h*60 + (m||0); };
+
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === t));
+  ["over","cust","docs","disp"].forEach(p => $("p-"+p).classList.toggle("on", p === t.dataset.p));
+});
+
+let MOV = null, DOCS = null;
+
+/* ---- overview ---------------------------------------------------------- */
+fetch("/api/v1/rep/overview?format=json", { headers: H }).then(r => r.json()).then(o => {
+  $("state").innerHTML =
+    `<span class="pill ok">٣ وحدات مضمومة</span>` +
+    `<span class="pill ${o.alert_count ? "bad" : "ok"}">${o.alert_count} تنبيه</span>`;
+  $("ov-kpis").innerHTML = [
+    [o.custody.holders, "حامل عهدة نقدية"],
+    [eg(o.custody.opening_total), "إجمالي الافتتاحي (ج)"],
+    [o.custody.orphan_vehicles, "🔴 عربية يتيمة", o.custody.orphan_vehicles > 0],
+    [o.movement.team, "فريق الحركة"],
+    [o.movement.drivers_without_mobile, "سائق بلا موبايل", o.movement.drivers_without_mobile > 0],
+    [o.documents.templates, "قالب مستند"],
+  ].map(([v,l,bad]) => `<div class="kpi${bad ? " bad" : ""}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  $("ov-warn").innerHTML = (o.source.warnings || []).map(w =>
+    `<div class="warnbox">⚠️ ${esc(w)}</div>`).join("");
+  $("ov-alerts").innerHTML = o.alerts.map(a =>
+    `<div class="alert ${a.level === "bad" ? "bad" : ""}"><b>${esc(a.unit)}</b> — ${esc(a.text)}</div>`).join("") ||
+    `<div class="hint">مافيش تنبيهات.</div>`;
+}).catch(e => { $("state").innerHTML = `<span class="pill bad">الجيتواي مش رادّ</span>`; });
+
+/* ---- custody ------------------------------------------------------------ */
+fetch("/api/v1/rep/custody?format=json", { headers: H }).then(r => r.json()).then(c => {
+  $("c-kpis").innerHTML = [
+    [c.holders.length, "حامل عهدة"],
+    [eg(c.opening_total), "إجمالي الافتتاحي (ج)"],
+    [c.orphan_vehicles.length, "🔴 عربية حاملها مشي", c.orphan_vehicles.length > 0],
+  ].map(([v,l,bad]) => `<div class="kpi${bad ? " bad" : ""}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  $("c-holders").innerHTML = `<table><thead><tr><th>الحامل</th><th>الكود</th><th>القسم</th><th>الرصيد الافتتاحي</th><th>ملاحظة</th></tr></thead><tbody>` +
+    c.holders.map(h => `<tr><td>${esc(h.name)}</td><td class="mono">${esc(h.id)}</td><td>${esc(h.dept)}</td>` +
+      `<td class="mono">${eg(h.opening)}</td><td>${esc(h.flag || "")}</td></tr>`).join("") + `</tbody></table>`;
+  $("c-cars").innerHTML = `<table><thead><tr><th>العربية</th><th>الكود</th><th>عهدتها على</th><th>الحالة</th></tr></thead><tbody>` +
+    c.vehicle_custody.map(v => `<tr><td>${esc(v.name)}</td><td class="mono">${esc(v.code)}</td><td>${esc(v.held_by)}</td>` +
+      `<td>${v.holder_left_company ? '<span style="color:var(--bad)">🔴 مشي من الشركة</span>' : "على رأس العمل"}</td></tr>`).join("") + `</tbody></table>`;
+});
+
+/* ---- documents ---------------------------------------------------------- */
+fetch("/api/v1/rep/documents?format=json", { headers: H }).then(r => r.json()).then(d => {
+  DOCS = d.templates;
+  $("d-tpl").innerHTML = DOCS.map((t,i) => `<option value="${i}">${esc(t.emoji)} ${esc(t.title)} (${esc(t.prefix)})</option>`).join("");
+  paintDoc();
+});
+function paintDoc(){
+  const t = DOCS[+$("d-tpl").value];
+  $("d-why").innerHTML = t.why;   /* authored HTML from the original file */
+  $("d-fields").innerHTML = t.fields.filter(f => f.type !== "area").map(f => {
+    const id = "df-" + f.key;
+    if (f.type === "sel")
+      return `<div><label for="${id}">${esc(f.label)}</label><select id="${id}" data-k="${f.key}">` +
+        (f.options || []).map(o => `<option>${esc(o)}</option>`).join("") + `</select></div>`;
+    const typ = f.type === "date" ? "date" : f.type === "num" ? "number" : "text";
+    return `<div><label for="${id}">${esc(f.label)}</label><input id="${id}" data-k="${f.key}" type="${typ}" placeholder="${esc(f.placeholder || "")}"></div>`;
+  }).join("");
+  $("d-out").innerHTML = ""; $("d-print").classList.add("hid");
+}
+$("d-tpl").onchange = paintDoc;
+let seq = 1;
+$("d-make").onclick = () => {
+  const t = DOCS[+$("d-tpl").value];
+  const vals = {};
+  document.querySelectorAll("#d-fields [data-k]").forEach(el => vals[el.dataset.k] = el.value);
+  const bodyF = t.fields.find(f => f.type === "area");
+  let body = bodyF ? bodyF.body_template : "";
+  body = body.replace(/\{\{(\w+)\}\}/g, (_, k) => vals[k] || "—");
+  const code = t.prefix + "-" + new Date().toISOString().slice(0,10).replace(/-/g,"") + "-" + String(seq++).padStart(3,"0");
+  $("d-out").innerHTML = `<div class="doc" id="printdoc">` +
+    `<div class="hd"><span>ستليكس فالي — ${esc(t.title)}</span><span class="mono">${esc(code)}</span></div>` +
+    esc(body) +
+    `\n\nالتاريخ: ${new Date().toLocaleDateString("ar-EG")}` +
+    `\n\nالتوقيع: ______________________` +
+    `<div class="ft">صادر من REP عبر STLIX Gateway · التوقيع الرقمي (PA5) لسه — التوقيع أعلاه يدوي</div></div>`;
+  $("d-print").classList.remove("hid");
+};
+$("d-print").onclick = () => window.print();
+
+/* ---- movement: the original engine, API-fed ----------------------------- */
+fetch("/api/v1/rep/movement?format=json", { headers: H }).then(r => r.json()).then(m => {
+  MOV = m;
+  $("m-kpis").innerHTML = [
+    [m.team.length, "فريق الحركة"],
+    [m.fleet.length, "عربية"],
+    [m.places.length, "مكان مسجّل"],
+    [m.drivers_without_mobile.length, "سائق بلا موبايل", m.drivers_without_mobile.length > 0],
+  ].map(([v,l,bad]) => `<div class="kpi${bad ? " bad" : ""}"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  $("m-team").innerHTML = `<table><thead><tr><th>الاسم</th><th>الدور</th><th>موبايل</th><th>ماكينة</th><th>ملاحظة</th></tr></thead><tbody>` +
+    m.team.map(t => `<tr><td>${esc(t.name)}</td><td>${esc(t.role)}</td>` +
+      `<td class="mono">${t.mobile ? esc(t.mobile) : '<span style="color:var(--bad)">مفيش</span>'}</td>` +
+      `<td class="mono">${esc(t.machine || "")}</td><td>${esc(t.flag || "")}</td></tr>`).join("") + `</tbody></table>`;
+  $("t-to").innerHTML = m.places.map(p => `<option>${esc(p.n)}</option>`).join("");
+  $("t-load").innerHTML = m.load_kinds.map(l => `<option value="${esc(l.k)}">${esc(l.e)} ${esc(l.n)}</option>`).join("");
+});
+
+/* The dispatch rules from rep-system.html, running over API data. Trips made
+   here live in this browser only — same as the original. */
+let trips = [];
+function dispatch(r){
+  const P = MOV.places.find(p => p.n === r.to), why = [];
+  if (P.close){
+    const arrive = r.want + P.min;
+    if (arrive > mn(P.close)) return { ok: 0, why: [
+      `<b>${esc(P.n)}</b> بتقفل <b>${P.close}</b>`,
+      `الخروج ${hm(r.want)} + ${P.min}د طريق = وصول <b>${hm(arrive)}</b>`,
+      `<b>اتأخر ${arrive - mn(P.close)} دقيقة.</b> لازم الخروج ${hm(mn(P.close) - P.min)} أو أبدر.`]};
+    why.push(`${esc(P.n)} بتقفل ${P.close} · وصول ${hm(arrive)} → تمام`);
+  }
+  const fit = MOV.fleet.filter(c => c.seats >= r.ppl && (r.load !== "cargo" || c.cargo));
+  if (!fit.length) return { ok: 0, why: [
+    `محتاج <b>${r.ppl} أفراد</b>${r.load === "cargo" ? " + بضاعة" : ""}`,
+    `<b>مفيش عربية واحدة تعمل ده.</b> يتقسّم على اتنين؟`]};
+  const drivers = MOV.team.filter(t => t.role.indexOf("سائق") >= 0 || t.role.indexOf("مندوب") >= 0);
+  const cnt = {}; drivers.forEach(d => cnt[d.id] = trips.filter(t => t.drv === d.id).length);
+  const pick = drivers.slice().sort((a,b) => cnt[a.id] - cnt[b.id])[0];
+  const car = fit.slice().sort((a,b) =>
+    (a.cargo === b.cargo ? 0 : (r.load === "cargo" ? (b.cargo - a.cargo) : (a.cargo - b.cargo))) || a.seats - b.seats)[0];
+  why.push(`${esc(car.n)}: ${car.seats} مقاعد${car.cargo ? " · بضاعة" : ""} — أنسب متاح`);
+  why.push(`${esc(pick.name)}: عليه <b>${cnt[pick.id]}</b> رحلة النهاردة — الأقل (توزيع عادل)`);
+  why.push(`📏 <b>قاعدة الـ١٠ دقائق</b> (اللائحة الداخلية): الانتظار التشغيلي فوق ١٠ دقايق هدر`);
+  if (!pick.mobile) why.push(`🔴 <b>مفيش موبايل لـ${esc(pick.name)} في نما</b> — النظام مش هيعرف يبلّغه`);
+  if (pick.flag) why.push(`⚠️ ${esc(pick.name)}: ${esc(pick.flag)}`);
+  if (car.gone) why.push(`🔴 ${esc(car.n)} عهدتها على <b>${esc(car.cust)}</b> — مشي من الشركة`);
+  return { ok: 1, car: car.c, drv: pick.id, why };
+}
+$("t-go").onclick = () => {
+  if (!MOV) return;
+  const r = { to: $("t-to").value, want: mn($("t-when").value || "09:00"),
+              ppl: +$("t-ppl").value || 1, load: $("t-load").value };
+  const v = dispatch(r);
+  if (v.ok) trips.push({ drv: v.drv, car: v.car, ...r });
+  $("t-out").innerHTML = `<div class="verdict ${v.ok ? "ok" : "no"}">` +
+    (v.ok ? `✅ <b>اتحجزت.</b>` : `⛔ <b>مش هينفع كده.</b>`) +
+    `<br>` + v.why.join("<br>") + `</div>`;
+};
+</script>
+</body></html>

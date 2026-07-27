@@ -21,6 +21,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | Attendance / fingerprint | Nama REST | 🟢 |
 | CRM (contacts, leads, accounts) | Vtiger | 🟢 |
 | Banks (accounts, master) | Nama REST | 🟢 |
+| REP operations (custody · documents · movement) | data/rep — extracted verbatim from rep-system.html | 🟢 |
 
 > Bank **balances**: Nama REST exposes no balance/report entity (verified).
 > Real numbers require SQL (`chartbalance` / `JournalEntryLine`) or a Nama
@@ -102,7 +103,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | T24 | الحسابات المفضلة لاستلام تحويلات العملاء (preferred collection accounts) → enhances Banks connector | Nama | ⚪ |
 | T25 | حسابات البنوك لدينا (our bank accounts) — ✅ built (banks connector) | Nama | 🟢 |
 | T26 | إيصالات دفع (payment slips / receipts) — سند صرف/قبض قابل للطباعة | Nama | ⚪ |
-| T27 | **العهدة** — رصيد افتتاحي يُعدّ باليد لا يُنقل من نما (رقم نما كاذب: 7.9M على E000004 سلّة لناس تانيين) · append-only · القرش وحدة الحساب (من REP) | REP / custody / Nama | ⚪ |
+| T27 | **العهدة** — رصيد افتتاحي يُعدّ باليد لا يُنقل من نما (رقم نما كاذب: 7.9M على E000004 سلّة لناس تانيين) · append-only · القرش وحدة الحساب (من REP) · **الداتا والتقرير الإداري live**: `/api/v1/rep/custody` + `/tools/rep` بتحذيرات المصدر نفسها — دفتر القيد الـappend-only لسه (كتابة) | REP / custody / Nama | 🟡 |
 | T28 | **تحقق IBAN بـ MOD-97** — 18 حساب · 11 عدّوا · 3 تعارضات · `BankAccount.iban` في نما مش بيحمل IBAN (من REP) → Data-Quality | REP / banks | ⚪ |
 
 ## Maintenance (صيانة)
@@ -118,7 +119,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | FL1 | تكلفة السيارة — يوميًا / شهريًا (vehicle cost daily/monthly, TCO) | Nama | ⚪ |
 | FL2 | تكلفة البنزين (fuel cost) | Nama | ⚪ |
 | FL3 | تكلفة الصيانات (vehicle maintenance cost) | Nama | ⚪ |
-| FL4 | **محرك الحركة** — 57% قرار تلقائي · دمج رحلات · تصعيد · يقول «ليه» (من REP) · 9 عربيات والعداد فاضي في الكل | REP / movement | ⚪ |
+| FL4 | **محرك الحركة** — 57% قرار تلقائي · دمج رحلات · تصعيد · يقول «ليه» (من REP) · 9 عربيات والعداد فاضي في الكل · **المحرك اتنقل** يشتغل فوق `/api/v1/rep/movement` في `/tools/rep` (الرحلات اليومية لكل متصفح لحد ما الكتابة تتفتح) | REP / movement | 🟢 |
 
 ## IT & Electronic Assets (أصول تقنية)
 | # | Item | Source | Status |
@@ -262,6 +263,7 @@ Status: 🟢 live · 🟡 next · ⚪ planned
 | AC6 | الحراسة (security guarding / shifts) — ties to surveillance system | Nama / new | ⚪ |
 | AC7 | **الكيانات القانونية الثلاثة** — 01 المجموعة المصرية · 02 ستليكس فالي · 005 STLIX GLOBAL HOLDING (من REP) — الفواتير فيها `legalEntity` فالتقارير محتاجة تعرفهم | REP / Nama | ⚪ |
 | AC8 | **كتالوج كيانات نما — 599 كيان** (من REP) — عندنا قراءة عامة لأي كيان بس مافيش كتالوج يقول فيه إيه | REP / Nama | ⚪ |
+| AC9 | **قوالب المستندات الموقَّعة السبعة** (من REP) — استلام/تسليم عهدة وعربية وغيرها، قابلة للطباعة بكود `PFX-YYYYMMDD-NNN` · **مبنية**: `/api/v1/rep/documents` + توليد وطباعة في `/tools/rep` — التوقيع يدوي على الورق لحد ما PA5 (ECDSA) تتبني | REP / gateway | 🟢 |
 
 ## Operations & Production (عمليات وإنتاج)
 | # | Item | Source | Status |

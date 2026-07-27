@@ -55,12 +55,14 @@ CONNECTORS: tuple[Connector, ...] = (
               "nama_configured", "banks_mode", "Accounts master; balances need SQL."),
     Connector("inventory", "الجرد", "Stocktake", "inventory", "Stlix count app (sync.php)", True,
               "inventory_configured", "inventory_mode"),
-    # Not live: REP holds its own Nama admin key in the browser today. Turning it
-    # live means REP calling /api/v1/* instead — which is exactly what removes the
-    # credential from the browser. docs/rep-integration.md.
+    # Live for three of the eleven units: custody, documents, movement. Their
+    # data was extracted verbatim from rep-system.html into data/rep/rep.json —
+    # files on disk, no credential — and the extracted copy carries the original
+    # file's own warnings (placeholder distances, the contested opening balance)
+    # on every response. docs/rep-integration.md.
     Connector("rep", "REP التشغيلية", "REP Operations", "rep",
-              "REP single-file PWA (11 modules)", False,
-              note="11 وحدة مبنية ومختبرة، صفر منها موصّل عبر الجيتواي لسه"),
+              "data/rep on disk (extracted from rep-system.html)", True,
+              note="العهدة والمستندات والحركة مضمومين · باقي ٨ وحدات لسه في الملف الأصلي"),
     Connector("gateway", "الجيتواي نفسه", "Gateway itself", "", "in-process", True,
               note="Workspace, ideas, systems map, metrics."),
     Connector("front-end", "واجهات الموديولات", "Module front-ends", "", "served from /tools", True,
@@ -183,6 +185,13 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/api/v1/expert/ask", "اسأل الخبير (نص + سكرين شوت)", "expert",
              method="POST"),
     Endpoint("/api/v1/expert/reindex", "إعادة فهرسة الوثائق", "expert", method="POST"),
+    # rep
+    Endpoint("/api/v1/rep", "REP — إيه المضموم وإيه الباقي", "rep"),
+    Endpoint("/api/v1/rep/custody", "العهدة — الحاملون والعربيات", "rep"),
+    Endpoint("/api/v1/rep/movement", "الحركة — الفريق والأسطول والقواعد", "rep"),
+    Endpoint("/api/v1/rep/documents", "قوالب المستندات السبعة", "rep"),
+    Endpoint("/api/v1/rep/overview", "تقرير الإدارة — محسوب من السجلات", "rep"),
+    Endpoint("/api/v1/rep/reload", "إعادة قراءة داتا REP", "rep", method="POST"),
     # legal counsel
     Endpoint("/api/v1/legal", "حالة المستشار والنصوص المحمّلة", "legal"),
     Endpoint("/api/v1/legal/coverage", "تغطية القوانين — المحمّل والناقص", "legal"),
@@ -201,6 +210,7 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/tools/certificate", "شهادة الجودة (استيراد)", "front-end", kind="page"),
     Endpoint("/tools/expert", "Nama Expert — الشات", "front-end", kind="page"),
     Endpoint("/tools/legal", "المستشار القانوني", "front-end", kind="page"),
+    Endpoint("/tools/rep", "REP — العهدة والمستندات والحركة", "front-end", kind="page"),
     Endpoint("/tools/voice.js", "طبقة البحث الصوتي — تتحقن في كل صفحة", "voice",
              kind="page"),
     Endpoint("/tools/ideas", "لوحة الأفكار", "front-end", kind="page"),

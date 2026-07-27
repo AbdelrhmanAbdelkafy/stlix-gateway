@@ -1,299 +1,330 @@
 {
-  "project": "Stlix Gateway",
-  "one_liner": "نقطة تكامل واحدة (FastAPI) تربط كل أنظمة الشركة — قراءة أولًا، مفاتيح server-side، بوابة مزدوجة.",
-  "aka": "hub = gateway = platform = الهَب = الجيتواي = المنصّة — all the same project (owner's words). Not to be confused with 'D:\\CLAUDE SHARED MEMORY\\Enterprise Platform AI based' (unrelated doc set).",
-  "path": "D:\\Nama Code project\\stlix-gateway",
-  "git": "local only (no remote, by owner's choice). Single branch `live-numbers` in a separate worktree at D:\\Nama Code project\\stlix-gateway-live; it has `main` as an ancestor, so one branch holds everything. The shared folder D:\\Nama Code project\\stlix-gateway is where a concurrent session worked; `main` there can fast-forward onto live-numbers.",
-  "as_of": "2026-07-25",
-  "language_pref": "Egyptian Arabic (reply to owner in it)",
-  "run": {
-    "how": ".claude/launch.json name 'stlix-gateway' -> uvicorn app.main:app on 127.0.0.1:8000 (no --reload)",
-    "restart_after": "python code / registry / config changes (HTML/JS in modules/ is read fresh per request)",
-    "venv": ".venv (Python 3.14; deps need current pins)",
-    "tests": "136 passing (.venv/Scripts/python.exe -m pytest -q)"
-  },
-  "architecture_6_layers": {
-    "1_gateway": "done",
-    "2_connectors": "9 live of 21 catalogued (nama, sql, attendance, crm, banks, inventory + gateway/front-end/all)",
-    "3_unified_workspace": "done — 8 sections incl. finance (SQL)",
-    "4_ai_orchestrator": "planned (human-like chat, sales AI, collector AI)",
-    "5_workflows_write": "planned (item create, invoice approve — audited + HITL)",
-    "6_logs_monitoring_security": "done"
-  },
-  "connectors_live": [
-    "nama",
-    "sql",
-    "attendance",
-    "crm",
-    "banks",
-    "inventory",
-    "expert",
-    "legal",
-    "voice",
-    "gateway",
-    "front-end",
-    "all-connectors"
+ "project": "Stlix Gateway",
+ "one_liner": "نقطة تكامل واحدة (FastAPI) تربط كل أنظمة الشركة — قراءة أولًا، مفاتيح server-side، بوابة مزدوجة.",
+ "aka": "hub = gateway = platform = الهَب = الجيتواي = المنصّة — all the same project (owner's words). Not to be confused with 'D:\\CLAUDE SHARED MEMORY\\Enterprise Platform AI based' (unrelated doc set).",
+ "path": "D:\\Nama Code project\\stlix-gateway",
+ "git": "local only (no remote, by owner's choice). Single branch `live-numbers` in a separate worktree at D:\\Nama Code project\\stlix-gateway-live; it has `main` as an ancestor, so one branch holds everything. The shared folder D:\\Nama Code project\\stlix-gateway is where a concurrent session worked; `main` there can fast-forward onto live-numbers.",
+ "as_of": "2026-07-27",
+ "language_pref": "Egyptian Arabic (reply to owner in it)",
+ "run": {
+  "how": ".claude/launch.json name 'stlix-gateway' -> uvicorn app.main:app on 127.0.0.1:8000 (no --reload)",
+  "restart_after": "python code / registry / config changes (HTML/JS in modules/ is read fresh per request)",
+  "venv": ".venv (Python 3.14; deps need current pins)",
+  "tests": "136 passing (.venv/Scripts/python.exe -m pytest -q)"
+ },
+ "architecture_6_layers": {
+  "1_gateway": "done",
+  "2_connectors": "9 live of 21 catalogued (nama, sql, attendance, crm, banks, inventory + gateway/front-end/all)",
+  "3_unified_workspace": "done — 8 sections incl. finance (SQL)",
+  "4_ai_orchestrator": "planned (human-like chat, sales AI, collector AI)",
+  "5_workflows_write": "planned (item create, invoice approve — audited + HITL)",
+  "6_logs_monitoring_security": "done"
+ },
+ "connectors_live": [
+  "nama",
+  "sql",
+  "attendance",
+  "crm",
+  "banks",
+  "inventory",
+  "expert",
+  "legal",
+  "rep",
+  "voice",
+  "gateway",
+  "front-end",
+  "all-connectors"
+ ],
+ "finance_sql": {
+  "status": "LIVE — real balances from Nama SQL (REST exposes none)",
+  "login": "stlix_gw (read-only, db_datareader)",
+  "conn": "localhost / NAMA_TEST / ODBC Driver 17 / Encrypt=yes;TrustServerCertificate=yes",
+  "env_keys": [
+   "NAMA_SQL_SERVER",
+   "NAMA_SQL_DATABASE",
+   "NAMA_SQL_USER",
+   "NAMA_SQL_PASSWORD",
+   "NAMA_SQL_DRIVER"
   ],
-  "finance_sql": {
-    "status": "LIVE — real balances from Nama SQL (REST exposes none)",
-    "login": "stlix_gw (read-only, db_datareader)",
-    "conn": "localhost / NAMA_TEST / ODBC Driver 17 / Encrypt=yes;TrustServerCertificate=yes",
-    "env_keys": [
-      "NAMA_SQL_SERVER",
-      "NAMA_SQL_DATABASE",
-      "NAMA_SQL_USER",
-      "NAMA_SQL_PASSWORD",
-      "NAMA_SQL_DRIVER"
-    ],
-    "driver_pkg": "pyodbc",
-    "endpoints": [
-      "/api/v1/finance/kpis",
-      "/api/v1/finance/customers",
-      "/api/v1/finance/suppliers"
-    ],
-    "real_figures_asOf_2026-07-14": {
-      "customers": 549,
-      "suppliers": 586,
-      "salesTotal": 329913390,
-      "arOutstanding": 20022676,
-      "purchaseTotal": 320048231,
-      "apOutstanding": 186710932
-    },
-    "freshness": "as-of = latest restored .bak (2026-07-14). Newer daily backups (hardsteel<date>.bak, ~5.7GB) on Google Drive folder 1yvCI6unRWALtzf1yiU9kiHAPaBB56Xtt. Refresh = download+RESTORE (can't read .bak in place). Automate as nightly job.",
-    "default_source": "FINANCE_DEFAULT_SOURCE=live as of 2026-07-25 (owner's decision). /api/v1/finance/* answers from Nama PRODUCTION REST documents (https://stlixvalley.namasoft.net/erp/rest/v1) unless ?source=sql is asked for. Background sweep hourly (LIVE_FINANCE_REFRESH_SECONDS=3600). Going back is the same single line. NOTE: for ~8 minutes after each restart the finance pages report 'no snapshot yet' rather than falling back to SQL — deliberate, chosen by the owner over an ambiguous source.",
-    "party_join": "Join on subsidiaryId, NOT customer_id (NULL on 5,263 of 6,845 posted invoices) and NOT subsidiaryCode (4,950 rows carry a legacy code; 226 distinct values do not exist in Customer at all). Nama's REST resolves subsidiary.code to the CURRENT code — measured on SV00001: SQL holds C00002, REST returns C2000001 — so the live path is immune to this.",
-    "drift_guard": "app/integrations/finance/guard.py re-reconciles ONE CLOSED month against SQL after every sweep. What is invariant for a closed month is the document SET and each document's gross and net; paid legitimately grows (a May invoice settles in July), so growth is explained, not drift. Catches: a renamed Nama field (net reads short), a narrowed credential (documents vanish), a posting-convention change (extra documents). freshness.guard carries {status, reason, period, checked_at} on every finance response; full per-document detail at GET /api/v1/finance/live; on-demand POST /api/v1/finance/live/guard. `drift` reverts the DEFAULT to sql and says so, while an explicit ?source=live still works. `unknown` never diverts — being unable to check is not evidence of a wrong figure. Settings: FINANCE_GUARD_ENABLED, FINANCE_GUARD_PERIOD (blank = two months back), FINANCE_ALLOWED_REVERSALS (default FP22026060000105).",
-    "shared_core": "app/integrations/finance/reconcile.py holds the comparison; scripts/reconcile_live_vs_sql.py and guard.py both call it, so the release gate and the production watchdog cannot disagree about what counts as a difference."
-  },
-  "pages_served": {
-    "/tools/platform": "unified hub (entry point) — live modules + placeholders + SSO placeholder",
-    "/tools/finance-os": "the cockpit. Rebuilt: seven sections, each reading one live endpoint (finance/customers, finance/suppliers, banks, and Nama documents for PurchaseInvoice / JournalEntry / ReceiptVoucher / PaymentVoucher), plus a gap tab naming the five things with no data (bank balances need a posted GL, invoice approval is Layer 5, recommendations are Layer 4, RBAC needs an IdP, audit-to-document linkage). It previously shipped invented bank balances, AP invoices, customer ledgers and journal entries, overlaid with real figures where an endpoint existed — so a section with no endpoint rendered fiction under a banner reading 'connected'. The browser now sums no money at all: totals come from /api/v1/finance/*, which is reconciled and carries the drift verdict.",
-    "/tools/finance-reports": "100% REAL finance reports (AR/AP/KPIs) from SQL — the production finance UI",
-    "/tools/name-builder": "item creation — reads Nama lists + local parser + fuzzy autocomplete + dedup (read-only; create = write step pending)",
-    "/tools/ideas": "ideas board — all 181 owner requirements as links, parsed live from BACKLOG.md; search + filter by connector readiness; deep link /tools/ideas#<id>",
-    "/api/v1/map": "THE unified graph — systems x connectors x endpoints x ideas x engines; every other view slices this same join so counts cannot disagree",
-    "/systems/{key}": "one system: its connectors, endpoints and the requirements waiting on it",
-    "/connectors/{key}": "one connector: what it reads and exactly which ideas it blocks",
-    "/tools/library": "the repo's own markdown docs, readable from inside the platform",
-    "/tools/engineer": "Engineer's assistant (PD2): tanks/vessels with ASME UG-27 shell thickness, sanitary piping, laser & forming, heat exchangers, BOQ. OFFLINE - holds no credentials, calls nothing; its BOM is copied by hand rather than checked against Nama's item master.",
-    "/tools/platform/public": "the wide-audience hub. Was an unrouted file holding hand-typed AR/AP totals and a hand-typed as-of date; now reads the same /api/v1/map and /api/v1/finance/kpis the main hub reads, so the two cannot disagree.",
-    "/tools/expert": "Nama Expert — the chat. Answers about Nama and about this platform from the repo's documents and the gateway's own map, with [S#] citations back to the passage. Screenshot (paste/drag/pick) and Arabic voice (browser Web Speech API). With no ANTHROPIC_API_KEY it returns the retrieved passages and says no model is attached, rather than paraphrasing them into something that reads like knowledge.",
-    "/tools/legal": "المستشار القانوني — ask, draft (6 contract templates), review a document, or verify the article numbers in any text. Every «مادة N» in every answer is checked against the statutes on disk before the page receives it; unconfirmed ones arrive struck out in the body of the sentence. The corpus ships empty and says exactly which of 24 expected laws are missing."
-  },
-  "ideas": {
-    "source_of_truth": "BACKLOG.md (add a markdown row -> appears on the board, no code change)",
-    "code": "app/ideas/{registry,wiring,router}.py + app/{catalog,graph}.py + modules/platform/ideas.html",
-    "endpoints": [
-      "/api/v1/ideas",
-      "/api/v1/ideas/domains",
-      "/api/v1/ideas/{id}"
-    ],
-    "counts_2026-07-25": {
-      "total": 204,
-      "domains": 26,
-      "done": 2,
-      "ready": 107,
-      "partial": 63,
-      "blocked": 32
-    },
-    "readiness_meaning": "ready = every connector it needs already exists, so it only needs a report built",
-    "top_missing_connectors": {
-      "new-system": 47,
-      "external": 15,
-      "ai-layer": 9
-    },
-    "wiring": "app/ideas/wiring.py places all 181: systems (registry.SYSTEMS keys), the live endpoints holding their RAW data, workspace section, and an Arabic 'what is missing'. Explicit per id; a new BACKLOG row inherits DOMAIN_DEFAULTS. See docs/ideas-wiring.md for the reasoning behind each.",
-    "invariants_locked_by_tests": [
-      "every idea lands on a real registry.SYSTEMS key",
-      "every data endpoint is a real route (catalog.paths())",
-      "a planned idea never links to a built page, and never gets one as a data source",
-      "an idea with no data endpoints always carries an `unblock` link",
-      "catalog and app routes match in BOTH directions (tests/test_catalog.py)",
-      "no routed page contains a written-down money figure, and no unrouted page under modules/ carries figures at all (tests/test_no_invented_numbers.py) — validated against the file it replaced, which it flags on all four invented bank balances"
-    ],
-    "adding_a_row": "BACKLOG.md row shows on the board immediately with no code — but tests/test_graph.py fails until app/ideas/wiring.py also says what exactly that idea is missing. Deliberate: an idea on the board with no stated gap sits there for a year."
-  },
-  "modules": {
-    "finance-os": {
-      "roles": [
-        "PRESIDENT(default)",
-        "CFO",
-        "AP_MANAGER",
-        "AP_CLERK",
-        "OPERATOR",
-        "AUDITOR"
-      ],
-      "principle": "ERP=system of record, AI never writes directly, audited workflow"
-    },
-    "name-builder": {
-      "UX1": "fuzzy search + autocomplete + Arabic normalization done in type box; UX1b (full-name validator->dedup->reject) pending"
-    }
-  },
-  "verified_nama_facts": [
-    "REST is entity-CRUD ONLY (list/find/save/delete per entity via OpenAPI /erp/browseapi/openapi/{Entity}.json). NO SQL/report/balance op.",
-    "Zero-result filtered list = HTTP 400 empty body (not 200+[]) — handled in NamaClient.find_first.",
-    "textCriteria operator case-sensitive: 'Equal' only. Dates DD-MM-YYYY.",
-    "Nama web SQL utility (/erp/vue.html#/utils/sql) + API browser are web-login features, NOT reachable with API creds.",
-    "Real balances only via SQL (now wired) or a Namasoft-published report (spec at docs/nama-balance-report-spec.md, optional)."
+  "driver_pkg": "pyodbc",
+  "endpoints": [
+   "/api/v1/finance/kpis",
+   "/api/v1/finance/customers",
+   "/api/v1/finance/suppliers"
   ],
-  "open_blocker": "🔴 Rotate exposed keys (Anthropic first, then Nama/Vtiger/inventory) — DEFERRED, reconfirmed by owner 2026-07-25. See secrets/gates-keys.backup.md.",
-  "next_step_file": "NEXT_STEP.md",
-  "handover_files": [
-    "SESSION_STATE.json",
-    "MASTER_EXECUTION_RUNBOOK.md",
-    "HANDOFF.md",
-    "TASKS.md",
-    "DECISIONS.md",
-    "CHANGELOG.md",
-    "NEXT_STEP.md"
+  "real_figures_asOf_2026-07-14": {
+   "customers": 549,
+   "suppliers": 586,
+   "salesTotal": 329913390,
+   "arOutstanding": 20022676,
+   "purchaseTotal": 320048231,
+   "apOutstanding": 186710932
+  },
+  "freshness": "as-of = latest restored .bak (2026-07-14). Newer daily backups (hardsteel<date>.bak, ~5.7GB) on Google Drive folder 1yvCI6unRWALtzf1yiU9kiHAPaBB56Xtt. Refresh = download+RESTORE (can't read .bak in place). Automate as nightly job.",
+  "default_source": "FINANCE_DEFAULT_SOURCE=live as of 2026-07-25 (owner's decision). /api/v1/finance/* answers from Nama PRODUCTION REST documents (https://stlixvalley.namasoft.net/erp/rest/v1) unless ?source=sql is asked for. Background sweep hourly (LIVE_FINANCE_REFRESH_SECONDS=3600). Going back is the same single line. NOTE: for ~8 minutes after each restart the finance pages report 'no snapshot yet' rather than falling back to SQL — deliberate, chosen by the owner over an ambiguous source.",
+  "party_join": "Join on subsidiaryId, NOT customer_id (NULL on 5,263 of 6,845 posted invoices) and NOT subsidiaryCode (4,950 rows carry a legacy code; 226 distinct values do not exist in Customer at all). Nama's REST resolves subsidiary.code to the CURRENT code — measured on SV00001: SQL holds C00002, REST returns C2000001 — so the live path is immune to this.",
+  "drift_guard": "app/integrations/finance/guard.py re-reconciles ONE CLOSED month against SQL after every sweep. What is invariant for a closed month is the document SET and each document's gross and net; paid legitimately grows (a May invoice settles in July), so growth is explained, not drift. Catches: a renamed Nama field (net reads short), a narrowed credential (documents vanish), a posting-convention change (extra documents). freshness.guard carries {status, reason, period, checked_at} on every finance response; full per-document detail at GET /api/v1/finance/live; on-demand POST /api/v1/finance/live/guard. `drift` reverts the DEFAULT to sql and says so, while an explicit ?source=live still works. `unknown` never diverts — being unable to check is not evidence of a wrong figure. Settings: FINANCE_GUARD_ENABLED, FINANCE_GUARD_PERIOD (blank = two months back), FINANCE_ALLOWED_REVERSALS (default FP22026060000105).",
+  "shared_core": "app/integrations/finance/reconcile.py holds the comparison; scripts/reconcile_live_vs_sql.py and guard.py both call it, so the release gate and the production watchdog cannot disagree about what counts as a difference."
+ },
+ "pages_served": {
+  "/tools/platform": "unified hub (entry point) — live modules + placeholders + SSO placeholder",
+  "/tools/finance-os": "the cockpit. Rebuilt: seven sections, each reading one live endpoint (finance/customers, finance/suppliers, banks, and Nama documents for PurchaseInvoice / JournalEntry / ReceiptVoucher / PaymentVoucher), plus a gap tab naming the five things with no data (bank balances need a posted GL, invoice approval is Layer 5, recommendations are Layer 4, RBAC needs an IdP, audit-to-document linkage). It previously shipped invented bank balances, AP invoices, customer ledgers and journal entries, overlaid with real figures where an endpoint existed — so a section with no endpoint rendered fiction under a banner reading 'connected'. The browser now sums no money at all: totals come from /api/v1/finance/*, which is reconciled and carries the drift verdict.",
+  "/tools/finance-reports": "100% REAL finance reports (AR/AP/KPIs) from SQL — the production finance UI",
+  "/tools/name-builder": "item creation — reads Nama lists + local parser + fuzzy autocomplete + dedup (read-only; create = write step pending)",
+  "/tools/ideas": "ideas board — all 181 owner requirements as links, parsed live from BACKLOG.md; search + filter by connector readiness; deep link /tools/ideas#<id>",
+  "/api/v1/map": "THE unified graph — systems x connectors x endpoints x ideas x engines; every other view slices this same join so counts cannot disagree",
+  "/systems/{key}": "one system: its connectors, endpoints and the requirements waiting on it",
+  "/connectors/{key}": "one connector: what it reads and exactly which ideas it blocks",
+  "/tools/library": "the repo's own markdown docs, readable from inside the platform",
+  "/tools/engineer": "Engineer's assistant (PD2): tanks/vessels with ASME UG-27 shell thickness, sanitary piping, laser & forming, heat exchangers, BOQ. OFFLINE - holds no credentials, calls nothing; its BOM is copied by hand rather than checked against Nama's item master.",
+  "/tools/platform/public": "the wide-audience hub. Was an unrouted file holding hand-typed AR/AP totals and a hand-typed as-of date; now reads the same /api/v1/map and /api/v1/finance/kpis the main hub reads, so the two cannot disagree.",
+  "/tools/expert": "Nama Expert — the chat. Answers about Nama and about this platform from the repo's documents and the gateway's own map, with [S#] citations back to the passage. Screenshot (paste/drag/pick) and Arabic voice (browser Web Speech API). With no ANTHROPIC_API_KEY it returns the retrieved passages and says no model is attached, rather than paraphrasing them into something that reads like knowledge.",
+  "/tools/legal": "المستشار القانوني — ask, draft (6 contract templates), review a document, or verify the article numbers in any text. Every «مادة N» in every answer is checked against the statutes on disk before the page receives it; unconfirmed ones arrive struck out in the body of the sentence. The corpus ships empty and says exactly which of 24 expected laws are missing.",
+  "/tools/rep": "REP operations — custody + documents + movement adopted from rep-system.html. 4 tabs: management report (computed KPIs + source warnings + 8 recomputed alerts), custody tables, 7 printable document templates (PFX-YYYYMMDD-NNN codes, manual signature until PA5), and the original dispatch engine ported to run client-side over /api/v1/rep/movement. Daily entries (receipts, trips) stay per-browser as in the original — moving them server-side is a WRITE."
+ },
+ "ideas": {
+  "source_of_truth": "BACKLOG.md (add a markdown row -> appears on the board, no code change)",
+  "code": "app/ideas/{registry,wiring,router}.py + app/{catalog,graph}.py + modules/platform/ideas.html",
+  "endpoints": [
+   "/api/v1/ideas",
+   "/api/v1/ideas/domains",
+   "/api/v1/ideas/{id}"
   ],
-  "memories": [
-    "stlix-gateway-project",
-    "nama-rest-protocol",
-    "attendance-app-project"
+  "counts_2026-07-25": {
+   "total": 204,
+   "domains": 26,
+   "done": 2,
+   "ready": 107,
+   "partial": 63,
+   "blocked": 32
+  },
+  "readiness_meaning": "ready = every connector it needs already exists, so it only needs a report built",
+  "top_missing_connectors": {
+   "new-system": 47,
+   "external": 15,
+   "ai-layer": 9
+  },
+  "wiring": "app/ideas/wiring.py places all 181: systems (registry.SYSTEMS keys), the live endpoints holding their RAW data, workspace section, and an Arabic 'what is missing'. Explicit per id; a new BACKLOG row inherits DOMAIN_DEFAULTS. See docs/ideas-wiring.md for the reasoning behind each.",
+  "invariants_locked_by_tests": [
+   "every idea lands on a real registry.SYSTEMS key",
+   "every data endpoint is a real route (catalog.paths())",
+   "a planned idea never links to a built page, and never gets one as a data source",
+   "an idea with no data endpoints always carries an `unblock` link",
+   "catalog and app routes match in BOTH directions (tests/test_catalog.py)",
+   "no routed page contains a written-down money figure, and no unrouted page under modules/ carries figures at all (tests/test_no_invented_numbers.py) — validated against the file it replaced, which it flags on all four invented bank balances"
   ],
-  "graph": {
-    "module": "app/graph.py",
-    "why": "four maps existed and never met; this is the join they were missing",
-    "counts": {
-      "systems": 23,
-      "connectors": 22,
-      "endpoints": 58,
-      "ideas": 204
-    },
-    "systems_without_ideas": []
+  "adding_a_row": "BACKLOG.md row shows on the board immediately with no code — but tests/test_graph.py fails until app/ideas/wiring.py also says what exactly that idea is missing. Deliberate: an idea on the board with no stated gap sits there for a year."
+ },
+ "modules": {
+  "finance-os": {
+   "roles": [
+    "PRESIDENT(default)",
+    "CFO",
+    "AP_MANAGER",
+    "AP_CLERK",
+    "OPERATOR",
+    "AUDITOR"
+   ],
+   "principle": "ERP=system of record, AI never writes directly, audited workflow"
   },
-  "auth": {
-    "header": "X-API-Key (apps, scripts, AI clients)",
-    "cookie": "sg_key — set when serving a /tools/* page, HttpOnly + SameSite=lax, accepted for GET/HEAD ONLY so ambient credentials can never write. Without it every <a> into /api/v1/* 401s once a key is configured."
-  },
-  "what_is_actually_live": {
-    "live_now_via_nama_rest": [
-      "employees",
-      "customers",
-      "invoices as DOCUMENTS",
-      "banks",
-      "CRM (Vtiger)",
-      "stocktake",
-      "ReceiptVoucher (customer collections)",
-      "PaymentVoucher (supplier payments)",
-      "JournalEntry"
-    ],
-    "not_live": "nothing, for AR/AP/KPIs — they are rebuilt from production REST documents as of the last hourly sweep. The restored SQL copy remains the complete reference at ?source=sql.",
-    "why": "Nama REST exposes no computed balances, AND direct SQL to the Namasoft cloud tenant is unreachable: tcp/1433 and 1434 to stlixvalley.namasoft.net both time out (measured, not assumed).",
-    "freshness_is_visible": "every finance response carries freshness{as_of, age_days, live, stale}; shown on the hub and /tools/finance-reports, which previously badged 11-day-old figures as 'حيّ'.",
-    "local_backups_on_disk": "D:/hardsteel20260715.bak - only ONE day newer than what is restored (2026-07-14). Not worth a restore.",
-    "reconciliation": "scripts/reconcile_live_vs_sql.py --rest local (same data, zero tolerance) and --rest cloud (later settlements explained; gross/net movement or a payment moving backwards is not). No money figure ships before it passes. Hardened by the concurrent session before its first run: fiscalPeriod is NOT a column on SalesInvoice (verified via INFORMATION_SCHEMA) so period filtering now uses issueDate bounds; duplicate document codes are preserved rather than collapsed by a dict; and a payment moving backwards needs an explicit --allow-reversal <code>.",
-    "reconciled_residual": "0.17 EGP AR / 0.16 EGP AP over the full population, after explaining movement that post-dates the backup. The single backwards payment (FP22026060000105, a voucher cancelled after the backup) must be named explicitly via --allow-reversal; it does not pass as explained on its own."
-  },
-  "nama_400_semantics": {
-    "finding": "Nama answers HTTP 400 for TWO different things and the client conflated them.",
-    "empty_400": "a valid filter matching zero rows -> empty body -> 'no match' (find_first).",
-    "partial_400": "SOME records failed to serialise; the successful ones ARE in the body. This was being raised as an error, which is why ReceiptVoucher and PaymentVoucher looked unreadable. Now kept and tagged `_partial` so a sum built from an incomplete set can never look like a true total.",
-    "traps_for_any_live_aggregate": [
-      "records_count is PER PAGE, not a total - it counts only rows serialised in that response",
-      "paging is startPage (1-based) + pageSize (max 1000)",
-      "'@draft' suffix on a document code = UNPOSTED draft; must be filtered or drafts get summed with posted documents",
-      "'@draft' is not the only unposted marker: one PurchaseInvoice is Draft with NO code at all. is_draft() now also treats a missing/blank code as unposted — safe, since zero of the 13,686 posted invoice rows has an empty code."
-    ],
-    "open_question": "ANSWERED: yes. Rebuilt net/paid matched SQL to the piastre on live documents, and the reconciliation is now a repeatable script (scripts/reconcile_live_vs_sql.py, exit 1 on any unexplained difference) rather than a one-off check."
-  },
-  "invariants_locked_by_tests": [],
-  "rep_merge": {
-    "what": "REP is an 11-module operational front-end (custody, movement, meals, people, policies, academy, banks, stocktake, alerts, documents, home), built and tested, 0 of 11 bridged. Registered as system `rep` + connector `rep` (not live).",
-    "resolution": "REP = front-ends, gateway = integration beneath it. Duplicated reads (banks, stocktake, employees, attendance) are deleted from REP and served by the gateway; REP's unique knowledge becomes reference; the rest merges.",
-    "detail": "docs/rep-integration.md",
-    "nama_write_rules_from_rep": [
-      "addRecord:true on an existing code REPLACES the record silently — snapshot before any bulk write",
-      "updating a collection replaces the WHOLE array — read, merge, send complete",
-      "re-saving an @draft through the API commits it PERMANENTLY — critical for Layer 5",
-      "Arabic codes fail findByIdOrCode (URL encoding) — use POST /list with textCriteria",
-      "pageSize truncation is per-entity: 1000 works on invoices, silently truncates InvItem (8,384)"
-    ],
-    "credentials": "REP holds a SEPARATE Nama admin credential (different fingerprint from the gateway's) in plaintext in its SESSION_STATE.json and runbook, and in the browser. The stocktake sync key is SHARED with the gateway's INVENTORY_KEY (same fingerprint). Rotating the gateway's keys does not cover REP's.",
-    "open_conflicts": {
-      "item_count": "8,346 (count app) vs 8,384 (Nama REST) vs 17,439 (InvItem in SQL) — three numbers, unexplained",
-      "platform_claim": "REP D-01 says REP is the platform; the gateway says it is the integration layer. Resolved as front-end vs integration."
-    }
-  },
-  "nama_expert": {
-    "status": "BUILT 2026-07-25. app/integrations/expert/{knowledge,retrieve,answer,router}.py + modules/expert/chat.html. Page /tools/expert, API /api/v1/expert/{'',search,ask,reindex}. 30 tests in tests/test_expert.py. Design note: docs/nama-expert.md.",
-    "what": "Owner's request 2026-07-25: an AI expert chat that solves problems — ask it about Nama or the platform, upload a screenshot of an error, talk to it by voice. Backlog A4-A9.",
-    "index": "~3,300 chunks from two things that already existed: the repo's markdown (same allow-list /tools/library serves) and the gateway's own map (registry.SYSTEMS, catalog.CONNECTORS, catalog.ENDPOINTS, ideas). NOTHING is hand-copied into the expert's code — a rule changes in the runbook and the answer changes with it.",
-    "retrieval": "BM25, offline, no embedding service: no third credential, works with nothing configured, and reproducible from the repo alone. Arabic normalisation folds alef/ya/ta-marbuta and strips tashkeel+tatweel.",
-    "three_arabic_fixes_each_a_real_bug": [
-      "mark ranges written as \\uXXXX escapes — Arabic letters U+0621-U+064A sit BETWEEN two blocks of diacritics, and a range one codepoint too wide deletes the alphabet: every document tokenises to nothing and every question returns nothing, with no error. Locked by a test.",
-      "question scaffolding (ليه/إزاي/فين) stripped from the QUERY — in a formal corpus the colloquial 'ليه' is as rare as 'pageSize', so IDF rated them equally and a chunk matching only 'ليه...نما' beat the one chunk explaining the truncation. Rarity is not aboutness.",
-      "score scaled by rarity-weighted coverage — plain BM25 sums per-term scores, so three common words can beat the single rare word the question is about.",
-      "max 3 passages per section — a customer-balances question came back as six consecutive rows of one table, so the model never saw the endpoint that serves them."
-    ],
-    "two_modes": "grounded (ANTHROPIC_API_KEY set) = composed answer with [S#] citations. sources_only (no key, model down, or no network) = the passages themselves with their sources, and it says no model is attached. The second is not a sad degradation: it is the project rule applied to prose — old is bad, wrong is far worse. An answer that cites nothing is FLAGGED in its own note rather than passed off.",
-    "governing_rule": "Every answer names its source — endpoint, document or entity — and 'I do not know' is a valid answer. A confident wrong answer about a Nama write rule destroys records: addRecord:true replaces silently, re-saving a draft commits it permanently.",
-    "security": "Key server-side only. The page gets the gateway key like any /tools/* page and calls /api/v1/expert/ask; a test asserts the page contains no fetch to any external host. Voice is the browser's own Web Speech API (ar-EG) — zero vendor, zero key. Screenshots travel through the gateway, not from the browser to the model.",
-    "on_the_map": "System `ai` is now LIVE with url /tools/expert. New connector `expert` (live with no credential — the index is local). `ai-layer` stays NOT live: the orchestrator that would ACT across connectors is unbuilt; the expert only reads and cites. A4/A6/A7/A8 🟢, A5 🟡 (599-entity OpenAPI catalogue not indexed), A9 🟡 (rule written, signing mechanism PA5 still missing).",
-    "still_missing": [
-      "index the 599-entity Nama OpenAPI catalogue (A5)",
-      "conversation memory — each question is independent today",
-      "calling a live endpoint at answer time (that is Layer 4 / ai-layer, not this)",
-      "PA5 signing so A9's approval mechanism actually exists"
-    ]
-  },
-  "legal_counsel": {
-    "status": "BUILT 2026-07-25. app/integrations/legal/{corpus,manifest,citations,templates,router}.py + modules/legal/counsel.html. Page /tools/legal, API /api/v1/legal/{'',coverage,search,law/{slug},templates,ask,draft,review,verify,reindex}. 33 tests. Design note: docs/legal-counsel.md.",
-    "what": "Owner's request 2026-07-25: a smart-lawyer chatbot sourced from constitutions and Egyptian/international law (especially Chinese, commercial, civil, civil-service, labour, criminal) that writes contracts, reviews bylaws and checks drafts. Backlog L2-L10.",
-    "the_whole_point": "Article numbers. A model produces them as fluently as any other token, and «المادة 147 من القانون المدني» is four words a non-lawyer cannot check and has every reason to trust — a wrong one voids a clause or loses a case. So the module does not ask the model to behave; citations.py CHECKS. confirmed (in a loaded statute) passes; unverifiable (law not loaded) is marked, neither confirmed nor denied; fabricated (law IS loaded, article is NOT in it — the only verdict with no innocent reading) is struck out. Redaction happens in the body of the sentence, not a footnote: a legal answer gets copied into an email and the qualification at the bottom does not travel with it. answer_raw keeps the original for audit.",
-    "tiers": "statute = authority, the only tier an article is confirmed against. precedent = our own signed contracts, which prove what we agreed and never what the law says. internal = our 18 bylaws, binding on us only — and zero are certified by the directorate (from REP), so the penalties bylaw is not in force at all. The separation is enforced in code because the two collapse into each other in the mind of anyone reading at speed, including the model.",
-    "empty_corpus_is_designed": "manifest.py lists 24 expected sources; each is loaded or NAMED AS MISSING. «مالقيتش حاجة» is useless; «ده محكوم بقانون العمل ونصّه مش عندي — حمّله وأنا أجاوب بالمادة» is useful on day one. Deliberately absent from the manifest: law numbers and years — those get read out of a loaded text. Typing them from memory would be the same act deleted from the finance pages, in the domain where wrong costs most.",
-    "four_modes": "ask (needs a model for prose) · draft (6 templates, NO model needed) · review · verify (NO model, NO network). /verify is the cleanest part: same answer every time, works unconfigured, and works on text we did not write — the other side's draft, an old contract, a clause sent on WhatsApp.",
-    "templates_cite_no_article": "A template is not model output, so it would sail past the guard — the one remaining path by which an invented article could reach a SIGNED document. A test renders every template with every clause and fails on a single article reference. Templates name the governing law (safe, checkable) and warn where a statutory limit belongs: «الشرط المخالف باطل ولو وقّع عليه العامل». Unfilled blanks stay visible as ⟨label⟩.",
-    "corpus_dir": "corpus/legal/ — .txt or .md with a 4-line front matter (slug/title/tier/jurisdiction), articles headed «مادة 12» or «المادة (12)» or «المادة ١٢ مكرر». Arabic-Indic digits accepted: scanned Egyptian statutes are typeset with them. Then POST /api/v1/legal/reindex.",
-    "boundary": "Not a lawyer and not a substitute for one — every answer and every draft closes with that line, and so does the page. Read-only. Key server-side; a test asserts the page has no fetch to any external host.",
-    "still_missing": [
-      "L6 🟡 load the statute texts — the one gap that opens the whole domain",
-      "L7 upload our signed contracts as tier: precedent (they are in Drive)",
-      "L8 the 18 bylaws as tier: internal, with the fact that none is certified",
-      "bind template clauses to articles from a loaded text instead of the law's name alone",
-      "no conversation memory — each question is independent"
-    ]
-  },
-  "voice_layer": {
-    "status": "BUILT 2026-07-25. modules/platform/voice.js served at /tools/voice.js, injected by BOTH renderers: _serve() in routers/tools.py and html_page() in core/render.py. 10 tests. Doc: docs/voice-layer.md. UX3 and PA4 done.",
-    "what": "Owner: «OS يدعم البحث الصوتي في كل مراحله» — voice search at every stage of the OS.",
-    "one_button_not_one_per_field": "A mic inside every text box means wrapping every text box in a positioned element, and these fields live in flex rows, grids and sticky bars with working sizing (flex:1 on the hub search, a max-height textarea in the chat composer). One floating mic dictates into the focused field, or into the page's own search box which it focuses first. Nothing on the page moves.",
-    "injected_in_two_places_not_per_page": "Voice belongs to the platform, not to whichever screen someone remembered. A new page gets it without a decision, and tests/test_voice.py fails if a served page loses it — the requirement fails by being on three screens and missing on the fourth, because people then stop trying it.",
-    "what_makes_it_search": "It dispatches an `input` event after writing. The hub and the ideas board filter on input; without it they show results for text they never saw, which reads as the search being broken. On a type=search field it also fires Enter on stop.",
-    "no_vendor": "Browser Web Speech API — no key, no credential, no per-minute bill. The backlog had UX3/PA4 waiting on an external Arabic STT API; they did not need one. On a browser without it the script renders nothing: a mic that does nothing when pressed is worse than no mic.",
-    "deliberate_limits": [
-      "never dictates into a password field",
-      "data-no-voice opts any field or section out",
-      "a page with its own mic (data-voice-local on the expert chat) suppresses the global one — two mics on one screen is worse than either",
-      "errors are named: permission denied != no microphone != network down"
-    ],
-    "usage": "Mic bottom-start on every page · Ctrl+M toggles, Esc stops · language button ar-EG <-> en-US · writes into the focused field, else the page's search box.",
-    "verified_in_a_real_browser": "Playwright with a stubbed recogniser: mic renders, dictation lands in the hub's #q, exactly one input event fires, focus is on the right field, language toggles."
-  },
-  "release": {
-    "version": "1.0.0 — 2026-07-25. First version shown to people who did not build it.",
-    "how": "deploy.ps1 in the repo root: venv+pip -> ensure GATEWAY_API_KEY -> full test suite -> preflight -> uvicorn on 0.0.0.0 -> prints the LAN URLs -> opens Chrome. Stops at the first failing step.",
-    "start_page": "/tools/tour — every number fetched at open time, every claim carrying the link that proves it, and a final section listing what is NOT working, built from live state rather than a maintained list.",
-    "preflight": "scripts/preflight.py. Blocking: an advertised page that 500s, catalogue/route drift, a connector in read_write, an empty key while binding publicly. Warning: no model attached, no statutes loaded. Runs in-process — no server, no network, no ERP call — so it cannot itself break the demo.",
-    "two_real_bugs_this_release": [
-      "The Docker image copied `app` alone. It built, started, /health returned 200, and every page 500'd — /tools/* reads modules/, the ideas board parses BACKLOG.md, the expert indexes the markdown, the counsel reads corpus/legal. A container that comes up green and fails on the first page opened is worse than one that refuses to start. tests/test_deploy.py now derives the runtime dirs from the code itself.",
-      "The tour had <section id=\"money\"> and <div id=\"money\"> on the same page. getElementById returns the first with no warning, so writing innerHTML wiped the whole section and took #fresh with it; same collision on #ai and #gaps. Found by opening the page in a real browser, not by a test."
-    ],
-    "security_for_a_lan_demo": "GATEWAY_API_KEY was empty. Pages are meant to open for any colleague (the cookie is set for them) but the raw API must not. deploy.ps1 generates a key into .env when it is missing. No SSO and no RBAC yet: anyone who can reach the address sees everything — fine for an internal room, not beyond it.",
-    "say_this_out_loud": [
-      "no ANTHROPIC_API_KEY -> the expert and the counsel return sources, not composed answers",
-      "corpus/legal is empty -> the counsel says «I do not have that law» to every question",
-      "FINANCE_DEFAULT_SOURCE=live -> start the server 15 minutes before the room fills, the first sweep takes minutes",
-      "no SSO/RBAC · REP's 11 modules still outside the gateway"
-    ],
-    "counts": {
-      "tests": 213,
-      "connectors_live": 12,
-      "endpoints": 80,
-      "pages": 12,
-      "ideas": 214
-    }
+  "name-builder": {
+   "UX1": "fuzzy search + autocomplete + Arabic normalization done in type box; UX1b (full-name validator->dedup->reject) pending"
   }
+ },
+ "verified_nama_facts": [
+  "REST is entity-CRUD ONLY (list/find/save/delete per entity via OpenAPI /erp/browseapi/openapi/{Entity}.json). NO SQL/report/balance op.",
+  "Zero-result filtered list = HTTP 400 empty body (not 200+[]) — handled in NamaClient.find_first.",
+  "textCriteria operator case-sensitive: 'Equal' only. Dates DD-MM-YYYY.",
+  "Nama web SQL utility (/erp/vue.html#/utils/sql) + API browser are web-login features, NOT reachable with API creds.",
+  "Real balances only via SQL (now wired) or a Namasoft-published report (spec at docs/nama-balance-report-spec.md, optional)."
+ ],
+ "open_blocker": "🔴 Rotate exposed keys (Anthropic first, then Nama/Vtiger/inventory) — DEFERRED, reconfirmed by owner 2026-07-25. See secrets/gates-keys.backup.md.",
+ "next_step_file": "NEXT_STEP.md",
+ "handover_files": [
+  "SESSION_STATE.json",
+  "MASTER_EXECUTION_RUNBOOK.md",
+  "HANDOFF.md",
+  "TASKS.md",
+  "DECISIONS.md",
+  "CHANGELOG.md",
+  "NEXT_STEP.md"
+ ],
+ "memories": [
+  "stlix-gateway-project",
+  "nama-rest-protocol",
+  "attendance-app-project"
+ ],
+ "graph": {
+  "module": "app/graph.py",
+  "why": "four maps existed and never met; this is the join they were missing",
+  "counts": {
+   "systems": 23,
+   "connectors": 22,
+   "endpoints": 58,
+   "ideas": 204
+  },
+  "systems_without_ideas": []
+ },
+ "auth": {
+  "header": "X-API-Key (apps, scripts, AI clients)",
+  "cookie": "sg_key — set when serving a /tools/* page, HttpOnly + SameSite=lax, accepted for GET/HEAD ONLY so ambient credentials can never write. Without it every <a> into /api/v1/* 401s once a key is configured."
+ },
+ "what_is_actually_live": {
+  "live_now_via_nama_rest": [
+   "employees",
+   "customers",
+   "invoices as DOCUMENTS",
+   "banks",
+   "CRM (Vtiger)",
+   "stocktake",
+   "ReceiptVoucher (customer collections)",
+   "PaymentVoucher (supplier payments)",
+   "JournalEntry"
+  ],
+  "not_live": "nothing, for AR/AP/KPIs — they are rebuilt from production REST documents as of the last hourly sweep. The restored SQL copy remains the complete reference at ?source=sql.",
+  "why": "Nama REST exposes no computed balances, AND direct SQL to the Namasoft cloud tenant is unreachable: tcp/1433 and 1434 to stlixvalley.namasoft.net both time out (measured, not assumed).",
+  "freshness_is_visible": "every finance response carries freshness{as_of, age_days, live, stale}; shown on the hub and /tools/finance-reports, which previously badged 11-day-old figures as 'حيّ'.",
+  "local_backups_on_disk": "D:/hardsteel20260715.bak - only ONE day newer than what is restored (2026-07-14). Not worth a restore.",
+  "reconciliation": "scripts/reconcile_live_vs_sql.py --rest local (same data, zero tolerance) and --rest cloud (later settlements explained; gross/net movement or a payment moving backwards is not). No money figure ships before it passes. Hardened by the concurrent session before its first run: fiscalPeriod is NOT a column on SalesInvoice (verified via INFORMATION_SCHEMA) so period filtering now uses issueDate bounds; duplicate document codes are preserved rather than collapsed by a dict; and a payment moving backwards needs an explicit --allow-reversal <code>.",
+  "reconciled_residual": "0.17 EGP AR / 0.16 EGP AP over the full population, after explaining movement that post-dates the backup. The single backwards payment (FP22026060000105, a voucher cancelled after the backup) must be named explicitly via --allow-reversal; it does not pass as explained on its own."
+ },
+ "nama_400_semantics": {
+  "finding": "Nama answers HTTP 400 for TWO different things and the client conflated them.",
+  "empty_400": "a valid filter matching zero rows -> empty body -> 'no match' (find_first).",
+  "partial_400": "SOME records failed to serialise; the successful ones ARE in the body. This was being raised as an error, which is why ReceiptVoucher and PaymentVoucher looked unreadable. Now kept and tagged `_partial` so a sum built from an incomplete set can never look like a true total.",
+  "traps_for_any_live_aggregate": [
+   "records_count is PER PAGE, not a total - it counts only rows serialised in that response",
+   "paging is startPage (1-based) + pageSize (max 1000)",
+   "'@draft' suffix on a document code = UNPOSTED draft; must be filtered or drafts get summed with posted documents",
+   "'@draft' is not the only unposted marker: one PurchaseInvoice is Draft with NO code at all. is_draft() now also treats a missing/blank code as unposted — safe, since zero of the 13,686 posted invoice rows has an empty code."
+  ],
+  "open_question": "ANSWERED: yes. Rebuilt net/paid matched SQL to the piastre on live documents, and the reconciliation is now a repeatable script (scripts/reconcile_live_vs_sql.py, exit 1 on any unexplained difference) rather than a one-off check."
+ },
+ "invariants_locked_by_tests": [],
+ "rep_merge": {
+  "what": "REP is an 11-module operational front-end (custody, movement, meals, people, policies, academy, banks, stocktake, alerts, documents, home), built and tested, 3 of 11 adopted (custody, documents, movement — 2026-07-27). System `rep` + connector `rep` are LIVE.",
+  "resolution": "REP = front-ends, gateway = integration beneath it. Duplicated reads (banks, stocktake, employees, attendance) are deleted from REP and served by the gateway; REP's unique knowledge becomes reference; the rest merges.",
+  "detail": "docs/rep-integration.md",
+  "nama_write_rules_from_rep": [
+   "addRecord:true on an existing code REPLACES the record silently — snapshot before any bulk write",
+   "updating a collection replaces the WHOLE array — read, merge, send complete",
+   "re-saving an @draft through the API commits it PERMANENTLY — critical for Layer 5",
+   "Arabic codes fail findByIdOrCode (URL encoding) — use POST /list with textCriteria",
+   "pageSize truncation is per-entity: 1000 works on invoices, silently truncates InvItem (8,384)"
+  ],
+  "credentials": "REP holds a SEPARATE Nama admin credential (different fingerprint from the gateway's) in plaintext in its SESSION_STATE.json and runbook, and in the browser. The stocktake sync key is SHARED with the gateway's INVENTORY_KEY (same fingerprint). Rotating the gateway's keys does not cover REP's.",
+  "open_conflicts": {
+   "item_count": "8,346 (count app) vs 8,384 (Nama REST) vs 17,439 (InvItem in SQL) — three numbers, unexplained",
+   "platform_claim": "REP D-01 says REP is the platform; the gateway says it is the integration layer. Resolved as front-end vs integration."
+  },
+  "adopted_2026_07_27": {
+   "how": "arrays evaluated verbatim from rep-system.html's <script> (Node vm sandbox), written to data/rep/rep.json with a _source provenance block that travels on every response",
+   "api": [
+    "/api/v1/rep",
+    "/api/v1/rep/custody",
+    "/api/v1/rep/movement",
+    "/api/v1/rep/documents",
+    "/api/v1/rep/overview",
+    "POST /api/v1/rep/reload"
+   ],
+   "page": "/tools/rep",
+   "overview_is_computed": "every figure is a sum/count over the records; tests/test_rep.py recomputes each independently",
+   "source_warnings_served": [
+    "PLACES distances/times are placeholders (stated in the original file)",
+    "E000155 opening 3,814,499 equals the Nama figure flagged «كاذب» (D-04: opening cash is hand-counted)",
+    "all vehicle km readings empty (B-02)"
+   ],
+   "not_carried_over": "the live sync key exposed in an alert's text and the author's passwords — verified absent from data/rep; the original file itself was NOT added to the repo",
+   "remaining_units": [
+    "meals",
+    "people/dictionary",
+    "policies",
+    "academy",
+    "banks",
+    "stocktake",
+    "alerts",
+    "home"
+   ]
+  }
+ },
+ "nama_expert": {
+  "status": "BUILT 2026-07-25. app/integrations/expert/{knowledge,retrieve,answer,router}.py + modules/expert/chat.html. Page /tools/expert, API /api/v1/expert/{'',search,ask,reindex}. 30 tests in tests/test_expert.py. Design note: docs/nama-expert.md.",
+  "what": "Owner's request 2026-07-25: an AI expert chat that solves problems — ask it about Nama or the platform, upload a screenshot of an error, talk to it by voice. Backlog A4-A9.",
+  "index": "~3,300 chunks from two things that already existed: the repo's markdown (same allow-list /tools/library serves) and the gateway's own map (registry.SYSTEMS, catalog.CONNECTORS, catalog.ENDPOINTS, ideas). NOTHING is hand-copied into the expert's code — a rule changes in the runbook and the answer changes with it.",
+  "retrieval": "BM25, offline, no embedding service: no third credential, works with nothing configured, and reproducible from the repo alone. Arabic normalisation folds alef/ya/ta-marbuta and strips tashkeel+tatweel.",
+  "three_arabic_fixes_each_a_real_bug": [
+   "mark ranges written as \\uXXXX escapes — Arabic letters U+0621-U+064A sit BETWEEN two blocks of diacritics, and a range one codepoint too wide deletes the alphabet: every document tokenises to nothing and every question returns nothing, with no error. Locked by a test.",
+   "question scaffolding (ليه/إزاي/فين) stripped from the QUERY — in a formal corpus the colloquial 'ليه' is as rare as 'pageSize', so IDF rated them equally and a chunk matching only 'ليه...نما' beat the one chunk explaining the truncation. Rarity is not aboutness.",
+   "score scaled by rarity-weighted coverage — plain BM25 sums per-term scores, so three common words can beat the single rare word the question is about.",
+   "max 3 passages per section — a customer-balances question came back as six consecutive rows of one table, so the model never saw the endpoint that serves them."
+  ],
+  "two_modes": "grounded (ANTHROPIC_API_KEY set) = composed answer with [S#] citations. sources_only (no key, model down, or no network) = the passages themselves with their sources, and it says no model is attached. The second is not a sad degradation: it is the project rule applied to prose — old is bad, wrong is far worse. An answer that cites nothing is FLAGGED in its own note rather than passed off.",
+  "governing_rule": "Every answer names its source — endpoint, document or entity — and 'I do not know' is a valid answer. A confident wrong answer about a Nama write rule destroys records: addRecord:true replaces silently, re-saving a draft commits it permanently.",
+  "security": "Key server-side only. The page gets the gateway key like any /tools/* page and calls /api/v1/expert/ask; a test asserts the page contains no fetch to any external host. Voice is the browser's own Web Speech API (ar-EG) — zero vendor, zero key. Screenshots travel through the gateway, not from the browser to the model.",
+  "on_the_map": "System `ai` is now LIVE with url /tools/expert. New connector `expert` (live with no credential — the index is local). `ai-layer` stays NOT live: the orchestrator that would ACT across connectors is unbuilt; the expert only reads and cites. A4/A6/A7/A8 🟢, A5 🟡 (599-entity OpenAPI catalogue not indexed), A9 🟡 (rule written, signing mechanism PA5 still missing).",
+  "still_missing": [
+   "index the 599-entity Nama OpenAPI catalogue (A5)",
+   "conversation memory — each question is independent today",
+   "calling a live endpoint at answer time (that is Layer 4 / ai-layer, not this)",
+   "PA5 signing so A9's approval mechanism actually exists"
+  ]
+ },
+ "legal_counsel": {
+  "status": "BUILT 2026-07-25. app/integrations/legal/{corpus,manifest,citations,templates,router}.py + modules/legal/counsel.html. Page /tools/legal, API /api/v1/legal/{'',coverage,search,law/{slug},templates,ask,draft,review,verify,reindex}. 33 tests. Design note: docs/legal-counsel.md.",
+  "what": "Owner's request 2026-07-25: a smart-lawyer chatbot sourced from constitutions and Egyptian/international law (especially Chinese, commercial, civil, civil-service, labour, criminal) that writes contracts, reviews bylaws and checks drafts. Backlog L2-L10.",
+  "the_whole_point": "Article numbers. A model produces them as fluently as any other token, and «المادة 147 من القانون المدني» is four words a non-lawyer cannot check and has every reason to trust — a wrong one voids a clause or loses a case. So the module does not ask the model to behave; citations.py CHECKS. confirmed (in a loaded statute) passes; unverifiable (law not loaded) is marked, neither confirmed nor denied; fabricated (law IS loaded, article is NOT in it — the only verdict with no innocent reading) is struck out. Redaction happens in the body of the sentence, not a footnote: a legal answer gets copied into an email and the qualification at the bottom does not travel with it. answer_raw keeps the original for audit.",
+  "tiers": "statute = authority, the only tier an article is confirmed against. precedent = our own signed contracts, which prove what we agreed and never what the law says. internal = our 18 bylaws, binding on us only — and zero are certified by the directorate (from REP), so the penalties bylaw is not in force at all. The separation is enforced in code because the two collapse into each other in the mind of anyone reading at speed, including the model.",
+  "empty_corpus_is_designed": "manifest.py lists 24 expected sources; each is loaded or NAMED AS MISSING. «مالقيتش حاجة» is useless; «ده محكوم بقانون العمل ونصّه مش عندي — حمّله وأنا أجاوب بالمادة» is useful on day one. Deliberately absent from the manifest: law numbers and years — those get read out of a loaded text. Typing them from memory would be the same act deleted from the finance pages, in the domain where wrong costs most.",
+  "four_modes": "ask (needs a model for prose) · draft (6 templates, NO model needed) · review · verify (NO model, NO network). /verify is the cleanest part: same answer every time, works unconfigured, and works on text we did not write — the other side's draft, an old contract, a clause sent on WhatsApp.",
+  "templates_cite_no_article": "A template is not model output, so it would sail past the guard — the one remaining path by which an invented article could reach a SIGNED document. A test renders every template with every clause and fails on a single article reference. Templates name the governing law (safe, checkable) and warn where a statutory limit belongs: «الشرط المخالف باطل ولو وقّع عليه العامل». Unfilled blanks stay visible as ⟨label⟩.",
+  "corpus_dir": "corpus/legal/ — .txt or .md with a 4-line front matter (slug/title/tier/jurisdiction), articles headed «مادة 12» or «المادة (12)» or «المادة ١٢ مكرر». Arabic-Indic digits accepted: scanned Egyptian statutes are typeset with them. Then POST /api/v1/legal/reindex.",
+  "boundary": "Not a lawyer and not a substitute for one — every answer and every draft closes with that line, and so does the page. Read-only. Key server-side; a test asserts the page has no fetch to any external host.",
+  "still_missing": [
+   "L6 🟡 load the statute texts — the one gap that opens the whole domain",
+   "L7 upload our signed contracts as tier: precedent (they are in Drive)",
+   "L8 the 18 bylaws as tier: internal, with the fact that none is certified",
+   "bind template clauses to articles from a loaded text instead of the law's name alone",
+   "no conversation memory — each question is independent"
+  ]
+ },
+ "voice_layer": {
+  "status": "BUILT 2026-07-25. modules/platform/voice.js served at /tools/voice.js, injected by BOTH renderers: _serve() in routers/tools.py and html_page() in core/render.py. 10 tests. Doc: docs/voice-layer.md. UX3 and PA4 done.",
+  "what": "Owner: «OS يدعم البحث الصوتي في كل مراحله» — voice search at every stage of the OS.",
+  "one_button_not_one_per_field": "A mic inside every text box means wrapping every text box in a positioned element, and these fields live in flex rows, grids and sticky bars with working sizing (flex:1 on the hub search, a max-height textarea in the chat composer). One floating mic dictates into the focused field, or into the page's own search box which it focuses first. Nothing on the page moves.",
+  "injected_in_two_places_not_per_page": "Voice belongs to the platform, not to whichever screen someone remembered. A new page gets it without a decision, and tests/test_voice.py fails if a served page loses it — the requirement fails by being on three screens and missing on the fourth, because people then stop trying it.",
+  "what_makes_it_search": "It dispatches an `input` event after writing. The hub and the ideas board filter on input; without it they show results for text they never saw, which reads as the search being broken. On a type=search field it also fires Enter on stop.",
+  "no_vendor": "Browser Web Speech API — no key, no credential, no per-minute bill. The backlog had UX3/PA4 waiting on an external Arabic STT API; they did not need one. On a browser without it the script renders nothing: a mic that does nothing when pressed is worse than no mic.",
+  "deliberate_limits": [
+   "never dictates into a password field",
+   "data-no-voice opts any field or section out",
+   "a page with its own mic (data-voice-local on the expert chat) suppresses the global one — two mics on one screen is worse than either",
+   "errors are named: permission denied != no microphone != network down"
+  ],
+  "usage": "Mic bottom-start on every page · Ctrl+M toggles, Esc stops · language button ar-EG <-> en-US · writes into the focused field, else the page's search box.",
+  "verified_in_a_real_browser": "Playwright with a stubbed recogniser: mic renders, dictation lands in the hub's #q, exactly one input event fires, focus is on the right field, language toggles."
+ },
+ "release": {
+  "version": "1.0.0 — 2026-07-25. First version shown to people who did not build it.",
+  "how": "deploy.ps1 in the repo root: venv+pip -> ensure GATEWAY_API_KEY -> full test suite -> preflight -> uvicorn on 0.0.0.0 -> prints the LAN URLs -> opens Chrome. Stops at the first failing step.",
+  "start_page": "/tools/tour — every number fetched at open time, every claim carrying the link that proves it, and a final section listing what is NOT working, built from live state rather than a maintained list.",
+  "preflight": "scripts/preflight.py. Blocking: an advertised page that 500s, catalogue/route drift, a connector in read_write, an empty key while binding publicly. Warning: no model attached, no statutes loaded. Runs in-process — no server, no network, no ERP call — so it cannot itself break the demo.",
+  "two_real_bugs_this_release": [
+   "The Docker image copied `app` alone. It built, started, /health returned 200, and every page 500'd — /tools/* reads modules/, the ideas board parses BACKLOG.md, the expert indexes the markdown, the counsel reads corpus/legal. A container that comes up green and fails on the first page opened is worse than one that refuses to start. tests/test_deploy.py now derives the runtime dirs from the code itself.",
+   "The tour had <section id=\"money\"> and <div id=\"money\"> on the same page. getElementById returns the first with no warning, so writing innerHTML wiped the whole section and took #fresh with it; same collision on #ai and #gaps. Found by opening the page in a real browser, not by a test."
+  ],
+  "security_for_a_lan_demo": "GATEWAY_API_KEY was empty. Pages are meant to open for any colleague (the cookie is set for them) but the raw API must not. deploy.ps1 generates a key into .env when it is missing. No SSO and no RBAC yet: anyone who can reach the address sees everything — fine for an internal room, not beyond it.",
+  "say_this_out_loud": [
+   "no ANTHROPIC_API_KEY -> the expert and the counsel return sources, not composed answers",
+   "corpus/legal is empty -> the counsel says «I do not have that law» to every question",
+   "FINANCE_DEFAULT_SOURCE=live -> start the server 15 minutes before the room fills, the first sweep takes minutes",
+   "no SSO/RBAC · REP's 11 modules still outside the gateway"
+  ],
+  "counts": {
+   "tests": 227,
+   "connectors_live": 12,
+   "endpoints": 80,
+   "pages": 12,
+   "ideas": 214
+  }
+ }
 }

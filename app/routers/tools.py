@@ -181,6 +181,21 @@ async def legal_counsel(settings: Settings = Depends(get_settings)) -> HTMLRespo
     return _serve("legal/counsel.html", settings)
 
 
+@router.get("/rep", response_class=HTMLResponse)
+async def rep_ops(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """REP التشغيلية — العهدة والمستندات والحركة، مترقّية.
+
+    The original single-file PWA owned its data inside its own <script> tag and
+    carried a live sync key in an alert's text. This page reads the same records
+    from /api/v1/rep/* — so the workspace, the tour and a management report see
+    exactly what the page sees — and holds nothing but the gateway key every
+    /tools/* page gets. Daily operational entries (expense receipts, planned
+    trips) stay in the browser's localStorage as they did in the original;
+    moving them server-side is a WRITE and follows the platform's write rules.
+    """
+    return _serve("rep/ops.html", settings)
+
+
 @router.get("/platform/public", response_class=HTMLResponse)
 async def platform_hub_public(settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """The wide-audience view of the hub — same figures, fewer internals.

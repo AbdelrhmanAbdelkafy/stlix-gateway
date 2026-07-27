@@ -41,7 +41,7 @@ def _copied() -> set[str]:
 
 #: Every directory the running code reads from the project root. Derived from
 #: the modules that do the reading, so a new one cannot be forgotten silently.
-RUNTIME_DIRS = ("modules", "docs", "reference", "corpus")
+RUNTIME_DIRS = ("modules", "docs", "reference", "corpus", "data")
 RUNTIME_FILES = ("BACKLOG.md",)
 
 
