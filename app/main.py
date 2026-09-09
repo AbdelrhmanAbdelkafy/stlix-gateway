@@ -8,6 +8,9 @@ from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import __version__, graph
+from .auth.middleware import AuthMiddleware
+from .auth.router import admin as auth_admin_router, api as auth_api_router, router as auth_router
+from .hub.router import api as hub_api_router, pages as hub_pages_router
 from .config import get_settings
 from .core.errors import register_error_handlers
 from .core.logging_conf import configure_logging
@@ -102,6 +105,8 @@ def create_app() -> FastAPI:
     )
     # Middleware runs outermost-first in reverse add order: add rate-limit first
     # (inner), then observability (outer) so every request gets an id + metrics.
+    # Auth is innermost: a rejected request is still rate-limited and logged.
+    app.add_middleware(AuthMiddleware)
     app.add_middleware(RateLimitMiddleware, limit_per_minute=settings.rate_limit_per_minute)
     app.add_middleware(ObservabilityMiddleware)
     app.add_middleware(
@@ -116,6 +121,12 @@ def create_app() -> FastAPI:
     app.include_router(meta_router)
     app.include_router(observability_router)
     app.include_router(tools_router)
+    # users / permissions + the hub (PA2/PA3)
+    app.include_router(auth_router)
+    app.include_router(hub_pages_router)
+    app.include_router(auth_api_router, prefix=API_PREFIX)
+    app.include_router(auth_admin_router, prefix=API_PREFIX)
+    app.include_router(hub_api_router, prefix=API_PREFIX)
 
     # live integrations
     app.include_router(nama_router, prefix=API_PREFIX)

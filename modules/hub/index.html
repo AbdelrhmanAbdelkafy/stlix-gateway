@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0F1C2E">
+<title>STLIX Hub</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Almarai:wght@700;800&display=swap">
+<style>
+:root{--bg:#F2F4F7;--surface:#FFFFFF;--surface2:#E9EDF2;--line:#D3DAE3;--tx:#0F1C2E;--sub:#5B6B7F;--accent:#1F5FA8;--amber:#B9770E;--green:#1E8449;--red:#C0392B;--blue-bg:#E8F1FB;--green-bg:#E9F7EF;--amber-bg:#FFF4E0;--red-bg:#FBEAE7;--hero:#0F1C2E;--hero-tx:#F4F6F9;--focus:#E0A53A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0B1220;--surface:#131C2B;--surface2:#1A2536;--line:#26344A;--tx:#E9EDF3;--sub:#8E9BB0;--accent:#6FA6EE;--amber:#E0A53A;--green:#3BC77A;--red:#E56A5C;--blue-bg:#14243A;--green-bg:#10291B;--amber-bg:#2E2411;--red-bg:#3A1A17;--hero:#070D18}}
+:root[data-theme="dark"]{--bg:#0B1220;--surface:#131C2B;--surface2:#1A2536;--line:#26344A;--tx:#E9EDF3;--sub:#8E9BB0;--accent:#6FA6EE;--amber:#E0A53A;--green:#3BC77A;--red:#E56A5C;--blue-bg:#14243A;--green-bg:#10291B;--amber-bg:#2E2411;--red-bg:#3A1A17;--hero:#070D18}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;font-size:15px;line-height:1.5;direction:rtl}
+h1,h2{font-family:"Almarai",sans-serif;margin:0;text-wrap:balance}
+.en{font-family:"IBM Plex Sans","Segoe UI",sans-serif;direction:ltr;unicode-bidi:isolate}
+.top{background:var(--hero);color:var(--hero-tx);padding:22px 18px 20px;position:relative;overflow:hidden}
+.top:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 2px,transparent 2px 9px);pointer-events:none}
+.in{max-width:1080px;margin:0 auto;position:relative}
+.brand{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#E0A53A,#B9770E);display:grid;place-items:center;font-family:"Almarai";font-weight:800;color:#0F1C2E;font-size:20px}
+.brand h1{font-size:22px} .brand small{display:block;font-size:12px;color:#AEB9C8;letter-spacing:.1em;text-transform:uppercase;font-family:"IBM Plex Sans"}
+.who{margin-inline-start:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:#AEB9C8}
+.who a,.who span.u{color:#E6EBF2;text-decoration:none;border:1px solid rgba(255,255,255,.18);padding:6px 12px;border-radius:999px}
+.who a:hover{border-color:#E0A53A;color:#fff}
+.who .adm{background:#E0A53A;color:#0F1C2E;border-color:#E0A53A;font-weight:700}
+.search{margin-top:16px;position:relative}
+.search input{width:100%;font:inherit;font-size:17px;padding:14px 48px 14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;outline:none}
+.search input::placeholder{color:#8E9BB0}
+.search input:focus{border-color:var(--focus);background:rgba(255,255,255,.12)}
+.search .k{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:20px;opacity:.7}
+.hint{font-size:12px;color:#8E9BB0;margin-top:8px}
+.roles{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.role{border:1px solid rgba(255,255,255,.18);background:transparent;color:#E6EBF2;font:inherit;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer}
+.role[aria-pressed="true"]{background:#E0A53A;color:#0F1C2E;border-color:#E0A53A}
+.role:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+main{max-width:1080px;margin:0 auto;padding:16px 16px 60px}
+.live{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-top:14px;font-size:13px}
+.live b{font-family:"Almarai"}
+.live .dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:#9aa;margin-inline-end:5px}
+.live .chip{display:inline-flex;align-items:center;gap:3px;background:var(--surface2);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.live .chip .ms{color:var(--sub);font-size:11px}
+.live .when{margin-inline-start:auto;color:var(--sub);font-size:12px}
+.up{background:var(--green)!important} .down{background:var(--red)!important} .cfg{background:var(--amber)!important}
+.grp{margin-top:22px}
+.grp h2{font-size:15px;color:var(--sub);letter-spacing:.04em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.grp h2:after{content:"";flex:1;height:1px;background:var(--line)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+a.card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;text-decoration:none;color:inherit;transition:transform .12s,border-color .12s;position:relative}
+a.card:hover{transform:translateY(-2px);border-color:var(--accent)}
+a.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card .ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;background:var(--surface2);margin-bottom:10px}
+.card b{display:block;font-family:"Almarai";font-size:16px}
+.card p{margin:4px 0 0;color:var(--sub);font-size:13px;min-height:36px}
+.card .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px;gap:6px}
+.card .host{color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .st{position:absolute;top:12px;left:12px;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
+.card .st .dot{width:9px;height:9px;border-radius:50%;background:#9aa;display:inline-block}
+.card .nums{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.card .nums span{background:var(--surface2);border-radius:8px;padding:2px 8px;font-size:11px;color:var(--sub)}
+.card .nums span b{display:inline;font-size:12px;color:var(--tx);font-family:inherit}
+.pill{padding:2px 9px;border-radius:999px;font-weight:700;font-size:11px;white-space:nowrap}
+.p-live{background:var(--green-bg);color:var(--green)} .p-prev{background:var(--amber-bg);color:var(--amber)} .p-int{background:var(--blue-bg);color:var(--accent)} .p-ro{background:var(--surface2);color:var(--sub)}
+.card.dim{opacity:.35}
+.empty{color:var(--sub);padding:20px;text-align:center}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.quick a{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;text-decoration:none;padding:8px 12px;border-radius:10px;font-size:13px;font-weight:600}
+.quick a:hover{border-color:#E0A53A}
+footer{max-width:1080px;margin:30px auto 0;padding:0 16px;color:var(--sub);font-size:12px}
+kbd{font-family:"IBM Plex Sans";font-size:11px;border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:1px 5px}
+</style>
+</head>
+<body>
+
+<div class="top"><div class="in">
+  <div class="brand">
+    <div class="logo">S</div><div><h1>STLIX Hub</h1><small>Everything · One door</small></div>
+    <div class="who" id="who"></div>
+  </div>
+  <div class="search"><span class="k">🔎</span><input id="q" placeholder="ابحث عن أداة… أو اكتب صنف زي «ماسورة 316 2 بوصة» يوديك للرصيد" autocomplete="off" autofocus></div>
+  <div class="hint">اختصار: <kbd>/</kbd> للبحث · <kbd>Enter</kbd> يفتح أول نتيجة · لو كتبت صنف بيفتحه في المنصة مباشرة</div>
+  <div class="roles" id="roles">
+    <button class="role" aria-pressed="true" data-role="all">الكل</button>
+    <button class="role" aria-pressed="false" data-role="sales">🧑‍💼 بياع</button>
+    <button class="role" aria-pressed="false" data-role="proc">📦 مشتريات</button>
+    <button class="role" aria-pressed="false" data-role="mgmt">🏛️ إدارة</button>
+    <button class="role" aria-pressed="false" data-role="factory">🏭 مصنع</button>
+    <button class="role" aria-pressed="false" data-role="it">🛠️ IT</button>
+  </div>
+  <div class="quick" id="quick"></div>
+</div></div>
+
+<main>
+  <div class="live" id="live"><b>الأنظمة لايف</b> <span class="chip">⏳ بيتحمّل…</span></div>
+  <div id="main"></div>
+</main>
+<footer>STLIX Valley · الأدوات دي كلها بتاعتنا ومستضافة على سيرفراتنا — الكروت اللي شايفها هي اللي ليك صلاحية عليها. لإضافة أداة أو صلاحية: <a href="/hub/admin.html">المستخدمون والصلاحيات</a>.</footer>
+
+<script>
+const PLATFORM="/hub/platform.html";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const norm=s=>String(s||"").toLowerCase().replace(/[إأآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي");
+let TOOLS=[], ME=null, LIVE={items:{}}, role="all";
+try{role=localStorage.getItem("stlix_role")||"all"}catch(e){}
+
+const QUICK=[["🔎 رصيد صنف",PLATFORM],["📨 طلب من المشتريات",PLATFORM+"#bridge"],["📊 تقرير النهاردة",PLATFORM+"#report"],["🧱 صنف جديد","/tools/name-builder"],["🎓 اسأل نما","/tools/expert"]];
+
+function looksLikeItem(q){return /(ماسور|علب|لوح|كوع|فلانش|كويل|استانلس|304|316|بوصه|مم|سمك|جدول)/.test(norm(q))}
+
+function dotFor(t){
+  if(!t.live_key) return "";
+  const it=LIVE.items[t.live_key];
+  if(!it) return `<span class="st"><span class="dot"></span></span>`;
+  const cls=it.up?"up":(it.configured===false?"cfg":"down");
+  const label=it.up?(it.latency_ms?it.latency_ms+"ms":"شغال"):(it.configured===false?"محتاج مفاتيح":"واقع");
+  return `<span class="st" title="${esc(it.error||"")}"><span class="dot ${cls}"></span>${esc(label)}</span>`;
+}
+function numsFor(t){
+  const it=t.live_key&&LIVE.items[t.live_key]; if(!it||!it.numbers) return "";
+  const L={leads:"عملاء محتملين",tracked:"أصناف متتبعة",counted:"اتعدّت",manual:"يدوي",counters:"عدّادين",holders:"عهدة",vehicles:"عربيات",team:"فريق",alerts:"تنبيهات",uptime_h:"ساعات تشغيل",requests:"طلبات",docs:"وثائق",chunks:"مقاطع",passages:"مقاطع",files:"ملفات"};
+  return `<div class="nums">`+Object.entries(it.numbers).filter(([k,v])=>v!==null&&v!==undefined).slice(0,4).map(([k,v])=>`<span>${esc(L[k]||k)} <b>${esc(v)}</b></span>`).join("")+`</div>`;
+}
+function render(){
+  const q=norm($("#q").value.trim());
+  document.querySelectorAll(".role").forEach(b=>b.setAttribute("aria-pressed",b.dataset.role===role));
+  const groups={};
+  TOOLS.forEach(t=>{const inRole=role==="all"||t.audiences.includes(role);const hit=!q||norm(t.name+" "+t.desc+" "+t.kw).includes(q);if(!inRole&&q)return;if(!hit)return;(groups[t.group]=groups[t.group]||[]).push({...t,dim:!inRole});});
+  let html="";
+  if(q&&looksLikeItem($("#q").value))html+=`<div class="grp"><h2>يبدو إنك بتدور على صنف</h2><div class="cards"><a class="card" href="${PLATFORM}#stock?q=${encodeURIComponent($("#q").value)}"><div class="ic">🔎</div><b>افتح رصيد «${esc($("#q").value)}» في المنصة</b><p>الرصيد بالعدد أو أكبر وحدة، بالمخزن، ومحجوز ولا لأ</p><div class="meta"><span class="host">Enterprise Platform</span><span class="pill p-prev">preview</span></div></a></div></div>`;
+  for(const g in groups){html+=`<div class="grp"><h2>${esc(g)}</h2><div class="cards">`+groups[g].map(t=>{
+    const pill=t.status==="live"?`<span class="pill p-live">شغال</span>`:t.status==="preview"?`<span class="pill p-prev">preview</span>`:`<span class="pill p-int">داخلي</span>`;
+    const ro=(t.editable&&!t.can_edit)?`<span class="pill p-ro">قراءة</span>`:"";
+    return `<a class="card ${t.dim?"dim":""}" href="${esc(t.url)}" ${t.external?'target="_blank" rel="noopener"':""}>${dotFor(t)}<div class="ic">${t.icon}</div><b>${esc(t.name)}</b><p>${esc(t.desc)}</p>${numsFor(t)}<div class="meta"><span class="host en">${esc(t.host)}</span><span>${ro} ${pill}</span></div></a>`;}).join("")+`</div></div>`;}
+  $("#main").innerHTML=html||`<div class="empty">مفيش أداة بالاسم ده — جرّب كلمة تانية أو اكتب اسم صنف.</div>`;
+}
+function renderLive(){
+  const it=LIVE.items||{}; const keys=Object.keys(it); if(!keys.length) return;
+  const N={gateway:"gateway",nama:"نما API",crm:"CRM API",inventory:"الجرد",finance:"المالية",expert:"Expert",rep:"REP","site:crm":"CRM","site:erp":"نما ERP","site:attendance":"الحضور","site:payroll":"الرواتب","site:website":"stlixvalley.com","site:egygrouphs":"egygrouphs"};
+  const chips=keys.map(k=>{const v=it[k];const cls=v.up?"up":(v.configured===false?"cfg":"down");return `<span class="chip" title="${esc(v.error||"")}"><span class="dot ${cls}"></span>${esc(N[k]||k)}${v.latency_ms?` <span class="ms">${v.latency_ms}ms</span>`:""}</span>`;}).join("");
+  const when=new Date((LIVE.ts||0)*1000).toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  $("#live").innerHTML=`<b>الأنظمة لايف</b> <span class="chip">${LIVE.up}/${LIVE.total} شغال</span> ${chips} <span class="when">آخر تحديث ${when}</span>`;
+  render();
+}
+async function boot(){
+  try{ME=await (await fetch("/api/v1/auth/me",{credentials:"same-origin"})).json();}catch(e){ME={authenticated:false}}
+  const who=$("#who");
+  if(ME.authenticated){who.innerHTML=`<span class="u">👤 ${esc(ME.display_name||ME.username)}</span>${ME.is_admin?`<a class="adm" href="/hub/admin.html">🛡️ المستخدمون والصلاحيات</a>`:""}<a href="/logout">خروج ⏏</a>`;}
+  else if(ME.auth_enabled){location.href="/login?to="+encodeURIComponent(location.pathname);return;}
+  else{who.innerHTML=`<span class="u">وضع التطوير — بدون دخول</span><a href="/hub/admin.html">🛡️ الصلاحيات</a>`;}
+  const cat=await (await fetch("/api/v1/hub/catalog",{credentials:"same-origin"})).json();
+  TOOLS=cat.items||[];
+  const allowed=new Set(TOOLS.map(t=>t.url));
+  $("#quick").innerHTML=QUICK.filter(([t,u])=>allowed.has(u.split("#")[0])||u.startsWith(PLATFORM)&&allowed.has(PLATFORM)).map(([t,u])=>`<a href="${u}">${t}</a>`).join("");
+  render();
+  // live: SSE first, polling as fallback
+  let es=null;
+  try{es=new EventSource("/api/v1/hub/events");es.addEventListener("live",e=>{LIVE=JSON.parse(e.data);renderLive();});es.onerror=()=>{};}catch(e){}
+  async function poll(){try{LIVE=await (await fetch("/api/v1/hub/live",{credentials:"same-origin"})).json();renderLive();}catch(e){}}
+  poll(); setInterval(()=>{if(!es||es.readyState===2)poll();},30000);
+}
+$("#q").addEventListener("input",render);
+$("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){const a=document.querySelector("#main a.card:not(.dim)")||document.querySelector("#main a.card");if(a)window.open(a.href,a.target||"_self");}});
+document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement!==$("#q")){e.preventDefault();$("#q").focus();}});
+document.querySelectorAll(".role").forEach(b=>b.onclick=()=>{role=b.dataset.role;try{localStorage.setItem("stlix_role",role)}catch(e){}render();});
+boot();
+</script>
+</body>
+</html>

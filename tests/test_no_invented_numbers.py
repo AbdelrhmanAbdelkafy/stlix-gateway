@@ -66,6 +66,9 @@ def test_every_module_page_is_reachable_or_says_it_is_not():
     been emptied of figures and says so.
     """
     routed = set(re.findall(r'_serve\("([^"]+)"', Path(tools.__file__).read_text(encoding="utf-8")))
+    # the hub's pages are served by app/hub/router.py (and /login by app/auth)
+    from app.hub import router as hub_router
+    routed |= {f"hub/{n}" for n in hub_router._PAGES} | {"hub/login.html"}
     orphans = []
     for page in sorted(MODULES.rglob("*.html")):
         rel = page.relative_to(MODULES).as_posix()

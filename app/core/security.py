@@ -29,6 +29,10 @@ def require_api_key(
     - HttpOnly (page scripts cannot read it back out) + SameSite=lax, and it is
       only ever set by a page that was already handed the key.
     """
+    # A logged-in person (session cookie, checked by AuthMiddleware) needs no
+    # key: the permission matrix already decided what they may reach.
+    if getattr(request.state, "user", None):
+        return
     keys = settings.api_keys
     if not keys:
         return

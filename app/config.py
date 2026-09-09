@@ -38,6 +38,28 @@ class Settings(BaseSettings):
     def cors_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()] or ["*"]
 
+    # --- Users / permissions (PA2/PA3) ------------------------------------
+    # auto = on in prod, off elsewhere (so the test suite and local dev run
+    # without a users table); on/off force it.
+    auth_mode: str = Field(default="auto", pattern="^(auto|on|off)$")
+    auth_db_path: str = Field(default="", description="SQLite file; blank = data/auth/auth.db")
+    # Cookie domain so one login covers hub.* and gw.* (e.g. ".stlixvalley.com").
+    auth_cookie_domain: str = Field(default="")
+    auth_session_hours: float = Field(default=12.0)
+    # First admin, created only when the users table is empty.
+    auth_bootstrap_user: str = Field(default="stlix")
+    auth_bootstrap_password: str = Field(default="")
+    # Seconds between live-status refreshes pushed to the hub.
+    hub_live_interval: float = Field(default=20.0)
+
+    @property
+    def auth_enabled(self) -> bool:
+        if self.auth_mode == "on":
+            return True
+        if self.auth_mode == "off":
+            return False
+        return self.app_env == "prod"
+
     @property
     def api_keys(self) -> set[str]:
         keys = {k.strip() for k in self.gateway_api_keys.split(",") if k.strip()}

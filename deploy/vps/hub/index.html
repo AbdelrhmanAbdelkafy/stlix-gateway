@@ -18,6 +18,8 @@ h1,h2{font-family:"Almarai",sans-serif;margin:0;text-wrap:balance}
 .top:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 2px,transparent 2px 9px);pointer-events:none}
 .in{max-width:1040px;margin:0 auto;position:relative}
 .brand{display:flex;align-items:center;gap:12px}
+.brand .out{margin-inline-start:auto;color:#AEB9C8;text-decoration:none;font-size:13px;border:1px solid rgba(255,255,255,.18);padding:6px 12px;border-radius:999px}
+.brand .out:hover{border-color:#E0A53A;color:#fff}
 .logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#E0A53A,#B9770E);display:grid;place-items:center;font-family:"Almarai";font-weight:800;color:#0F1C2E;font-size:20px}
 .brand h1{font-size:22px} .brand small{display:block;font-size:12px;color:#AEB9C8;letter-spacing:.1em;text-transform:uppercase;font-family:"IBM Plex Sans"}
 .search{margin-top:18px;position:relative}
@@ -58,7 +60,7 @@ kbd{font-family:"IBM Plex Sans";font-size:11px;border:1px solid rgba(255,255,255
 
 
 <div class="top"><div class="in">
-  <div class="brand"><div class="logo">S</div><div><h1>STLIX Hub</h1><small>Everything · One door</small></div></div>
+  <div class="brand"><div class="logo">S</div><div><h1>STLIX Hub</h1><small>Everything · One door</small></div><a class="out" href="/logout" title="تسجيل الخروج">خروج ⏏</a></div>
   <div class="search"><span class="k">🔎</span><input id="q" placeholder="ابحث عن أداة… أو اكتب صنف زي «ماسورة 316 2 بوصة» يوديك للرصيد" autocomplete="off" autofocus></div>
   <div class="hint">اختصار: <kbd>/</kbd> للبحث · <kbd>Enter</kbd> يفتح أول نتيجة · لو كتبت صنف بيفتحه في المنصة مباشرة</div>
   <div class="roles" id="roles">
@@ -80,23 +82,42 @@ kbd{font-family:"IBM Plex Sans";font-size:11px;border:1px solid rgba(255,255,255
 // role: sales | proc | mgmt | factory | it   · status: live | preview | internal
 const PLATFORM="/platform.html"; const GW=(/^hub\./.test(location.hostname)?location.protocol+"//"+location.hostname.replace(/^hub\./,"gw."):"https://gw.stlixvalley.com");
 const TOOLS=[
- {g:"العمليات اليومية",ic:"🏗️",name:"Enterprise Platform",desc:"رصيد صنف بالعربي · NAME BUILDER بالـ AI · طلبات مبيعات↔مشتريات بالـ SLA · التقرير اليومي",url:PLATFORM,host:"hub.stlixvalley.com",st:"live",roles:["sales","proc","mgmt"],kw:"رصيد صنف اسم كود طلب تقرير platform builder"},
- {g:"العمليات اليومية",ic:"🧱",name:"NAME BUILDER",desc:"إنشاء صنف جديد بكود واسم مضبوطين — بدون تكرار",url:GW+"/tools/name-builder",host:"hub.stlixvalley.com",st:"live",roles:["proc","it"],kw:"صنف جديد اسم كود name builder"},
+ // ---- العمليات اليومية
+ {g:"العمليات اليومية",ic:"🏗️",name:"Enterprise Platform",desc:"رصيد صنف بالعربي · NAME BUILDER بالـ AI · طلبات مبيعات↔مشتريات بالـ SLA · التقرير اليومي",url:PLATFORM,host:"hub.stlixvalley.com",st:"preview",roles:["sales","proc","mgmt"],kw:"رصيد صنف اسم كود طلب تقرير platform builder"},
+ {g:"العمليات اليومية",ic:"🧭",name:"لوحة الـ gateway",desc:"الباب الفني للمنصة: كل الأدوات والـ APIs والأنظمة المربوطة في مكان واحد",url:GW+"/tools/platform",host:"gw.stlixvalley.com",st:"live",roles:["it","mgmt"],kw:"gateway hub platform لوحة أدوات api"},
+ {g:"العمليات اليومية",ic:"🧱",name:"NAME BUILDER",desc:"إنشاء صنف جديد بكود واسم مضبوطين — بدون تكرار",url:GW+"/tools/name-builder",host:"gw.stlixvalley.com",st:"live",roles:["proc","it"],kw:"صنف جديد اسم كود name builder"},
  {g:"العمليات اليومية",ic:"📋",name:"تطبيق الجرد",desc:"عدّ المخزون من الموبايل ومزامنة مع النظام",url:"https://crm.stlixvalley.com/count/count.html",host:"crm.stlixvalley.com",st:"live",roles:["proc","factory"],kw:"جرد عد مخزون count stocktake"},
- {g:"العمليات اليومية",ic:"💰",name:"Finance OS",desc:"لوحة الخزينة والعملاء والتقارير المالية (قراءة)",url:GW+"/tools/finance-os",host:"gw.stlixvalley.com",st:"live",roles:["mgmt"],kw:"مالية خزينة بنوك عملاء finance"},
  {g:"العمليات اليومية",ic:"📐",name:"Engineer",desc:"حسابات المهندس: عرض الاستربس، أوزان، تقطيع اللفات",url:GW+"/tools/engineer",host:"gw.stlixvalley.com",st:"live",roles:["factory","sales"],kw:"مهندس وزن استربس تقطيع لفة حساب engineer"},
+ {g:"العمليات اليومية",ic:"🚚",name:"REP — العهدة والحركة",desc:"عهدة المندوبين، المستندات المطبوعة، حركة التوصيل، وتقرير الإدارة",url:GW+"/tools/rep",host:"gw.stlixvalley.com",st:"live",roles:["sales","mgmt","factory"],kw:"مندوب عهدة حركة توصيل مستندات rep custody"},
+ {g:"العمليات اليومية",ic:"📜",name:"شهادة الاستيراد",desc:"إصدار شهادة/مستند استيراد للشحنة بالبيانات المضبوطة",url:GW+"/tools/certificate",host:"gw.stlixvalley.com",st:"live",roles:["proc","mgmt"],kw:"شهادة استيراد شحنة certificate import"},
+ // ---- المال والخبرة
+ {g:"المال والخبرة",ic:"💰",name:"Finance OS",desc:"لوحة الخزينة والعملاء والتقارير المالية (قراءة)",url:GW+"/tools/finance-os",host:"gw.stlixvalley.com",st:"live",roles:["mgmt"],kw:"مالية خزينة بنوك عملاء finance"},
+ {g:"المال والخبرة",ic:"📊",name:"التقارير المالية",desc:"أرصدة وحركات من نما — sql (نسخة) أو live (مباشر) مع drift guard",url:GW+"/tools/finance-reports",host:"gw.stlixvalley.com",st:"live",roles:["mgmt"],kw:"تقارير مالية أرصدة حركات reports live sql"},
+ {g:"المال والخبرة",ic:"🎓",name:"Nama Expert",desc:"اسأل عن نما بالعربي — يجاوب من التوثيق والقرارات بتاعتنا",url:GW+"/tools/expert",host:"gw.stlixvalley.com",st:"live",roles:["proc","mgmt","it"],kw:"نما خبير سؤال expert مساعد namasoft"},
+ {g:"المال والخبرة",ic:"⚖️",name:"المستشار القانوني",desc:"عقود ونماذج قانونية جاهزة + إجابات مستندة لنصوص القانون المصري",url:GW+"/tools/legal",host:"gw.stlixvalley.com",st:"live",roles:["mgmt"],kw:"قانوني عقد نموذج legal counsel محامي"},
+ {g:"المال والخبرة",ic:"💡",name:"لوحة الأفكار",desc:"الـ backlog: كل فكرة وحالتها ومين عليها",url:GW+"/tools/ideas",host:"gw.stlixvalley.com",st:"internal",roles:["mgmt","it"],kw:"افكار backlog مهام ideas"},
+ {g:"المال والخبرة",ic:"📚",name:"المكتبة",desc:"التوثيق الفني والـ runbooks بتاعة المنصة",url:GW+"/tools/library",host:"gw.stlixvalley.com",st:"internal",roles:["it"],kw:"توثيق مكتبة docs library runbook"},
+ {g:"المال والخبرة",ic:"🗺️",name:"جولة المنصة",desc:"شرح سريع: إيه اللي موجود وبيتوصل بإيه",url:GW+"/tools/tour",host:"gw.stlixvalley.com",st:"live",roles:["sales","proc","mgmt","factory","it"],kw:"جولة شرح tour help"},
+ // ---- العملاء والمبيعات
  {g:"العملاء والمبيعات",ic:"🤝",name:"vTiger CRM",desc:"العملاء، الفرص، المتابعات — نظام العملاء الرئيسي",url:"https://crm.stlixvalley.com/",host:"crm.stlixvalley.com",st:"live",roles:["sales","mgmt"],kw:"عملاء crm فرص متابعة vtiger"},
  {g:"العملاء والمبيعات",ic:"🌐",name:"stlixvalley.com",desc:"الموقع الرسمي — كتالوج المنتجات وطلبات التواصل",url:"https://stlixvalley.com/",host:"stlixvalley.com",st:"live",roles:["sales","mgmt"],kw:"موقع كتالوج منتجات website wordpress"},
  {g:"العملاء والمبيعات",ic:"🏢",name:"egygrouphs.com",desc:"موقع المجموعة المصرية لتجارة المعادن + بانل الصور",url:"https://egygrouphs.com/",host:"egygrouphs.com",st:"live",roles:["sales","mgmt"],kw:"المجموعة المصرية موقع صور egygroup"},
+ // ---- شؤون العاملين
+ {g:"شؤون العاملين",ic:"🕒",name:"الحضور والانصراف",desc:"البصمات والحضور اليومي — على سيرفرنا",url:"https://attendance.stlixvalley.com/",host:"attendance.stlixvalley.com",st:"live",roles:["mgmt","it"],kw:"حضور انصراف بصمة attendance"},
+ {g:"شؤون العاملين",ic:"💵",name:"الرواتب",desc:"نظام الرواتب — على سيرفرنا",url:"https://payroll.stlixvalley.com/",host:"payroll.stlixvalley.com",st:"live",roles:["mgmt"],kw:"رواتب مرتبات payroll"},
+ // ---- الأنظمة الأساسية
  {g:"الأنظمة الأساسية",ic:"🗄️",name:"نما ERP",desc:"نظام السجل الوحيد: الأصناف، المخازن، الفواتير، الحسابات",url:"https://stlixvalley.namasoft.net/erp",host:"namasoft.net",st:"live",roles:["proc","mgmt","it"],kw:"نما erp أصناف مخازن فواتير حسابات namasoft"},
- {g:"الأنظمة الأساسية",ic:"🔌",name:"stlix-gateway",desc:"الـ API الموحد ورا كل الأنظمة — المفاتيح server-side",url:GW+"/health",host:"gw.stlixvalley.com",st:"live",roles:["it"],kw:"api gateway مفاتيح connector"},
+ {g:"الأنظمة الأساسية",ic:"🔌",name:"stlix-gateway",desc:"الـ API الموحد ورا كل الأنظمة — المفاتيح server-side",url:GW+"/health",host:"gw.stlixvalley.com",st:"live",roles:["it"],kw:"api gateway مفاتيح connector health"},
  {g:"الأنظمة الأساسية",ic:"🧠",name:"الذاكرة المشتركة (Notion)",desc:"توثيق المشاريع والقرارات — NAME BUILDER، الـ SOPs، الـ runbooks",url:"https://www.notion.so/",host:"notion.so",st:"live",roles:["mgmt","it"],kw:"توثيق notion ذاكرة قرارات sop"},
- {g:"الإدارة والبنية التحتية",ic:"🖥️",name:"Hostinger VPS",desc:"لوحة السيرفر — الاستضافة، الـ SSL، الـ backups",url:"https://hpanel.hostinger.com/vps",host:"hostinger.com",st:"live",roles:["it"],kw:"سيرفر vps hostinger استضافة"},
+ // ---- الإدارة والبنية التحتية
+ {g:"الإدارة والبنية التحتية",ic:"🖥️",name:"Hostinger VPS",desc:"لوحة السيرفر — الاستضافة، الـ SSL، الـ backups، الـ DNS بتاع stlixvalley.com",url:"https://hpanel.hostinger.com/vps",host:"hostinger.com",st:"live",roles:["it"],kw:"سيرفر vps hostinger استضافة dns دومين"},
+ {g:"الإدارة والبنية التحتية",ic:"🐳",name:"Portainer",desc:"إدارة الـ Docker containers على السيرفر (gateway / strapi / postgres)",url:"https://153.92.209.190:9443/",host:"153.92.209.190:9443",st:"internal",roles:["it"],kw:"docker containers portainer"},
+ {g:"الإدارة والبنية التحتية",ic:"🐬",name:"phpMyAdmin",desc:"قاعدة بيانات الـ CRM",url:"https://crm.stlixvalley.com/phpmyadmin/",host:"crm.stlixvalley.com",st:"internal",roles:["it"],kw:"mysql database phpmyadmin قاعدة بيانات"},
  {g:"الإدارة والبنية التحتية",ic:"📧",name:"Google Workspace",desc:"الإيميلات والحسابات والـ Drive",url:"https://admin.google.com/",host:"google.com",st:"live",roles:["it","mgmt"],kw:"ايميل حسابات google workspace drive"},
- {g:"الإدارة والبنية التحتية",ic:"🌍",name:"GoDaddy Domains",desc:"النطاقات والـ DNS",url:"https://account.godaddy.com/products",host:"godaddy.com",st:"live",roles:["it"],kw:"دومين dns godaddy نطاق"},
+ {g:"الإدارة والبنية التحتية",ic:"🌍",name:"GoDaddy",desc:"النطاقات المسجّلة",url:"https://account.godaddy.com/products",host:"godaddy.com",st:"live",roles:["it"],kw:"دومين godaddy نطاق"},
  {g:"الإدارة والبنية التحتية",ic:"📹",name:"الكاميرات (Hik-Connect)",desc:"كاميرات المصنع والمخازن",url:"https://www.hik-connect.com/",host:"hik-connect.com",st:"live",roles:["mgmt","factory"],kw:"كاميرات مراقبة hikvision cctv"},
 ];
-const QUICK=[["🔎 رصيد صنف",PLATFORM],["📨 طلب من المشتريات",PLATFORM+"#bridge"],["📊 تقرير النهاردة",PLATFORM+"#report"],["📋 جرد",'https://crm.stlixvalley.com/count/count.html']];
+const QUICK=[["🔎 رصيد صنف",PLATFORM],["🧱 صنف جديد",GW+"/tools/name-builder"],["🎓 اسأل نما",GW+"/tools/expert"],["📨 طلب من المشتريات",PLATFORM+"#bridge"],["📊 تقرير النهاردة",PLATFORM+"#report"],["📋 جرد",'https://crm.stlixvalley.com/count/count.html']];
 // ====== end config ======
 const $=s=>document.querySelector(s);
 const norm=s=>String(s||"").toLowerCase().replace(/[إأآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي");

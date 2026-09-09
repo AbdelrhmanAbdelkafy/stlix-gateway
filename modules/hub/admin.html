@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>المستخدمون والصلاحيات — STLIX</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Almarai:wght@700;800&display=swap">
+<style>
+:root{--bg:#F2F4F7;--surface:#FFFFFF;--surface2:#E9EDF2;--line:#D3DAE3;--tx:#0F1C2E;--sub:#5B6B7F;--accent:#1F5FA8;--amber:#B9770E;--green:#1E8449;--red:#C0392B;--green-bg:#E9F7EF;--amber-bg:#FFF4E0;--red-bg:#FBEAE7;--blue-bg:#E8F1FB;--hero:#0F1C2E;--gold:#E0A53A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0B1220;--surface:#131C2B;--surface2:#1A2536;--line:#26344A;--tx:#E9EDF3;--sub:#8E9BB0;--accent:#6FA6EE;--amber:#E0A53A;--green:#3BC77A;--red:#E56A5C;--green-bg:#10291B;--amber-bg:#2E2411;--red-bg:#3A1A17;--blue-bg:#14243A;--hero:#070D18}}
+:root[data-theme="dark"]{--bg:#0B1220;--surface:#131C2B;--surface2:#1A2536;--line:#26344A;--tx:#E9EDF3;--sub:#8E9BB0;--accent:#6FA6EE;--amber:#E0A53A;--green:#3BC77A;--red:#E56A5C;--green-bg:#10291B;--amber-bg:#2E2411;--red-bg:#3A1A17;--blue-bg:#14243A;--hero:#070D18}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;font-size:14px;line-height:1.5}
+h1,h2,h3{font-family:"Almarai";margin:0}
+.en{font-family:"IBM Plex Sans","Segoe UI",sans-serif;direction:ltr;unicode-bidi:isolate}
+.top{background:var(--hero);color:#F4F6F9;padding:16px 18px}
+.in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#E0A53A,#B9770E);display:grid;place-items:center;font-family:"Almarai";font-weight:800;color:#0F1C2E;font-size:18px}
+.top a{color:#E6EBF2;text-decoration:none;border:1px solid rgba(255,255,255,.18);padding:6px 12px;border-radius:999px;font-size:13px}
+.top a:hover{border-color:var(--gold)}
+.top .sp{margin-inline-start:auto}
+main{max-width:1180px;margin:0 auto;padding:16px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{font:inherit;font-weight:700;padding:9px 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--tx);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--gold);color:#0F1C2E;border-color:var(--gold)}
+.panel{display:none}.panel.on{display:block}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+label{display:block;font-size:12px;color:var(--sub);font-weight:600;margin-bottom:4px}
+input,select,textarea{font:inherit;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--tx);min-width:160px}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+button{font:inherit;font-weight:700;padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--tx);cursor:pointer}
+button.p{background:var(--accent);color:#fff;border-color:var(--accent)} button.d{background:var(--red-bg);color:var(--red);border-color:transparent} button.g{background:var(--gold);color:#0F1C2E;border-color:var(--gold)}
+button:disabled{opacity:.5;cursor:default}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}
+th{color:var(--sub);font-weight:600;font-size:12px;position:sticky;top:0;background:var(--surface)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-weight:700;font-size:11px;margin-inline-end:4px}
+.p-on{background:var(--green-bg);color:var(--green)} .p-off{background:var(--red-bg);color:var(--red)} .p-role{background:var(--blue-bg);color:var(--accent)} .p-amber{background:var(--amber-bg);color:var(--amber)}
+.msg{display:none;padding:10px 12px;border-radius:10px;margin:10px 0;font-weight:600}
+.msg.ok{display:block;background:var(--green-bg);color:var(--green)} .msg.err{display:block;background:var(--red-bg);color:var(--red)}
+.matrix{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:12px}
+.matrix table{min-width:640px}
+.matrix td.c{text-align:center} .matrix .grp td{background:var(--surface2);font-weight:700;color:var(--sub);font-size:12px}
+.matrix input[type=checkbox]{width:18px;height:18px;min-width:0;accent-color:var(--accent)}
+.matrix .na{color:var(--line)}
+.ov select{min-width:90px;padding:4px 6px}
+.muted{color:var(--sub);font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+code{font-family:"IBM Plex Mono",monospace;font-size:12px;direction:ltr;unicode-bidi:isolate}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+  <div class="logo">S</div><h1 style="font-size:20px">المستخدمون والصلاحيات</h1>
+  <span class="muted" style="color:#AEB9C8">على طريقة نما: أدوار + استثناءات لكل مستخدم — المنع بيغلب السماح</span>
+  <span class="sp"></span><a href="/hub/">← الهَب</a><a href="/logout">خروج</a>
+</div></div>
+<main>
+<div class="msg" id="msg"></div>
+<div class="tabs">
+  <button class="tab" data-t="users" aria-selected="true">👥 المستخدمون</button>
+  <button class="tab" data-t="roles" aria-selected="false">🧩 الأدوار (البروفايلات)</button>
+  <button class="tab" data-t="user" aria-selected="false">🎯 صلاحيات مستخدم</button>
+  <button class="tab" data-t="audit" aria-selected="false">📜 سجل التدقيق</button>
+</div>
+
+<!-- USERS -->
+<section class="panel on" id="p-users">
+  <div class="card">
+    <h3>مستخدم جديد</h3>
+    <div class="row" style="margin-top:10px">
+      <div><label>اسم المستخدم (إنجليزي)</label><input id="nu" class="en" placeholder="ahmed.sales" autocapitalize="off"></div>
+      <div><label>الاسم الظاهر</label><input id="nd" placeholder="أحمد — مبيعات"></div>
+      <div><label>كلمة المرور (8+)</label><input id="np" type="text" class="en" placeholder="••••••••"><button type="button" id="gen" style="margin-inline-start:4px">🎲</button></div>
+      <div><label>الأدوار</label><select id="nr" multiple size="3" style="min-width:180px"></select></div>
+      <button class="p" id="add">➕ إضافة</button>
+    </div>
+  </div>
+  <div class="card"><h3>كل المستخدمين</h3><div style="overflow:auto;margin-top:8px"><table id="ut"><thead><tr><th>المستخدم</th><th>الاسم</th><th>الحالة</th><th>الأدوار</th><th>استثناءات</th><th>آخر دخول</th><th></th></tr></thead><tbody></tbody></table></div></div>
+</section>
+
+<!-- ROLES -->
+<section class="panel" id="p-roles">
+  <div class="card">
+    <div class="row">
+      <div><label>الدور</label><select id="rsel" style="min-width:220px"></select></div>
+      <div><label>مفتاح دور جديد (إنجليزي)</label><input id="rnew" class="en" placeholder="warehouse"></div>
+      <button id="rcreate">➕ دور جديد</button>
+      <div><label>الاسم</label><input id="rname"></div>
+      <div style="flex:1;min-width:200px"><label>الوصف</label><input id="rdesc" style="width:100%"></div>
+      <button class="g" id="rsave">💾 حفظ الدور</button>
+      <button class="d" id="rdel">🗑 حذف</button>
+    </div>
+    <p class="muted" style="margin:10px 0 0">الصف الأول <b>«* كل الموارد»</b> بيدّي الفعل على كل حاجة مرة واحدة. الأفعال: <b>يشوف</b> = يفتح الصفحة/يقرا الـ API · <b>يعدّل</b> = يبعت تغييرات (POST/PUT) · <b>يدير</b> = إدارة المستخدمين.</p>
+  </div>
+  <div class="matrix"><table id="rm"><thead><tr><th>المورد</th><th class="c">يشوف</th><th class="c">يعدّل</th><th class="c">يدير</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<!-- USER OVERRIDES -->
+<section class="panel" id="p-user">
+  <div class="card">
+    <div class="row">
+      <div><label>المستخدم</label><select id="usel" style="min-width:220px"></select></div>
+      <div id="uinfo" class="muted" style="flex:1"></div>
+      <button class="g" id="usave">💾 حفظ الاستثناءات</button>
+    </div>
+    <p class="muted" style="margin:10px 0 0">العمود «من الأدوار» هو اللي جاي من البروفايل. الاستثناء: <b>سماح</b> يضيف، <b>منع</b> يشيل حتى لو الدور بيديه. «النتيجة» هي اللي بيتنفّذ فعلًا.</p>
+  </div>
+  <div class="matrix"><table id="um"><thead><tr><th>المورد</th><th class="c">الفعل</th><th class="c">من الأدوار</th><th class="c">استثناء</th><th class="c">النتيجة</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<!-- AUDIT -->
+<section class="panel" id="p-audit">
+  <div class="card"><h3>آخر 200 حدث</h3><div style="overflow:auto;margin-top:8px"><table id="at"><thead><tr><th>الوقت</th><th>مين</th><th>الحدث</th><th>على</th><th>تفاصيل</th></tr></thead><tbody></tbody></table></div></div>
+</section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const API="/api/v1/auth/admin";
+let RES=[], ACT=[], LBL={}, USERS=[], ROLES=[], curRole=null, curUser=null;
+function say(t,ok){const m=$("#msg");m.className="msg "+(ok?"ok":"err");m.textContent=t;clearTimeout(say.t);say.t=setTimeout(()=>m.className="msg",4000);}
+async function j(url,opt={}){const r=await fetch(url,{credentials:"same-origin",headers:{"Content-Type":"application/json"},...opt});const d=await r.json().catch(()=>({}));if(!r.ok){throw new Error(d.detail||d.error||r.status)}return d;}
+const when=ts=>ts?new Date(ts*1000).toLocaleString("ar-EG",{dateStyle:"short",timeStyle:"short"}):"—";
+
+$$(".tab").forEach(b=>b.onclick=()=>{$$(".tab").forEach(x=>x.setAttribute("aria-selected",x===b));$$(".panel").forEach(p=>p.classList.toggle("on",p.id==="p-"+b.dataset.t));if(b.dataset.t==="audit")loadAudit();});
+
+async function loadAll(){
+  const r=await j(API+"/resources"); RES=r.resources; ACT=r.actions; LBL=r.labels;
+  ROLES=(await j(API+"/roles")).roles;
+  USERS=(await j(API+"/users")).users;
+  renderUsers(); renderRoleSel(); renderUserSel();
+}
+// ---------- users
+function renderUsers(){
+  $("#nr").innerHTML=ROLES.map(r=>`<option value="${esc(r.key)}">${esc(r.name)} (${esc(r.key)})</option>`).join("");
+  $("#ut tbody").innerHTML=USERS.map(u=>`<tr data-u="${esc(u.username)}">
+   <td class="en"><b>${esc(u.username)}</b></td><td>${esc(u.display_name)}</td>
+   <td>${u.active?'<span class="pill p-on">مفعّل</span>':'<span class="pill p-off">موقوف</span>'}</td>
+   <td>${u.roles.map(r=>`<span class="pill p-role">${esc((ROLES.find(x=>x.key===r)||{}).name||r)}</span>`).join("")||'<span class="muted">—</span>'}</td>
+   <td>${u.overrides.length?`<span class="pill p-amber">${u.overrides.length}</span>`:'<span class="muted">—</span>'}</td>
+   <td class="muted">${when(u.last_login)}</td>
+   <td style="white-space:nowrap"><button data-a="roles">أدوار</button> <button data-a="pw">كلمة مرور</button> <button data-a="toggle">${u.active?"إيقاف":"تفعيل"}</button> <button data-a="ov">استثناءات</button> <button class="d" data-a="del">حذف</button></td></tr>`).join("");
+}
+$("#gen").onclick=()=>{const a="abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<12;i++)s+=a[Math.floor(Math.random()*a.length)];$("#np").value=s;};
+$("#add").onclick=async()=>{try{const roles=[...$("#nr").selectedOptions].map(o=>o.value);await j(API+"/users",{method:"POST",body:JSON.stringify({username:$("#nu").value.trim(),display_name:$("#nd").value.trim(),password:$("#np").value,roles})});say("اتضاف ✅ — ادّيله اسم المستخدم وكلمة المرور دي",true);$("#nu").value=$("#nd").value="";await loadAll();}catch(e){say(e.message)}};
+$("#ut").onclick=async e=>{const b=e.target.closest("button");if(!b)return;const u=b.closest("tr").dataset.u;const user=USERS.find(x=>x.username===u);try{
+  if(b.dataset.a==="toggle"){await j(API+"/users/"+u,{method:"PATCH",body:JSON.stringify({active:!user.active})});say(user.active?"اتوقف":"اتفعّل",true);}
+  if(b.dataset.a==="pw"){const p=prompt("كلمة المرور الجديدة لـ "+u+" (8+):");if(!p)return;await j(API+"/users/"+u+"/password",{method:"POST",body:JSON.stringify({password:p})});say("اتغيّرت ✅ — الجلسات القديمة اتقفلت",true);}
+  if(b.dataset.a==="roles"){const cur=user.roles.join(",");const v=prompt("الأدوار (مفصولة بفاصلة) — المتاح: "+ROLES.map(r=>r.key).join(", "),cur);if(v===null)return;await j(API+"/users/"+u,{method:"PATCH",body:JSON.stringify({roles:v.split(",").map(s=>s.trim()).filter(Boolean)})});say("الأدوار اتحدّثت",true);}
+  if(b.dataset.a==="ov"){$("#usel").value=u;$$(".tab")[2].click();await loadUserMatrix();return;}
+  if(b.dataset.a==="del"){if(!confirm("حذف "+u+" نهائيًا؟"))return;await j(API+"/users/"+u,{method:"DELETE"});say("اتمسح",true);}
+  await loadAll();}catch(err){say(err.message)}};
+// ---------- roles
+function renderRoleSel(){$("#rsel").innerHTML=ROLES.map(r=>`<option value="${esc(r.key)}">${esc(r.name)} — ${esc(r.key)}${r.builtin?" (أساسي)":""}</option>`).join("");if(!curRole||!ROLES.find(r=>r.key===curRole))curRole=ROLES[0]?.key;$("#rsel").value=curRole;renderRoleMatrix();}
+function renderRoleMatrix(){
+  const r=ROLES.find(x=>x.key===curRole); if(!r) return;
+  $("#rname").value=r.name; $("#rdesc").value=r.desc; $("#rdel").disabled=!!r.builtin;
+  const groups={}; RES.forEach(x=>(groups[x.group]=groups[x.group]||[]).push(x));
+  const star=r.perms["*"]||[];
+  let h=`<tr><td><b>* كل الموارد</b> <span class="muted">(بيطبّق على كل الصفوف تحت)</span></td>`+ACT.map(a=>`<td class="c"><input type="checkbox" data-r="*" data-a="${a}" ${star.includes(a)?"checked":""}></td>`).join("")+`</tr>`;
+  for(const g in groups){h+=`<tr class="grp"><td colspan="4">${esc(g)}</td></tr>`;h+=groups[g].map(x=>{const p=r.perms[x.key]||[];return `<tr><td>${x.icon} ${esc(x.name)} <span class="muted en">${esc(x.key)}</span></td>`+ACT.map(a=>{const na=(a==="edit"&&!x.editable)||(a==="admin"&&x.key!=="users");return `<td class="c">${na?'<span class="na">—</span>':`<input type="checkbox" data-r="${esc(x.key)}" data-a="${a}" ${p.includes(a)||star.includes(a)?"checked":""} ${star.includes(a)?"disabled":""}>`}</td>`;}).join("")+`</tr>`;}).join("");}
+  $("#rm tbody").innerHTML=h;
+}
+$("#rsel").onchange=()=>{curRole=$("#rsel").value;renderRoleMatrix();};
+$("#rm").onchange=e=>{if(e.target.dataset.r==="*")collectRole();};
+function collectRole(){const r=ROLES.find(x=>x.key===curRole);const perms={};$$("#rm input[type=checkbox]").forEach(c=>{if(c.checked&&!c.disabled){(perms[c.dataset.r]=perms[c.dataset.r]||[]).push(c.dataset.a)}});r.perms=perms;renderRoleMatrix();return perms;}
+$("#rsave").onclick=async()=>{try{const perms=collectRole();await j(API+"/roles/"+curRole,{method:"PUT",body:JSON.stringify({name:$("#rname").value,desc:$("#rdesc").value,perms})});say("الدور اتحفظ — هيتطبّق على كل اللي معاهم من الطلب الجاي",true);await loadAll();}catch(e){say(e.message)}};
+$("#rcreate").onclick=async()=>{const k=$("#rnew").value.trim().toLowerCase();if(!k)return say("اكتب مفتاح الدور");try{await j(API+"/roles/"+k,{method:"PUT",body:JSON.stringify({name:k,desc:"",perms:{hub:["view"]}})});curRole=k;$("#rnew").value="";say("اتعمل — عدّل الصلاحيات واحفظ",true);await loadAll();}catch(e){say(e.message)}};
+$("#rdel").onclick=async()=>{if(!confirm("حذف الدور "+curRole+"؟ هيتشال من كل المستخدمين"))return;try{await j(API+"/roles/"+curRole,{method:"DELETE"});curRole=null;say("اتمسح",true);await loadAll();}catch(e){say(e.message)}};
+// ---------- user overrides
+function renderUserSel(){$("#usel").innerHTML=USERS.map(u=>`<option value="${esc(u.username)}">${esc(u.display_name)} — ${esc(u.username)}</option>`).join("");if(!curUser)curUser=USERS[0]?.username;$("#usel").value=curUser;loadUserMatrix();}
+$("#usel").onchange=()=>loadUserMatrix();
+async function loadUserMatrix(){
+  curUser=$("#usel").value; const u=USERS.find(x=>x.username===curUser); if(!u) return;
+  const fromRoles={}; u.roles.forEach(rk=>{const r=ROLES.find(x=>x.key===rk);if(!r)return;for(const [res,acts] of Object.entries(r.perms)){const targets=res==="*"?RES.map(x=>x.key):[res];targets.forEach(t=>{(fromRoles[t]=fromRoles[t]||new Set());acts.forEach(a=>fromRoles[t].add(a));});}});
+  const ov={}; u.overrides.forEach(o=>ov[o.resource+"|"+o.action]=o.effect);
+  $("#uinfo").innerHTML=`الأدوار: ${u.roles.map(r=>`<span class="pill p-role">${esc(r)}</span>`).join("")||"—"} · النتيجة الحالية: ${Object.keys(u.effective).length} مورد`;
+  const groups={}; RES.forEach(x=>(groups[x.group]=groups[x.group]||[]).push(x));
+  let h="";
+  for(const g in groups){h+=`<tr class="grp"><td colspan="5">${esc(g)}</td></tr>`;groups[g].forEach(x=>{ACT.forEach(a=>{if((a==="edit"&&!x.editable)||(a==="admin"&&x.key!=="users"))return;const fr=fromRoles[x.key]?.has(a);const eff=(u.effective[x.key]||[]).includes(a);const cur=ov[x.key+"|"+a]||"";h+=`<tr><td>${a==="view"?x.icon+" "+esc(x.name)+' <span class="muted en">'+esc(x.key)+'</span>':""}</td><td class="c">${esc(LBL[a])}</td><td class="c">${fr?'<span class="pill p-on">✓</span>':'<span class="muted">—</span>'}</td><td class="c ov"><select data-r="${esc(x.key)}" data-a="${a}"><option value="" ${cur===""?"selected":""}>—</option><option value="allow" ${cur==="allow"?"selected":""}>سماح</option><option value="deny" ${cur==="deny"?"selected":""}>منع</option></select></td><td class="c">${eff?'<span class="pill p-on">يقدر</span>':'<span class="pill p-off">لا</span>'}</td></tr>`;});});}
+  $("#um tbody").innerHTML=h;
+}
+$("#usave").onclick=async()=>{try{const items=$$("#um select").filter(s=>s.value).map(s=>({resource:s.dataset.r,action:s.dataset.a,effect:s.value}));await j(API+"/users/"+curUser+"/overrides",{method:"PUT",body:JSON.stringify(items)});say("الاستثناءات اتحفظت",true);await loadAll();}catch(e){say(e.message)}};
+// ---------- audit
+async function loadAudit(){try{const a=(await j(API+"/audit?limit=200")).audit;$("#at tbody").innerHTML=a.map(x=>`<tr><td class="muted">${when(x.ts)}</td><td class="en">${esc(x.actor)}</td><td><code>${esc(x.action)}</code></td><td class="en">${esc(x.target)}</td><td class="muted en">${esc(x.detail)}</td></tr>`).join("");}catch(e){say(e.message)}}
+loadAll().catch(e=>{say(e.message==="403"?"مش مسموح — محتاج صلاحية «يدير» على المستخدمين":e.message);});
+</script>
+</body>
+</html>
