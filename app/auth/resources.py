@@ -132,11 +132,18 @@ RESOURCES: tuple[Resource, ...] = (
              "https://egygrouphs.com/", external=True, host="egygrouphs.com",
              audiences=("sales", "mgmt"), kw="المجموعة المصرية موقع صور egygroup",
              live_key="site:egygrouphs", editable=False, order=33),
-    Resource("attendance-site", "الحضور والانصراف", G_HR, "🕒",
-             "البصمات والحضور اليومي — على سيرفرنا",
-             "https://attendance.stlixvalley.com/", paths=("/api/v1/attendance",), external=True,
+    Resource("attendance-site", "لوحة الحضور (بصمة الموبايل)", G_HR, "🕒",
+             "تطبيق الحضور بتاعنا: الحضور اليومي، رفع البصمات لنما وvTiger، تقرير الوجبات — الدخول بكلمة مرور اللوحة",
+             "https://attendance.stlixvalley.com/dashboard", paths=("/api/v1/attendance",), external=True,
              host="attendance.stlixvalley.com", audiences=("mgmt", "it"),
-             kw="حضور انصراف بصمة attendance api", live_key="site:attendance", editable=False, order=21),
+             kw="حضور انصراف بصمة attendance dashboard وجبات nama vtiger", live_key="site:attendance",
+             editable=False, order=21),
+    Resource("fleet-dashboard", "إدارة الحركة (العربيات)", G_DAILY, "🚗",
+             "طابور طلبات العربيات بالأولوية — المدير بيدّي عربية أو يرفض من شاشة واحدة",
+             "https://attendance.stlixvalley.com/fleet-dashboard", external=True,
+             host="attendance.stlixvalley.com", audiences=("sales", "mgmt", "factory"),
+             kw="حركة عربيات سيارات طلب عربية fleet movement سائق", live_key="site:attendance",
+             editable=False, order=8),
     Resource("payroll-site", "الرواتب", G_HR, "💵", "نظام الرواتب — على سيرفرنا",
              "https://payroll.stlixvalley.com/", external=True, host="payroll.stlixvalley.com",
              audiences=("mgmt",), kw="رواتب مرتبات payroll", live_key="site:payroll",
@@ -182,9 +189,11 @@ RESOURCES: tuple[Resource, ...] = (
     Resource("godaddy", "GoDaddy", G_INFRA, "🌍", "النطاقات المسجّلة",
              "https://account.godaddy.com/products", external=True, host="godaddy.com",
              audiences=("it",), kw="دومين godaddy نطاق", editable=False, order=64),
-    Resource("cameras", "الكاميرات (Hik-Connect)", G_INFRA, "📹", "كاميرات المصنع والمخازن",
-             "https://www.hik-connect.com/", external=True, host="hik-connect.com",
-             audiences=("mgmt", "factory"), kw="كاميرات مراقبة hikvision cctv", editable=False, order=65),
+    Resource("cameras", "الكاميرات (Hikvision)", G_INFRA, "📹",
+             "حائط لقطات كل الكاميرات، حالة الـ DVRs والهاردات، وأحداث الحركة — من الـ agent اللي في شبكة المصنع",
+             "/tools/cctv", paths=("/tools/cctv", "/api/v1/cctv"), host="hub.stlixvalley.com",
+             audiences=("mgmt", "factory", "it"), kw="كاميرات مراقبة hikvision cctv dvr nvr لقطات حركة",
+             live_key="cctv", editable=False, order=65),
 )
 
 BY_KEY: dict[str, Resource] = {r.key: r for r in RESOURCES}
@@ -193,6 +202,8 @@ BY_KEY: dict[str, Resource] = {r.key: r for r in RESOURCES}
 PUBLIC_PREFIXES: tuple[str, ...] = (
     "/login", "/logout", "/health", "/favicon.ico", "/tools/voice.js",
     "/api/v1/auth/me", "/api/v1/auth/login", "/api/v1/auth/logout", "/hub/login.html",
+    # the LAN agent has no session — its own key is checked in the cctv router
+    "/api/v1/cctv/push",
 )
 
 # Longest prefix wins, so "/tools/platform" beats "/".

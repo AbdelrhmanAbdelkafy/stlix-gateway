@@ -63,6 +63,15 @@ async def name_builder(settings: Settings = Depends(get_settings)) -> HTMLRespon
     return _serve("name-builder/demo.gateway.html", settings)
 
 
+@router.get("/cctv", response_class=HTMLResponse)
+async def cctv_wall(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """Camera wall — one frame per channel, DVR/storage health, recent events.
+    Every image and number comes from /api/v1/cctv/*, i.e. from the LAN agent's
+    last push; the page shows the age of what it displays rather than pretending
+    it is live video."""
+    return _serve("cctv/wall.html", settings)
+
+
 @router.get("/finance-os", response_class=HTMLResponse)
 async def finance_os(settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """Gateway-wired Finance OS — role-based cockpit; Treasury (banks) + Customers

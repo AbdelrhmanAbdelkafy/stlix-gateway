@@ -29,7 +29,7 @@ PROBE_TIMEOUT = 5.0
 SITES: dict[str, str] = {
     "crm": "https://crm.stlixvalley.com/",
     "erp": "https://stlixvalley.namasoft.net/erp",
-    "attendance": "https://attendance.stlixvalley.com/",
+    "attendance": "https://attendance.stlixvalley.com/ping",
     "payroll": "https://payroll.stlixvalley.com/",
     "website": "https://stlixvalley.com/",
     "egygrouphs": "https://egygrouphs.com/",
@@ -134,6 +134,19 @@ async def _probe_rep() -> dict:
     return out
 
 
+async def _probe_cctv(settings: Settings) -> dict:
+    from ..integrations.cctv import store as cctv
+    ov, err, ms = await _timed(asyncio.to_thread(cctv.overview, settings))
+    out = {"key": "cctv", "kind": "connector", "configured": settings.cctv_configured,
+           "mode": "push", "up": False, "error": err, "latency_ms": round(ms)}
+    if isinstance(ov, dict):
+        out["up"] = not ov["stale"]
+        out["error"] = ov.get("note")
+        out["numbers"] = {"devices": ov["summary"]["devices_online"], "channels": ov["summary"]["channels_online"],
+                          "channels_total": ov["summary"]["channels"], "age_s": ov["age_s"]}
+    return out
+
+
 def _probe_gateway() -> dict:
     from .. import __version__
     return {"key": "gateway", "kind": "connector", "configured": True, "up": True, "latency_ms": 0,
@@ -147,7 +160,7 @@ async def snapshot(settings: Settings | None = None) -> dict:
     async with httpx.AsyncClient(timeout=PROBE_TIMEOUT, headers={"User-Agent": "stlix-hub-live/1"}) as client:
         tasks = [
             _probe_nama(settings), _probe_crm(settings), _probe_inventory(settings),
-            _probe_finance(settings), _probe_expert(settings), _probe_rep(),
+            _probe_finance(settings), _probe_expert(settings), _probe_rep(), _probe_cctv(settings),
             *[_probe_site(client, k, u) for k, u in SITES.items()],
         ]
         results = await asyncio.gather(*tasks, return_exceptions=True)

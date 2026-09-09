@@ -54,7 +54,7 @@ if ! grep -q '^AUTH_BOOTSTRAP_PASSWORD=.\+' .env; then
   echo "🔑 first admin: user=stlix  password in /root/.stlix-hub-password (change it from the admin screen)"
 fi
 chmod 600 .env
-mkdir -p data/auth && chmod 700 data/auth
+mkdir -p data/auth data/cctv && chmod 700 data/auth
 
 log "4/6 gateway container (127.0.0.1:${GW_PORT} only — never public)"
 cat > docker-compose.prod.yml <<EOF
@@ -68,6 +68,7 @@ services:
     env_file: [.env]
     volumes:
       - ./data/auth:/app/data/auth
+      - ./data/cctv:/app/data/cctv
     restart: unless-stopped
 EOF
 docker compose -f docker-compose.prod.yml up -d --build

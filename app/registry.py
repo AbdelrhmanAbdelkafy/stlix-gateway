@@ -34,6 +34,9 @@ SYSTEMS: list[System] = [
            url="https://stlixvalley.namasoft.net/erp"),
     System("attendance", "Attendance & Fingerprint", "البصمة والحضور", Status.LIVE,
            "Punch push/read (routes to Nama TimeAttendance)."),
+    System("cctv", "CCTV (Hikvision)", "الكاميرات", Status.LIVE,
+           "DVR state, channels, storage, snapshots and events — pushed by the LAN agent "
+           "(agents/cctv-agent); the VPS never dials a DVR.", url="/tools/cctv"),
     System("crm", "CRM", "سي آر إم", Status.LIVE, "Vtiger: contacts, leads, accounts (read-only).",
            url="https://crm.stlixvalley.com"),
     System("callcenter", "Call Center", "الكول سنتر", Status.PLANNED, "Calls, tickets, IVR."),

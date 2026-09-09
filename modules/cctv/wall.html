@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>الكاميرات — STLIX</title>
+<style>
+:root{--bg:#0F1C2E;--card:#131C2B;--line:#26344A;--txt:#E9EDF3;--mut:#8E9BB0;--gold:#E0A53A;--ok:#3FB950;--bad:#F85149;--warn:#D29922}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5;flex-wrap:wrap}
+header h1{font-size:18px;margin:0}
+header a{color:var(--gold);text-decoration:none}
+.pill{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--mut);background:var(--card)}
+.pill b{color:var(--txt)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--mut);margin-inline-end:6px;vertical-align:middle}
+.dot.ok{background:var(--ok);box-shadow:0 0 6px var(--ok)} .dot.bad{background:var(--bad)} .dot.warn{background:var(--warn)}
+main{padding:16px 20px;display:grid;gap:18px}
+.note{background:#1E2A3D;border:1px solid var(--line);border-radius:12px;padding:12px 16px;color:var(--mut)}
+.note code{color:var(--gold)}
+.dev{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.dev .hd{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.dev .hd h2{font-size:16px;margin:0}
+.dev .meta{color:var(--mut);font-size:12.5px}
+.disk{font-size:12px;color:var(--mut);margin-inline-start:auto}
+.disk .bar{display:inline-block;width:90px;height:6px;background:#0b1422;border-radius:3px;vertical-align:middle;margin-inline-start:6px;overflow:hidden}
+.disk .bar i{display:block;height:100%;background:var(--ok)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.ch{position:relative;background:#0b1422;border:1px solid var(--line);border-radius:10px;overflow:hidden;aspect-ratio:16/9;cursor:pointer}
+.ch img{width:100%;height:100%;object-fit:cover;display:block}
+.ch .cap{position:absolute;inset-inline:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.8));padding:14px 8px 6px;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.ch .age{color:var(--mut);font-size:11px}
+.ch.off{opacity:.55}
+.ch .none{position:absolute;inset:0;display:grid;place-items:center;color:var(--mut);font-size:12px}
+.events{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.events h2{font-size:15px;margin:0 0 10px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right} th{color:var(--mut);font-weight:500}
+.tag{border-radius:6px;padding:1px 7px;font-size:11.5px;background:#1E2A3D}
+.tag.VMD,.tag.motion{background:#3d2f10;color:var(--gold)} .tag.videoloss,.tag.diskfull,.tag.diskerror{background:#3d1a1a;color:var(--bad)}
+#big{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;place-items:center;z-index:20;cursor:zoom-out}
+#big img{max-width:96vw;max-height:90vh;border-radius:10px}
+#big .cap{position:absolute;top:14px;inset-inline-start:20px;color:#fff;font-size:14px}
+.ctl{display:flex;gap:8px;align-items:center;margin-inline-start:auto;font-size:13px;color:var(--mut)}
+.ctl select,.ctl button{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-family:inherit}
+</style>
+</head>
+<body>
+<header>
+  <a href="/hub/">← الهَب</a>
+  <h1>📹 الكاميرات</h1>
+  <span class="pill" id="pAgent"><span class="dot" id="dAgent"></span>الـ agent: <b>—</b></span>
+  <span class="pill" id="pDev">DVR: <b>—</b></span>
+  <span class="pill" id="pCh">قنوات: <b>—</b></span>
+  <div class="ctl">
+    تحديث كل
+    <select id="every"><option value="10">10 ث</option><option value="30" selected>30 ث</option><option value="60">دقيقة</option><option value="0">إيقاف</option></select>
+    <button id="now">حدّث دلوقتي</button>
+  </div>
+</header>
+<main>
+  <div class="note" id="note" hidden></div>
+  <div id="devices"></div>
+  <section class="events"><h2>آخر الأحداث</h2><div id="events"><span class="meta" style="color:var(--mut)">—</span></div></section>
+</main>
+<div id="big" onclick="this.style.display='none'"><div class="cap" id="bigCap"></div><img id="bigImg" alt=""></div>
+
+<script>
+const KEY = "__GATEWAY_API_KEY__";
+const H = KEY && !KEY.startsWith("__") ? {"X-API-Key": KEY} : {};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ago = s => s == null ? "—" : s < 90 ? `${s} ث` : s < 5400 ? `${Math.round(s/60)} د` : `${(s/3600).toFixed(1)} س`;
+const when = ts => ts ? new Date(ts*1000).toLocaleString("ar-EG",{hour12:false}) : "—";
+let bust = Date.now();
+
+async function load(){
+  let ov;
+  try{
+    const r = await fetch("/api/v1/cctv", {headers:{...H, accept:"application/json"}});
+    if(r.status===401||r.status===403){ $("#note").hidden=false; $("#note").textContent="مش مسموح لك تشوف الكاميرات — كلّم الـ IT."; return; }
+    ov = await r.json();
+  }catch(e){ $("#note").hidden=false; $("#note").textContent="الـ gateway مش بيرد: "+e; return; }
+  bust = Date.now();
+  const d = $("#dAgent"); d.className = "dot " + (ov.received_at==null ? "bad" : ov.stale ? "warn" : "ok");
+  $("#pAgent b").textContent = ov.received_at==null ? "مفيش تقارير" : (ov.stale ? "ساكت من " : "آخر تقرير من ") + ago(ov.age_s) + (ov.agent?.host ? " · " + ov.agent.host : "");
+  $("#pDev b").textContent = `${ov.summary.devices_online}/${ov.summary.devices}`;
+  $("#pCh b").textContent = `${ov.summary.channels_online}/${ov.summary.channels}`;
+  $("#note").hidden = !ov.note;
+  if(ov.note) $("#note").innerHTML = esc(ov.note) + (ov.received_at==null ? ' — الملف: <code>agents/cctv-agent/README.md</code>' : "");
+
+  $("#devices").innerHTML = ov.devices.map(dv => {
+    const disks = (dv.storage||[]).map(s => {
+      const cap = +s.capacity_mb||0, free = +s.free_mb||0, used = cap ? Math.round(100*(cap-free)/cap) : null;
+      return `<span class="disk">${esc(s.name||"HDD")} ${esc(s.status||"")}${used!=null?` ${used}%<span class="bar"><i style="width:${used}%;background:${used>92?'var(--bad)':'var(--ok)'}"></i></span>`:""}</span>`;
+    }).join("");
+    const chans = dv.channels.map(c => `
+      <div class="ch ${c.online===false?'off':''}" data-src="${esc(c.snapshot_url)}" data-cap="${esc(dv.name)} · ${esc(c.name)}">
+        ${c.snapshot_age_s==null ? `<div class="none">لسه مفيش لقطة</div>` : `<img loading="lazy" src="${esc(c.snapshot_url)}?t=${bust}" alt="${esc(c.name)}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'none',textContent:'اللقطة مش متاحة'}))">`}
+        <div class="cap"><span><span class="dot ${c.online===false?'bad':c.online?'ok':''}"></span>${esc(c.name)}</span><span class="age">${ago(c.snapshot_age_s)}</span></div>
+      </div>`).join("");
+    return `<section class="dev">
+      <div class="hd"><span class="dot ${dv.online?'ok':'bad'}"></span><h2>${esc(dv.name)}</h2>
+        <span class="meta">${esc(dv.model||"")} ${dv.host?"· "+esc(dv.host):""} ${dv.firmware?"· fw "+esc(dv.firmware):""} · ${dv.channels_online}/${dv.channels_total} قناة${dv.error?` · <span style="color:var(--bad)">${esc(dv.error)}</span>`:""}</span>
+        ${disks}</div>
+      <div class="grid">${chans || '<span class="meta">مفيش قنوات</span>'}</div>
+    </section>`;
+  }).join("") || "";
+
+  const ev = ov.recent_events||[];
+  $("#events").innerHTML = ev.length ? `<table><tr><th>الوقت</th><th>الجهاز</th><th>القناة</th><th>النوع</th><th>الحالة</th><th>تفاصيل</th></tr>` +
+    ev.map(e => `<tr><td>${when(e.ts)}</td><td>${esc(e.device)}</td><td>${esc(e.channel)}</td><td><span class="tag ${esc(e.type)}">${esc(e.type)}</span></td><td>${esc(e.state)}</td><td>${esc(e.detail)}</td></tr>`).join("") + "</table>"
+    : '<span style="color:var(--mut)">مفيش أحداث لسه</span>';
+}
+document.addEventListener("click", e => {
+  const ch = e.target.closest(".ch"); if(!ch || !ch.querySelector("img")) return;
+  $("#bigImg").src = ch.dataset.src + "?t=" + Date.now(); $("#bigCap").textContent = ch.dataset.cap; $("#big").style.display = "grid";
+});
+let timer; function arm(){ clearInterval(timer); const s = +$("#every").value; if(s) timer = setInterval(load, s*1000); }
+$("#every").onchange = arm; $("#now").onclick = load;
+load(); arm();
+</script>
+</body>
+</html>

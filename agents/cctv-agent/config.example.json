@@ -1,0 +1,24 @@
+{
+  "agent_id": "factory-pc",
+  "interval_s": 60,
+  "snapshot_every_n_ticks": 1,
+  "events": true,
+  "dvr_timeout": 8,
+  "log_level": "INFO",
+  "gateway": {
+    "url": "https://gw.stlixvalley.com",
+    "agent_key": "PUT-THE-SAME-VALUE-AS-CCTV_AGENT_KEY-ON-THE-VPS",
+    "timeout": 20
+  },
+  "devices": [
+    {"id": "factory-main", "name": "المصنع — الرئيسي", "site": "factory",
+     "host": "192.168.1.64", "port": 80, "user": "admin", "password": "DVR-PASSWORD-HERE",
+     "enabled": true, "channels": null},
+    {"id": "factory-2", "name": "المصنع — 2", "site": "factory",
+     "host": "192.168.1.65", "port": 80, "user": "admin", "password": "DVR-PASSWORD-HERE",
+     "enabled": true},
+    {"id": "warehouse", "name": "المخازن", "site": "warehouse",
+     "host": "192.168.1.66", "port": 80, "user": "admin", "password": "DVR-PASSWORD-HERE",
+     "enabled": true}
+  ]
+}

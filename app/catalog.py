@@ -55,6 +55,10 @@ CONNECTORS: tuple[Connector, ...] = (
               "nama_configured", "banks_mode", "Accounts master; balances need SQL."),
     Connector("inventory", "الجرد", "Stocktake", "inventory", "Stlix count app (sync.php)", True,
               "inventory_configured", "inventory_mode"),
+    # The cameras: a LAN agent pushes what the DVRs say (ISAPI) — the gateway
+    # holds the last report + one frame per channel and says how old it is.
+    Connector("cctv", "الكاميرات", "CCTV (Hikvision)", "cctv", "LAN agent -> ISAPI (push)", True,
+              "cctv_configured", "", "Read-only view of DVR state; the agent key only allows uploads."),
     # Live for three of the eleven units: custody, documents, movement. Their
     # data was extracted verbatim from rep-system.html into data/rep/rep.json —
     # files on disk, no credential — and the extracted copy carries the original
@@ -173,6 +177,14 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/api/v1/inventory", "تقدّم الجرد", "inventory"),
     Endpoint("/api/v1/inventory/counts", "أعداد الجرد", "inventory"),
     Endpoint("/api/v1/inventory/manual", "أصناف يدوية", "inventory"),
+    # cctv
+    Endpoint("/api/v1/cctv", "الكاميرات — الحالة والأجهزة", "cctv"),
+    Endpoint("/api/v1/cctv/devices", "أجهزة الـ DVR", "cctv"),
+    Endpoint("/api/v1/cctv/devices/{device}/channels", "قنوات جهاز واحد + آخر لقطة", "cctv"),
+    Endpoint("/api/v1/cctv/events", "أحداث الكاميرات (حركة/فقد إشارة/هارد)", "cctv"),
+    Endpoint("/api/v1/cctv/snapshot/{device}/{channel}.jpg", "آخر لقطة لقناة", "cctv"),
+    Endpoint("/api/v1/cctv/push", "تقرير الـ agent (أجهزة/قنوات/أحداث)", "cctv", method="POST"),
+    Endpoint("/api/v1/cctv/push/snapshot/{device}/{channel}", "رفع لقطة من الـ agent", "cctv", method="POST"),
     # finance (SQL)
     Endpoint("/api/v1/finance/kpis", "مؤشرات مالية حقيقية", "sql"),
     Endpoint("/api/v1/finance/customers", "أرصدة العملاء (AR)", "sql"),
@@ -236,6 +248,7 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/tools/expert", "Nama Expert — الشات", "front-end", kind="page"),
     Endpoint("/tools/legal", "المستشار القانوني", "front-end", kind="page"),
     Endpoint("/tools/rep", "REP — العهدة والمستندات والحركة", "front-end", kind="page"),
+    Endpoint("/tools/cctv", "الكاميرات — حائط اللقطات والأحداث", "front-end", kind="page"),
     Endpoint("/tools/voice.js", "طبقة البحث الصوتي — تتحقن في كل صفحة", "voice",
              kind="page"),
     Endpoint("/tools/ideas", "لوحة الأفكار", "front-end", kind="page"),

@@ -173,6 +173,19 @@ class Settings(BaseSettings):
     def inventory_configured(self) -> bool:
         return bool(self.inventory_base_url and self.inventory_key)
 
+    # --- CCTV (Hikvision, via the LAN agent) ---
+    # The agent on the factory LAN authenticates its pushes with this key
+    # (`X-CCTV-Agent-Key`). Empty = pushes need a gateway key instead.
+    cctv_agent_key: str = Field(default="")
+    cctv_data_dir: str = Field(default="", description="blank = data/cctv")
+    # Agent silent longer than this -> the card turns stale (not "down": the
+    # cameras may be fine, we just cannot see them).
+    cctv_stale_seconds: float = Field(default=180.0)
+
+    @property
+    def cctv_configured(self) -> bool:
+        return bool(self.cctv_agent_key)
+
     @property
     def nama_base(self) -> str:
         return self.nama_base_url.rstrip("/")
