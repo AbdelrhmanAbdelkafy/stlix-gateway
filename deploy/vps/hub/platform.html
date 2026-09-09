@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0F1C2E">
+<title>STLIX Enterprise Platform</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Almarai:wght@400;700;800&display=swap">
+<style>
+:root{
+  --bg:#F2F4F7;--surface:#FFFFFF;--surface2:#E9EDF2;--line:#D3DAE3;--tx:#0F1C2E;--sub:#5B6B7F;
+  --navy:#0B2E5B;--accent:#1F5FA8;--amber:#B9770E;--green:#1E8449;--red:#C0392B;
+  --amber-bg:#FFF4E0;--green-bg:#E9F7EF;--red-bg:#FDECEA;--blue-bg:#E8F1FB;--hero:#0F1C2E;--hero-tx:#F4F6F9;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0B1220;--surface:#131C2B;--surface2:#1A2536;--line:#26344A;--tx:#E9EDF3;--sub:#8E9BB0;
+  --navy:#9DBDF0;--accent:#6FA6EE;--amber:#E0A53A;--green:#3BC77A;--red:#E56A5C;
+  --amber-bg:#2E2411;--green-bg:#10291B;--red-bg:#331614;--blue-bg:#14243A;--hero:#070D18;--hero-tx:#F4F6F9;}}
+:root[data-theme="dark"]{
+  --bg:#0B1220;--surface:#131C2B;--surface2:#1A2536;--line:#26344A;--tx:#E9EDF3;--sub:#8E9BB0;
+  --navy:#9DBDF0;--accent:#6FA6EE;--amber:#E0A53A;--green:#3BC77A;--red:#E56A5C;
+  --amber-bg:#2E2411;--green-bg:#10291B;--red-bg:#331614;--blue-bg:#14243A;--hero:#070D18;--hero-tx:#F4F6F9;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;font-size:15px;line-height:1.55;direction:rtl}
+h1,h2,h3{font-family:"Almarai","IBM Plex Sans Arabic",sans-serif;text-wrap:balance;margin:0}
+.en{font-family:"IBM Plex Sans","Segoe UI",sans-serif;direction:ltr;unicode-bidi:isolate}
+.num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+/* hero */
+.hero{background:var(--hero);color:var(--hero-tx);padding:34px 20px 26px;position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 2px,transparent 2px 9px);pointer-events:none}
+.hero .in{max-width:1080px;margin:0 auto;position:relative}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#E0A53A;font-weight:600}
+.hero h1{font-size:clamp(28px,4.5vw,44px);font-weight:800;line-height:1.15;margin-top:8px}
+.hero p{max-width:640px;color:#C7D0DC;margin:12px 0 0;font-size:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:22px}
+.stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 14px}
+.stat b{display:block;font-size:22px;font-family:"Almarai";font-weight:800}
+.stat span{font-size:12px;color:#AEB9C8}
+/* nav */
+.nav{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.nav .in{max-width:1080px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:6px 12px}
+.tab{border:0;background:transparent;color:var(--sub);font:inherit;font-weight:600;padding:10px 14px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--blue-bg);color:var(--accent)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{max-width:1080px;margin:0 auto;padding:22px 16px 60px}
+section[hidden]{display:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+label{display:block;font-size:13px;color:var(--sub);margin-bottom:6px;font-weight:600}
+input,select,textarea{width:100%;font:inherit;color:var(--tx);background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:11px 12px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);border-color:transparent}
+.btn{font:inherit;font-weight:700;border:0;border-radius:9px;padding:11px 16px;cursor:pointer;background:var(--accent);color:#fff}
+.btn.sec{background:var(--surface2);color:var(--tx);border:1px solid var(--line)}
+.btn.ok{background:var(--green)} .btn.warn{background:var(--amber)}
+.btn:disabled{opacity:.5;cursor:default}
+.row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.row>*{flex:1 1 160px}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.p-ok{background:var(--green-bg);color:var(--green)} .p-warn{background:var(--amber-bg);color:var(--amber)} .p-bad{background:var(--red-bg);color:var(--red)} .p-info{background:var(--blue-bg);color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:12px;color:var(--sub);text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);font-weight:600}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl{overflow-x:auto}
+.muted{color:var(--sub);font-size:13px}
+.big{font-family:"Almarai";font-weight:800;font-size:28px}
+.res{margin-top:14px;display:grid;gap:10px}
+.item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.item .name{font-weight:700}
+.item .code{font-size:12px;color:var(--sub)}
+.wh{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.wh span{background:var(--surface2);border:1px solid var(--line);border-radius:7px;padding:3px 8px;font-size:12px}
+.qty{text-align:left}
+.qty b{font-family:"Almarai";font-size:22px;display:block}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--sub)} .kv dd{margin:0;font-weight:600}
+.code-out{background:var(--hero);color:#F4F6F9;border-radius:10px;padding:14px;font-family:"IBM Plex Mono",Consolas,monospace;direction:ltr;text-align:left;font-size:15px;word-break:break-all}
+.ai{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--sub);margin-top:8px;min-height:20px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--line)} .dot.on{background:var(--green)} .dot.busy{background:var(--amber);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+@media(prefers-reduced-motion:reduce){.dot.busy{animation:none}}
+.req{border-right:4px solid var(--amber);padding-right:12px}
+.req.done{border-right-color:var(--green)} .req.late{border-right-color:var(--red)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--hero);color:#fff;padding:10px 16px;border-radius:10px;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+.modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:22px}
+.mod{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px;color:#E6EBF2;cursor:pointer;text-align:right;font:inherit}
+.mod b{display:block;font-family:"Almarai";font-size:17px;margin-bottom:4px;color:#fff}
+.mod span{font-size:13px;color:#AEB9C8}
+.mod:hover{border-color:#E0A53A}
+.sys{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.sys div{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:12px}
+.sys b{display:block}
+.bar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;background:var(--accent)}
+</style>
+</head>
+<body>
+
+
+<div class="hero"><div class="in">
+  <div class="eyebrow">STLIX Valley · Enterprise Platform · v0.1 preview</div>
+  <h1>بوابة واحدة لكل حاجة: الصنف، الرصيد، الطلب، التقرير</h1>
+  <p>الـ NAME BUILDER اتحول لمنصة: البياع يكتب اللي عايزه بالعربي، المنصة تفهمه، تقوله فيه رصيد ولا لأ، وتبعت الطلب للمشتريات بالـ SLA — كل ده من الموبايل ومن غير واتساب.</p>
+  <div class="stats">
+    <div class="stat"><b class="num" id="s_items">—</b><span>صنف عليه رصيد في الـ snapshot</span></div>
+    <div class="stat"><b class="num" id="s_wh">—</b><span>مخازن</span></div>
+    <div class="stat"><b class="num" id="s_open">0</b><span>طلبات مفتوحة مبيعات ↔ مشتريات</span></div>
+    <div class="stat"><b>5</b><span>أنظمة مربوطة ورا الـ gateway</span></div>
+  </div>
+  <div class="modules">
+    <button class="mod" data-go="stock"><b>🔎 رصيد صنف</b><span>اكتب أي حاجة — «علبة 4×4 1.5» — وشوف الرصيد بالمخزن</span></button>
+    <button class="mod" data-go="builder"><b>🧱 NAME BUILDER AI</b><span>نص حر ← مواصفة ← كود + اسم ← فحص تكرار</span></button>
+    <button class="mod" data-go="bridge"><b>🔁 مبيعات ↔ مشتريات</b><span>طلب سعر/توافر بالـ template والـ SLA — بدل الجروبات</span></button>
+    <button class="mod" data-go="report"><b>📊 التقرير اليومي</b><span>أرصدة بالمخزن، الأعلى قيمة، اللي قرب يخلص</span></button>
+  </div>
+</div></div>
+
+<div class="nav"><div class="in" role="tablist">
+  <button class="tab" role="tab" aria-selected="true" data-tab="stock">رصيد صنف</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="builder">NAME BUILDER</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="bridge">مبيعات ↔ مشتريات</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="report">التقرير اليومي</button>
+  <button class="tab" role="tab" aria-selected="false" data-tab="systems">الأنظمة</button>
+</div></div>
+
+<main>
+<!-- ============ STOCK ============ -->
+<section id="tab-stock">
+  <div class="card">
+    <label for="q">اسأل عن صنف — بالعربي زي ما بتقوله في الشارع</label>
+    <div class="row">
+      <input id="q" placeholder="مثال: علبة 4×4 1.5 مصنفر · ماسورة 316 جدول 10 2 بوصة · لوح 304 3 مم" autocomplete="off">
+      <select id="whf" style="flex:0 1 220px"><option value="">كل المخازن</option></select>
+    </div>
+    <div class="muted" style="margin-top:8px">البحث بيفهم الاختصارات: «4x4» = «4*4» = «4×4»، «304» = «استانلس 304»، «سملس/لحام/مصنفر/مط». الأرقام من snapshot قاعدة hardsteel المحلية — معروضة بالعدد أو أكبر وحدة (عود 6 م، لوح، طن).</div>
+  </div>
+  <div class="res" id="stockRes"></div>
+</section>
+
+<!-- ============ BUILDER ============ -->
+<section id="tab-builder" hidden>
+  <div class="grid2">
+    <div class="card">
+      <h2 style="font-size:20px;margin-bottom:12px">اكتب الصنف بحرية</h2>
+      <textarea id="free" rows="3" placeholder="كوع ٢ بوصة ستيل ٣١٦ لحام برقبة"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="parseBtn">🧠 فهم بالـ AI</button>
+        <button class="btn sec" id="localBtn">محلل محلي (بدون AI)</button>
+      </div>
+      <div class="ai"><span class="dot" id="aiDot"></span><span id="aiSt">الـ AI بيشتغل من المنصة نفسها — مفيش مفتاح في المتصفح.</span></div>
+      <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+      <div class="row">
+        <div><label>النوع</label><select id="f_sec"></select></div>
+        <div><label>الخامة</label><select id="f_c1"></select></div>
+        <div><label>الستاندرد</label><select id="f_c3"></select></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label>الجدول</label><select id="f_c4"></select></div>
+        <div><label>النمرة</label><select id="f_c6"></select></div>
+        <div><label>السُمك</label><select id="f_c7"></select></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <div><label>مقاس القطاع</label><select id="f_c5"></select></div>
+        <div><label>التوصيل</label><select id="f_c10"></select></div>
+        <div><label>التشطيب</label><input id="f_c9" placeholder="مصنفر / مط / لامع"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:20px;margin-bottom:12px">الناتج</h2>
+      <label>altCode (كود الهوية)</label>
+      <div class="code-out" id="outCode">—</div>
+      <label style="margin-top:12px">name1 (الاسم العربي)</label>
+      <div class="big" id="outName" style="font-size:22px">—</div>
+      <div id="dup" style="margin-top:12px"></div>
+      <div id="aiWhy" class="muted" style="margin-top:10px"></div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn ok" id="saveItem">💾 إنشاء الصنف في نما (المرحلة 2)</button>
+      </div>
+      <div class="muted" style="margin-top:8px">الحفظ الفعلي بيمر على الـ gateway بصلاحية كتابة + سجل تدقيق — مش من الصفحة مباشرة.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BRIDGE ============ -->
+<section id="tab-bridge" hidden>
+  <div class="grid2">
+    <div class="card">
+      <h2 style="font-size:20px;margin-bottom:4px">طلب من المبيعات للمشتريات</h2>
+      <div class="muted" style="margin-bottom:12px">نفس template الـ SOP-OPS-001 — بس بيتسجل هنا ويبان للطرفين فورًا، والـ SLA بيتحسب لوحده.</div>
+      <div class="row">
+        <div><label>النوع</label><select id="r_type">
+          <option value="stock" data-sla="2">استعلام توافر من المخزون — SLA ساعتين</option>
+          <option value="local" data-sla="8">سعر مورد محلي — نفس اليوم</option>
+          <option value="import" data-sla="48">سعر استيراد (AMEXPRO) — 48 ساعة</option>
+          <option value="delivery" data-sla="4">تأكيد موعد تسليم — 4 ساعات</option></select></div>
+        <div><label>الأولوية</label><select id="r_pri"><option value="normal">عادي</option><option value="urgent">عاجل (اكتب السبب)</option></select></div>
+      </div>
+      <label style="margin-top:10px">الصنف / المواصفة</label><input id="r_item" placeholder="استانلس 304 — لفة 1.2 مم × 1219 — 2B">
+      <div class="row" style="margin-top:10px">
+        <div><label>الكمية</label><input id="r_qty" placeholder="5 طن"></div>
+        <div><label>العميل</label><input id="r_cust" placeholder="اسم أو كود C0xxxxx"></div>
+      </div>
+      <label style="margin-top:10px">ملاحظات / سبب العاجل</label><input id="r_note">
+      <div class="row" style="margin-top:14px"><button class="btn warn" id="sendReq">📨 إرسال للمشتريات</button></div>
+      <div class="ai"><span class="dot" id="dbDot"></span><span id="dbSt">الطلبات بتتحفظ في المنصة ومشتركة بين الكل.</span></div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:20px;margin-bottom:12px">الطلبات المفتوحة</h2>
+      <div id="reqList" class="res" style="margin-top:0"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REPORT ============ -->
+<section id="tab-report" hidden>
+  <div class="card" style="margin-bottom:16px">
+    <div class="row" style="align-items:center">
+      <div><h2 style="font-size:20px">تقرير الأرصدة اليومي</h2><div class="muted" id="repDate"></div></div>
+      <div style="flex:0 0 auto"><button class="btn sec" id="copyRep">📋 نسخ ملخص للجروب</button></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3 style="font-size:16px;margin-bottom:10px">الرصيد بالمخزن</h3><div id="byWh"></div></div>
+    <div class="card"><h3 style="font-size:16px;margin-bottom:10px">أعلى 10 أصناف قيمة (كمية × متوسط تكلفة)</h3><div class="tbl"><table id="topVal"></table></div></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h3 style="font-size:16px;margin-bottom:10px">أصناف فيها حجز (المتاح أقل من الرصيد)</h3><div class="tbl"><table id="reserved"></table></div></div>
+</section>
+
+<!-- ============ SYSTEMS ============ -->
+<section id="tab-systems" hidden>
+  <div class="card">
+    <h2 style="font-size:20px;margin-bottom:12px">الأنظمة ورا الـ gateway</h2>
+    <div class="sys">
+      <div><b>نما ERP</b><span class="muted">stlixvalley.namasoft.net — أصناف، أرصدة، مستندات</span><div class="bar"><i style="width:90%"></i></div><span class="pill p-ok">connector جاهز</span></div>
+      <div><b>vTiger CRM</b><span class="muted">crm.stlixvalley.com — عملاء، فرص</span><div class="bar"><i style="width:70%"></i></div><span class="pill p-ok">connector جاهز</span></div>
+      <div><b>تطبيق الجرد</b><span class="muted">crm.stlixvalley.com/count</span><div class="bar"><i style="width:60%"></i></div><span class="pill p-ok">connector جاهز</span></div>
+      <div><b>الحضور</b><span class="muted">بصمات ← نما</span><div class="bar"><i style="width:50%"></i></div><span class="pill p-info">قراءة</span></div>
+      <div><b>البنوك</b><span class="muted">أرصدة وحركات</span><div class="bar"><i style="width:40%"></i></div><span class="pill p-info">قراءة</span></div>
+      <div><b>AI Orchestrator</b><span class="muted">تحليل النص → مواصفة (Layer 4)</span><div class="bar"><i style="width:35%"></i></div><span class="pill p-warn">قيد البناء</span></div>
+    </div>
+    <p class="muted" style="margin-top:14px">الصفحة دي preview بتشتغل على snapshot. النسخة الإنتاجية بتتخدم من <span class="en">stlix-gateway-live</span> على السيرفر، والمفاتيح كلها server-side.</p>
+  </div>
+</section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+// ---------- DATA: snapshot from hardsteel (local Nama DB) — [code,name,warehouse,net,avail,avgCost]
+const SNAP_DATE="2026-09-08";
+const R=[
+["Inv001046","لوح 1×2 إستانلس 304 مط 5 mm","new2030",240026145,240026145,0],
+["Inv002820","لوح 1.5×3 إستانلس 304 مط 3 mm","new2030",1508000,1508000,0.34],
+["Inv007383","لوح استانلس 304 1.5x3 سم سمك 10 مم مط","new2030",1215528,1215528,0.18],
+["Inv002341","كبس خرطوم لكل بوصه قطر","SS Warehouse (400)",999952.5,999952.5,0],
+["Inv002881","Marking كتابة ليزر علي المعدن","SS Warehouse (400)",998991.01,998991.01,0],
+["Inv000490","علبه استانلس 304 4*4 سم سمك 1.5 مم مصنفر","مخزن منتجات ستليكس فالي",885600,885600,2.59],
+["Inv000491","علبه استانلس 304 3*3 سم سمك 1.5 مم مصنفر","مخزن منتجات ستليكس فالي",855428,855428,2.10],
+["Inv002373","لوح 1.5×3 إستانلس 304 مط 2 mm","new2030",703935,703935,0.22],
+["Inv008692","لوح 1.25×2.5 إستانلس 304 مط 0.6 mm","new2030",625000,218750,0.09],
+["Inv000562","علبه استانلس 304 4*4 سم سمك 1.25 مم مصنفر","مخزن منتجات ستليكس فالي",565200,565200,2.48],
+["Inv000558","علبه استانلس 304 3*6 سم سمك 1.5 مم مصنفر","مخزن منتجات ستليكس فالي",364510,364510,3.23],
+["Inv000849","علبه استانلس 304 3*3 سم سمك 1.25 مم مصنفر","مخزن منتجات ستليكس فالي",355749,355749,1.83],
+["Inv000555","علبه استانلس 304 5*5 سم سمك 1.5 مم مصنفر","مخزن منتجات ستليكس فالي",314997,314997,3.59],
+["Inv000561","علبه استانلس 304 5*5 سم سمك 1.25 مم مصنفر","مخزن منتجات ستليكس فالي",270600,270600,3.12],
+["Inv002941","ماسورة استانلس 304 ألبان 25 مم سمك 1.25 مم لحام طولى","مخزن منتجات ستليكس فالي",253800,253800,1.06],
+["Inv002819","لوح 1.25×2.5 إستانلس 304 مط 3 mm","new2030",250000,250000,0.39],
+["Inv000569","علبه استانلس 304 4*4 سم سمك 3 مم مصنفر","مخزن منتجات ستليكس فالي",180567,180567,5.55],
+["Inv008708","ماسورة استانلس 304 ألبان 25 مم سمك 1.5 مم لحام طولى","مخزن منتجات ستليكس فالي",173260,173260,0],
+["Inv002235","علبة مربعه استانلس ستيل 304 5*5 سم سمك 3 مم مصنفر","مخزن منتجات ستليكس فالي",166800,166800,7.09],
+["Inv000570","علبه استانلس 304 4*4 سم سمك 2 مم مصنفر","مخزن منتجات ستليكس فالي",160787,160787,3.73],
+["Inv007174","ماسورة استانلس 304 جدول 40 0.5 بوصة سملس","SS Warehouse (CHINA)",157800,157800,2.15],
+["Inv000472","ماسورة استانلس 316 ألبان 25 مم سمك 1.65 مم سملس","new2030",148799,148799,3.68],
+["Inv002914","ماسورة استانلس 316 جدول 10 2 بوصة لحام طولى","SS Warehouse (CHINA)",144600,144600,8.02],
+["Inv001305","علبه استانلس 304 3*3 سم سمك 3 مم مصنفر","مخزن منتجات ستليكس فالي",142200,142200,4.00],
+["Inv001505","ماسورة استانلس 304 جدول 10 0.5 بوصة سملس","SS Warehouse (CHINA)",138399,138399,1.67],
+["Inv009072","علبة مربعة استانلس 304 4x4 سم سمك 1.65 مم مصنفر","new2030",138000,138000,3.13],
+["Inv002949","ماسورة استانلس 316 ألبان 19 مم سمك 1.65 مم سملس","new2030",137400,137400,0],
+["Inv009026","علبة مربعة استانلس 304 5x5 سم سمك 1.65 مم مصنفر","مخزن منتجات ستليكس فالي",134400,134400,4.07],
+["Inv003930","لوح 1.25×2.5 إستانلس 304 مط 6 mm","new2030",125000,125000,0.58],
+["Inv001750","لوح 1×2 إستانلس 304 مط 3 mm","new2030",112825,112825,0],
+["Inv000667","ماسورة استانلس 316 جدول 40 1.5 بوصة سملس","SS Warehouse (CHINA)",108000,108000,6.98],
+["Inv007786","علبة مستطيلة استانلس 304 3x6 سم سمك 3 مم مصنفر","مخزن منتجات ستليكس فالي",103800,103800,6.33],
+["Inv003615","ماسورة استانلس 304 جدول 40 1.5 بوصة سملس","SS Warehouse (CHINA)",102850,102850,6.27],
+["Inv002861","ماسورة استانلس 316 ألبان 12.7 مم سمك 1.65 مم سملس","new2030",101350,101350,1.47],
+["Inv001385","لوح 1.5×3 إستانلس 304 مط 4 mm","new2030",90000,90000,0.49],
+["Inv002852","ماسورة إستانلس 316 جدول 10 0.75 بوصة لحام طولي","SS Warehouse (CHINA)",90000,90000,2.77],
+["Inv004211","لوح 1.5×3 إستانلس 304 سنيبر 4 mm","new2030",90000,90000,0.58],
+["Inv000768","ماسورة استانلس 316 جدول 10 1.5 بوصة لحام طولى","SS Warehouse (CHINA)",85200,85200,6.38],
+["Inv000563","علبه استانلس 304 2*4 سم سمك 1.25 مم مصنفر","مخزن منتجات ستليكس فالي",83400,83400,1.83],
+["Inv001518","ماسورة استانلس 304 جدول 40 1 بوصة سملس","SS Warehouse (CHINA)",73918,73918,4.07],
+["Inv000469","ماسورة استانلس 304 ألبان 25 مم سمك 2 مم لحام طولى","مخزن منتجات ستليكس فالي",69600,69600,1.64],
+["Inv009079","علبة مستطيلة استانلس 304 3x6 سم سمك 1.65 مم مصنفر","مخزن منتجات ستليكس فالي",67800,67800,3.65],
+["Inv009084","علبه استانلس 304 1*2 سمك 1.5 مم مصنفر","مخزن منتجات ستليكس فالي",65400,65400,0.97],
+["Inv000476","ماسورة استانلس 316 ألبان 32 مم سمك 1.65 مم سملس","new2030",60600,60600,5.46],
+["Inv009072","علبة مربعة استانلس 304 4x4 سم سمك 1.65 مم مصنفر","مخزن منتجات ستليكس فالي",60000,60000,3.13],
+["Inv002886","لوح ايكون ازرق 0.5 mm","new2030",60000,60000,0.03],
+["Inv001935","ماسورة استانلس 316 جدول 40 0.75 بوصة سملس","SS Warehouse (CHINA)",57000,57000,2.91],
+["Inv003601","علبة مستطيلة استانلس 201 2x3 سمك 1.25 مم لامع","new2030",52800,52800,0.86],
+["Inv000551","ماسورة استانلس 304 جدول 10 1.5 بوصة سملس","SS Warehouse (CHINA)",52227,52227,5.02],
+["Inv000548","ماسورة استانلس 304 جدول 10 1.5 بوصة لحام طولى","SS Warehouse (CHINA)",52200,52200,4.24],
+["Inv000552","ماسورة استانلس 304 جدول 10 0.75 بوصة سملس","SS Warehouse (CHINA)",51700,51700,2.21],
+["Inv001649","لوح 1.5×3 حديد سنيبر 3 mm","new2030",50000,50000,0.14],
+["Inv001502","ماسورة استانلس 304 جدول 40 0.75 بوصة سملس","SS Warehouse (CHINA)",49205,49205,2.79],
+["Inv000665","ماسورة استانلس 316 جدول 40 2 بوصة سملس","SS Warehouse (CHINA)",47400,47400,15.13],
+["Inv000631","لوح 1.25×2.5 إستانلس 304 مصنفر 1.5 mm","new2030",46875,46875,0.20],
+["Inv000470","ماسورة استانلس 304 جدول 10 1 بوصة سملس","SS Warehouse (CHINA)",46865,46865,3.42],
+["Inv004178","لوح 1.25×2.5 إستانلس 304 مط 1.25 mm","new2030",46600,46600,0.12],
+["Inv001650","علبة مربعة استانلس 304 3x3 سم سمك 2 مم مصنفر","مخزن منتجات ستليكس فالي",45600,45600,2.47],
+["Inv000545","ماسورة استانلس 304 جدول 10 0.5 بوصة لحام طولى","SS Warehouse (CHINA)",45300,45300,1.43],
+["Inv002561","ماسورة استانلس 304 جدول 40 1.25 بوصة سملس","SS Warehouse (CHINA)",45000,45000,5.51],
+["Inv000753","ماسورة استانلس 316 جدول 10 2 بوصة سملس","SS Warehouse (CHINA)",45000,45000,9.96],
+["Inv003243","لوح 1.5×3 إستانلس 304 سنيبر 2 mm","new2030",45000,45000,0.25],
+["Inv006212","ماسورة استانلس 304 جدول 40 0.25 بوصة سملس","SS Warehouse (CHINA)",42000,42000,1.06],
+["Inv001878","ماسورة استانلس 304 جدول 40 2.5 بوصة سملس","SS Warehouse (CHINA)",41400,41400,13.65],
+["Inv001727","ماسورة استانلس 316 جدول 10 1 بوصة سملس","SS Warehouse (CHINA)",41250,41250,5.39],
+["Inv006443","علبة مستطيلة استانلس 304 3x6 سم سمك 2 مم مصنفر","مخزن منتجات ستليكس فالي",40912,40912,4.24],
+["Inv002844","لوح 1×2 إستانلس 304 1.5 mm مخرم خرم 2 مم","new2030",40000,40000,0.45],
+["Inv000636","لوح 1×2 إستانلس 304 سنيبر 3 mm","new2030",39830,39830,0.37],
+["Inv001849","ماسورة استانلس 304 جدول 10 4 بوصة سملس","SS Warehouse (CHINA)",37230,37230,13.83],
+["Inv000626","ماسورة استانلس 304 جدول 10 4 بوصة لحام طولى","SS Warehouse (CHINA)",37200,37200,11.92],
+["Inv001850","ماسورة استانلس 304 جدول 10 3 بوصة سملس","SS Warehouse (CHINA)",36625,36625,13.33],
+["Inv009083","علبه استانلس 304 2*4 سم سمك 3 مم مصنفر","مخزن منتجات ستليكس فالي",36600,36600,3.88],
+["Inv007078","ماسورة استانلس 304 ألبان 63 مم سمك 1.5 مم لحام معالج","مخزن منتجات ستليكس فالي",35577,35577,3.46],
+["Inv000623","ماسورة استانلس 304 جدول 10 3 بوصة لحام طولى","SS Warehouse (CHINA)",34800,34800,9.02],
+["Inv003315","علبه استانلس 304 3*6 سم سمك 1.25 مم مصنفر","مخزن منتجات ستليكس فالي",33000,33000,2.46],
+["Inv000632","لوح 1×2 إستانلس 304 مصنفر 1.5 mm","new2030",31872,31872,0.17],
+["Inv000620","ماسورة استانلس 304 ألبان 63 مم سمك 2 مم لحام طولى","مخزن منتجات ستليكس فالي",31800,31800,4.36],
+["Inv005648","لوح استانلس 316 1.25 × 2.5 × 1 مم مط","new2030",31250,31250,0.18],
+["Inv000486","لوح 1.25×2.5 إستانلس 304 سنيبر 2 mm","new2030",31250,31250,0.24],
+["Inv003656","ماسورة استانلس 316 جدول 10 3 بوصة سملس","SS Warehouse (CHINA)",31200,31200,16.36],
+["Inv000560","علبه استانلس 304 2*2 سم سمك 1.5 مم مصنفر","مخزن منتجات ستليكس فالي",30600,30600,1.22],
+["Inv003425","ماسورة استانلس 304 جدول 10 8 بوصة سملس","SS Warehouse (CHINA)",30045,30045,35.78],
+["Inv004016","ماسورة استانلس 304 جدول 10 6 بوصة سملس","SS Warehouse (CHINA)",30015,30015,22.63],
+["Inv002162","ماسورة استانلس 316 جدول 10 4 بوصة لحام طولى","SS Warehouse (CHINA)",30000,30000,17.26],
+["Inv007084","ماسورة استانلس 316 جدول 10 3 بوصة لحام طولى","SS Warehouse (CHINA)",30000,30000,13.42],
+["Inv000549","ماسورة استانلس 304 جدول 10 2 بوصة لحام طولى","SS Warehouse (CHINA)",30000,30000,5.35],
+["Inv003838","الواح عزل للأسقف المعدنية (ارم فلكس) 19 مم","new2030",28325,28325,3.15],
+["Inv002235","علبة مربعه استانلس ستيل 304 5*5 سم سمك 3 مم مصنفر","مخزن WIP",27000,27000,7.39],
+["Inv002157","ماسورة استانلس 316 جدول 10 4 بوصة سملس","SS Warehouse (CHINA)",27000,27000,21.43],
+["Inv002731","ماسورة استانلس 304 جدول 10 1.25 بوصة سملس","SS Warehouse (CHINA)",26900,26900,4.23],
+["Inv001536","علبه استانلس 304 2*4 سم سمك 2 مم مصنفر","مخزن منتجات ستليكس فالي",24000,24000,2.73],
+["Inv004915","ماسورة استانلس 316 جدول 10 1.25 بوصة لحام طولى","SS Warehouse (CHINA)",23400,23400,5.57],
+["Inv007963","لوح استانلس 304 1.25x2.5 سمك 4 مم صنوبر","new2030",22500,22500,0.39],
+["Inv002031","ماسورة استانلس 304 جدول 40 2 بوصة سملس","SS Warehouse (CHINA)",22200,22200,8.26],
+["Inv004078","ماسورة استانلس 316 جدول 40 3 بوصة سملس","SS Warehouse (CHINA)",22097,22097,31.63],
+["Inv001879","ماسورة استانلس 304 جدول 40 3 بوصة سملس","SS Warehouse (CHINA)",21600,21600,18.62],
+["Inv009056","صينية استانلس 304 قطر 20 سم ارتفاع 10.5سم سمك 1.25 مم","SS Warehouse (CHINA)",20000,20000,0.02],
+["Inv000774","لوح 1×2 حديد 1.5 mm","new2030",20000,20000,0.06],
+["Inv009057","صينية استانلس 304 قطر 25 سم ارتفاع 5 سم سمك 1.25 مم","new2030",20000,20000,0.01],
+["Inv004936","لوح 1×2 إستانلس 304 سنيبر 2 mm","new2030",20000,20000,0.15],
+["Inv008793","لوح 1×2 إستانلس 304 مط 2.5 mm","new2030",20000,20000,0.31],
+["Inv003281","ماسورة استانلس 201 ألبان 10 مم سمك 1.25 مم لحام طولى لامع","new2030",19600,19600,0.18],
+["Inv003069","ماسورة استانلس 316 جدول 10 1.5 بوصة سملس","SS Warehouse (CHINA)",19200,19200,7.78],
+["Inv000695","ماسورة استانلس 316 جدول 10 2.5 بوصة سملس","SS Warehouse (CHINA)",18000,18000,13.44],
+["Inv004775","ماسورة استانلس 316 جدول 40 1.25 بوصة سملس","SS Warehouse (CHINA)",16200,16200,5.85],
+["Inv000869","لوح 1×2 حديد 6 mm","new2030",15680,15680,0.22],
+["Inv000556","علبه استانلس 304 2*4 سم سمك 1.5 مم مصنفر","مخزن منتجات ستليكس فالي",15600,15600,2.10],
+["Inv000988","ماسورة استانلس 304 جدول 40 6 بوصة سملس","SS Warehouse (CHINA)",15000,15000,47.71],
+["Inv003629","ماسورة إستانلس 316 جدول 10 8 بوصة لحام طولي","SS Warehouse (CHINA)",15000,15000,41.67],
+["Inv007892","ماسورة إستانلس 316 ألبان 8 مم سملس 1.57 مم","new2030",14400,14400,1.10],
+["Inv008638","كويل استانلس 304 بارد عرض 1500 مم سمك 2 مم","مخزن خامات ستليكس - 6 أكتوبر",14367,14367,147.73],
+["Inv008640","كويل استانلس 304 بارد عرض 1500 مم سمك 1.5 مم","مخزن خامات ستليكس - 6 أكتوبر",13913,13913,160],
+["Inv000878","ماسورة استانلس 316 ألبان 16 مم سمك 1.65 مم سملس","new2030",12310,12310,2.21],
+["Inv001777","علبة مربعة استانلس 304 5x5 سم سمك 2 مم مصنفر","مخزن منتجات ستليكس فالي",12000,12000,4.88],
+["Inv002097","ماسورة استانلس 304 جدول 10 8 بوصة لحام طولى","SS Warehouse (CHINA)",12000,12000,28.40],
+["Inv000480","لوح 1.25×2.5 إستانلس 304 مط1.5 mm","new2030",11250,11250,0.14],
+["Inv000491","علبه استانلس 304 3*3 سم سمك 1.5 مم مصنفر","مخزن WIP القديم",10800,10800,2.10],
+["Inv001851","ماسورة استانلس 304 جدول 10 2 بوصة سملس","SS Warehouse (CHINA)",10290,10290,6.18],
+["Inv003110","ماسورة استانلس 316 جدول 10 1.25 بوصة سملس","SS Warehouse (CHINA)",10200,10200,4.64],
+["Inv007863","لوح استانلس 316 1x2 سم سمك 1.5 مم مط","new2030",8575,8575,0.33]
+];
+// ItemClass lists (from Nama ItemClass tables)
+const L={
+ sec:[["Pi","ماسورة"],["PL","لوح"],["SHS","علبة"],["ELB","كوع"],["T","تي"],["FLG","فلانشة"],["Plug","طبة"],["Lacore","لاكور"],["IS0047","مسلوب"],["IS0042","محبس"],["IS0032","جوان"],["IS0028","مسمار"],["كويل 304","كويل"]],
+ c1:[["SS304","استانلس 304"],["SS316","استانلس 316"],["SS316L","استانلس 316L"],["SS201","استانلس 201"],["SS430","استانلس 430"],["SS310","استانلس 310"],["SC","كربو ستيل"],["FE","حديد"],["AL","ألومنيوم"],["PE","بولي إيثيلين"],["PP-R","بولي بروبيلين"],["uPVC","uPVC"]],
+ c3:[["NPS","ألبان"],["DN","Metric"],["SCH","جدول"]],
+ c4:[["10","10"],["20","20"],["40","40"],["80","80"]],
+ c5:["1x1","1x2","1.5x1.5","2x2","2x3","2x4","2.5x2.5","3x3","3x5","3x6","4x4","4x6","4x8","5x5","5x10","6x6","8x8","10x10"].map(x=>[x,x+" سم"]),
+ c6:["0.25inch","0.5inch","0.75inch","1inch","1.25inch","1.5inch","2inch","2.5inch","3inch","4inch","5inch","6inch","8inch","10inch","12inch","8mm","10mm","12.7mm","16mm","19mm","25mm","32mm","38mm","51mm","63mm","76mm"].map(x=>[x,x.replace("inch"," بوصة").replace("mm"," مم")]),
+ c7:["0.5mm","0.6mm","0.7mm","0.8mm","1mm","1.25mm","1.5mm","1.65mm","2mm","2.5mm","3mm","4mm","5mm","6mm","8mm","10mm"].map(x=>[x,x.replace("mm"," مم")]),
+ c10:[["Weld Neck","برقبة"],["Threaded","بشفة"],["Slip-on","مسطحة"],["Blind","مصمتة"],["Flange","فلانشة"],["Lacour","لاكور"],["BW","رباط"],["WID","لحام"],["OW","لحام اوربيتال"],["TIG","هيدروليك"],["glue","لصق"]],
+};
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n).toLocaleString("en-US",{maximumFractionDigits:0});
+const toast=m=>{const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)};
+
+// ---------- tabs
+function go(t){document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));document.querySelectorAll("main>section").forEach(s=>s.hidden=(s.id!=="tab-"+t));if(t!=="stock")window.scrollTo({top:document.querySelector(".nav").offsetTop,behavior:"smooth"});}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>go(b.dataset.tab));
+document.querySelectorAll(".mod").forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+// ---------- stock
+const norm=s=>String(s||"").toLowerCase().replace(/[×*x]/g,"x").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[إأآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim();
+const SYN={"سملس":"سملس","سيملس":"سملس","seamless":"سملس","لحام":"لحام","مصنفر":"مصنفر","مط":"مط","لامع":"لامع","ماسوره":"ماسوره","مواسير":"ماسوره","علبه":"علبه","علب":"علبه","لوح":"لوح","الواح":"لوح","كويل":"كويل","بوصه":"بوصه","inch":"بوصه","\"":"بوصه","جدول":"جدول","sch":"جدول","البان":"البان","nps":"البان","مم":"مم","mm":"مم"};
+const items={};R.forEach(([c,n,w,net,av,cost])=>{(items[c]=items[c]||{code:c,name:n,wh:[],net:0,av:0,cost:cost}).wh.push({w,net,av});items[c].net+=net;items[c].av+=av;});
+// وحدة الأساس في نما: L=سم (طول) · A=سم² (لوح) · K=كجم · N=عدد — العرض دايمًا بالعدد أو أكبر وحدة
+const AREA=new Set("Inv000480,Inv000486,Inv000631,Inv000632,Inv000636,Inv000774,Inv000869,Inv001046,Inv001385,Inv001649,Inv001750,Inv002373,Inv002819,Inv002820,Inv003243,Inv003930,Inv004178,Inv004211,Inv004936,Inv005648,Inv007383,Inv007863,Inv007963,Inv008692,Inv008793,Inv009056,Inv009057".split(","));
+const KG=new Set(["Inv008638","Inv008640"]);const CNT=new Set(["Inv002341","Inv002881"]);
+function sheetArea(name){const m=norm(name).match(/(\d+(\.\d+)?)x(\d+(\.\d+)?)/);if(!m)return 20000;const a=+m[1],b=+m[3];return (a<10&&b<10)?a*b*10000:a*b;}
+// returns {v, u, basis}
+function disp(code,name,base){
+ if(CNT.has(code))return{v:base,u:"عدد",basis:""};
+ if(KG.has(code))return base>=1000?{v:base/1000,u:"طن",basis:fmt(base)+" كجم"}:{v:base,u:"كجم",basis:""};
+ if(AREA.has(code)){const a=sheetArea(name);return{v:base/a,u:"لوح",basis:fmt(base)+" سم² · لوح "+(a/10000).toFixed(2).replace(/\.?0+$/,"")+" م²"};}
+ return{v:base/600,u:"عود",basis:fmt(base/100)+" م · عود 6 م"};}
+const fmt1=n=>Number(n).toLocaleString("en-US",{maximumFractionDigits:n<100?1:0});
+const whs=[...new Set(R.map(r=>r[2]))];
+$("s_items").textContent=Object.keys(items).length;$("s_wh").textContent=whs.length;
+whs.forEach(w=>{const o=document.createElement("option");o.value=w;o.textContent=w;$("whf").appendChild(o)});
+function score(it,q){const n=norm(it.name)+" "+it.code.toLowerCase();const toks=norm(q).split(" ").map(t=>SYN[t]||t).filter(Boolean);if(!toks.length)return 1;let s=0;for(const t of toks){if(n.includes(t))s+=2;else if(/^\d/.test(t)&&n.includes(t.replace("x"," x ")))s+=1;else return 0;}return s;}
+function renderStock(){const q=$("q").value,wf=$("whf").value;let list=Object.values(items).map(it=>({it,s:score(it,q)})).filter(x=>x.s>0);if(wf)list=list.filter(x=>x.it.wh.some(h=>h.w===wf));list.sort((a,b)=>b.s-a.s||b.it.net-a.it.net);const top=list.slice(0,12);$("stockRes").innerHTML=top.length?top.map(({it})=>{const res=it.net-it.av;return `<div class="item"><div><div class="name">${it.name}</div><div class="code en">${it.code}${it.cost?` · avg cost ${it.cost}`:""}</div><div class="wh">${it.wh.map(h=>{const d=disp(it.code,it.name,h.net);return `<span>${h.w}: <b class="num">${fmt1(d.v)}</b> ${d.u}</span>`}).join("")}</div></div><div class="qty">${(()=>{const d=disp(it.code,it.name,it.av);const r2=disp(it.code,it.name,res);return `<b class="num">${fmt1(d.v)} <small style="font-size:13px">${d.u}</small></b><span class="pill ${it.av>0?"p-ok":"p-bad"}">${it.av>0?"متاح":"مفيش"}</span>${d.basis?`<div class="muted">${d.basis}</div>`:""}${res>0?`<div class="muted">محجوز <span class="num">${fmt1(r2.v)}</span> ${r2.u}</div>`:""}`})()}</div></div>`}).join(""):`<div class="card">مفيش رصيد مطابق في الـ snapshot. <button class="btn warn" style="margin-top:8px" onclick="prefillReq()">📨 اطلب من المشتريات</button></div>`;}
+window.prefillReq=()=>{$("r_item").value=$("q").value;$("r_type").value="stock";go("bridge");};
+$("q").addEventListener("input",renderStock);$("whf").addEventListener("change",renderStock);
+(()=>{const h=location.hash.replace("#","");const m=h.match(/^stock\?q=(.*)$/);if(m){$("q").value=decodeURIComponent(m[1]);}else $("q").value="علبة 4x4 1.5";renderStock();if(["builder","bridge","report","systems"].includes(h))setTimeout(()=>go(h),50);})();
+
+// ---------- builder
+const fill=(id,arr,ph)=>{const s=$(id);s.innerHTML=`<option value="">${ph}</option>`+arr.map(([c,n])=>`<option value="${c}">${n} <span class="en">(${c})</span></option>`).join("");};
+fill("f_sec",L.sec,"— النوع —");fill("f_c1",L.c1,"— الخامة —");fill("f_c3",L.c3,"— الستاندرد —");fill("f_c4",L.c4,"— الجدول —");fill("f_c5",L.c5,"— مقاس القطاع —");fill("f_c6",L.c6,"— النمرة —");fill("f_c7",L.c7,"— السُمك —");fill("f_c10",L.c10,"— التوصيل —");
+const nameOf=(k,c)=>{const f=(L[k]||[]).find(x=>x[0]===c);return f?f[1]:c};
+function build(){const v={sec:$("f_sec").value,c1:$("f_c1").value,c3:$("f_c3").value,c6:$("f_c6").value,c7:$("f_c7").value,c4:$("f_c4").value,c5:$("f_c5").value,c10:$("f_c10").value,c9:$("f_c9").value.trim()};
+ const code=[v.sec,v.c1,v.c3,v.c6,v.c7,v.c4,v.c5,v.c10,v.c9].filter(Boolean).join("-");
+ const name=[nameOf("sec",v.sec),nameOf("c1",v.c1),v.c3?(v.c3==="SCH"?"جدول":nameOf("c3",v.c3)):"",v.c4,nameOf("c6",v.c6),v.c7?"سمك "+nameOf("c7",v.c7):"",v.c5?nameOf("c5",v.c5):"",nameOf("c10",v.c10),v.c9].filter(Boolean).join(" ");
+ $("outCode").textContent=code||"—";$("outName").textContent=name||"—";
+ // dup check against snapshot names (fuzzy)
+ const toks=norm(name).split(" ").filter(t=>t.length>1);const hits=Object.values(items).filter(it=>{const n=norm(it.name);return toks.length>2&&toks.filter(t=>n.includes(t)).length>=Math.ceil(toks.length*0.7)}).slice(0,3);
+ $("dup").innerHTML=!code?"":hits.length?`<span class="pill p-bad">⚠ محتمل مكرر</span><div class="muted" style="margin-top:6px">${hits.map(h=>`<div><span class="en">${h.code}</span> — ${h.name}</div>`).join("")}</div>`:`<span class="pill p-ok">✓ مفيش صنف بنفس المواصفة في الـ snapshot</span>`;
+ $("saveItem").disabled=!code||hits.length>0;}
+["f_sec","f_c1","f_c3","f_c4","f_c5","f_c6","f_c7","f_c10"].forEach(id=>$(id).addEventListener("change",build));$("f_c9").addEventListener("input",build);
+function apply(p){const set=(id,val)=>{if(!val)return;const s=$(id);const opt=[...s.options].find(o=>o.value.toLowerCase()===String(val).toLowerCase());if(opt)s.value=opt.value;};
+ set("f_sec",p.section);set("f_c1",p.material);set("f_c3",p.standard);set("f_c4",p.schedule);set("f_c5",p.sectionSize);set("f_c6",p.nominal);set("f_c7",p.thickness);set("f_c10",p.connection);if(p.finish)$("f_c9").value=p.finish;build();}
+function localParse(t){t=norm(t);const p={};
+ if(/كوع/.test(t))p.section="ELB";else if(/ماسوره|بيب/.test(t))p.section="Pi";else if(/علبه/.test(t))p.section="SHS";else if(/لوح|صاج/.test(t))p.section="PL";else if(/تي/.test(t))p.section="T";else if(/فلانش/.test(t))p.section="FLG";else if(/كويل/.test(t))p.section="كويل 304";
+ const g=t.match(/316l|316|304|201|430|310/);if(g)p.material="SS"+g[0].toUpperCase();else if(/حديد/.test(t))p.material="FE";else if(/كربون/.test(t))p.material="SC";
+ const sch=t.match(/جدول ?(10|20|40|80)/);if(sch){p.standard="SCH";p.schedule=sch[1];}else if(/البان/.test(t))p.standard="NPS";else if(/dn|متري/.test(t))p.standard="DN";
+ const inch=t.match(/(\d+(\.\d+)?) ?(بوصه|inch)/);if(inch)p.nominal=inch[1]+"inch";const mmn=t.match(/(\d+(\.\d+)?) ?مم(?! سمك)/);
+ const th=t.match(/(?:سمك|سماكه) ?(\d+(\.\d+)?)/)||t.match(/(\d+(\.\d+)?) ?مم/);if(th)p.thickness=th[1]+"mm";
+ const sz=t.match(/(\d+(\.\d+)?)x(\d+(\.\d+)?)/);if(sz)p.sectionSize=sz[1]+"x"+sz[3];
+ if(/رقبه|weld neck/.test(t))p.connection="Weld Neck";else if(/شفه|قلاووظ|سن/.test(t))p.connection="Threaded";else if(/لحام/.test(t))p.connection="WID";else if(/لاكور/.test(t))p.connection="Lacour";
+ if(/مصنفر/.test(t))p.finish="مصنفر";else if(/مط/.test(t))p.finish="مط";else if(/لامع/.test(t))p.finish="لامع";else if(/سملس/.test(t))p.finish="سملس";
+ return p;}
+$("localBtn").onclick=()=>{apply(localParse($("free").value));$("aiSt").textContent="اتحلل بالمحلل المحلي.";$("aiWhy").textContent="";};
+const CU=n=>(window.claude&&window.claude.use)?window.claude.use(n):Promise.resolve(null);
+let sample=null;CU("sample").then(s=>{sample=s;$("aiDot").className="dot"+(s?" on":"");if(!s)$("aiSt").textContent="الـ AI مش متاح في العرض ده — المحلل المحلي شغال.";});
+$("parseBtn").onclick=async()=>{const txt=$("free").value.trim();if(!txt)return;if(!sample){$("localBtn").click();return;}
+ $("aiDot").className="dot busy";$("aiSt").textContent="الـ AI بيفهم النص…";$("parseBtn").disabled=true;
+ const prompt=`أنت خبير أصناف في شركة استانلس ستيل مصرية (STLIX Valley). حلّل وصف الصنف العامي التالي وأخرج JSON فقط بالمفاتيح: section (أحد: ${L.sec.map(x=>x[0]).join("|")}), material (أحد: ${L.c1.map(x=>x[0]).join("|")}), standard (NPS|DN|SCH), schedule (10|20|40|80), nominal (مثل 2inch أو 25mm), thickness (مثل 1.5mm), sectionSize (مثل 4x4), connection (أحد: ${L.c10.map(x=>x[0]).join("|")}), finish (مصنفر|مط|لامع|سملس), reason (سطر واحد بالعربي يشرح الاختيار وأي شيء ناقص يجب سؤال البائع عنه). اترك أي مفتاح غير معروف فارغًا. ملاحظات: «ألبان» = NPS؛ «جدول» = SCH؛ «سملس» = seamless بدون لحام؛ «ستيل ٣١٦» = SS316؛ الأرقام العربية عادية.\nالوصف: ${txt}`;
+ try{const p=await sample.json(prompt,{modelTier:"quick"});apply(p);$("aiSt").textContent="اتفهم بالـ AI ✓";$("aiWhy").textContent=p.reason||"";$("aiDot").className="dot on";}
+ catch(e){$("aiDot").className="dot";$("aiSt").textContent="الـ AI رفض ("+(e.code||"error")+") — كمّلت بالمحلل المحلي.";apply(localParse(txt));}
+ $("parseBtn").disabled=false;};
+$("saveItem").onclick=()=>toast("الحفظ في نما بيتفعّل في المرحلة 2 عبر الـ gateway");
+$("free").value="كوع ٢ بوصة ستيل ٣١٦ لحام برقبة";
+
+// ---------- bridge (shared via db)
+let db=null,reqs=[];
+const localKey="stlix_reqs";
+function loadLocal(){try{reqs=JSON.parse(localStorage.getItem(localKey)||"[]")}catch(e){reqs=[]}}
+function saveLocal(){try{localStorage.setItem(localKey,JSON.stringify(reqs))}catch(e){}}
+function renderReqs(){const open=reqs.filter(r=>r.status!=="closed");$("s_open").textContent=open.length;const now=Date.now();
+ $("reqList").innerHTML=reqs.length?reqs.slice().sort((a,b)=>b.ts-a.ts).map(r=>{const due=r.ts+r.sla*3600e3;const left=Math.round((due-now)/60e3);const late=r.status==="open"&&left<0;const cls=r.status==="closed"?"done":late?"late":"";
+  return `<div class="card req ${cls}"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>${r.id}</b><span class="pill ${r.status==="closed"?"p-ok":late?"p-bad":r.status==="answered"?"p-info":"p-warn"}">${r.status==="closed"?"مقفول ✅":late?"عدّى الـ SLA ⚠":r.status==="answered"?"تم الرد":"مفتوح"}</span></div>
+  <div style="margin-top:6px">${r.item} — ${r.qty||""} ${r.cust?"· العميل: "+r.cust:""}</div>
+  <div class="muted">${r.typeLabel} · ${r.pri==="urgent"?"🔴 عاجل":"عادي"} · ${r.status==="open"?(late?`متأخر <span class="num">${Math.abs(left)}</span> دقيقة`:`باقي <span class="num">${left}</span> دقيقة`):""} ${r.note?"· "+r.note:""}</div>
+  ${r.reply?`<div style="margin-top:8px;background:var(--green-bg);border-radius:8px;padding:8px 10px">🟩 ${r.reply}</div>`:""}
+  <div class="row" style="margin-top:10px">${r.status==="open"?`<button class="btn sec" onclick="answer('${r.id}')">🟩 رد المشتريات</button>`:""}${r.status==="answered"?`<button class="btn ok" onclick="closeReq('${r.id}')">✅ إقفال (المبيعات)</button>`:""}</div></div>`}).join(""):`<div class="muted">مفيش طلبات لسه — ابعت أول طلب من الفورم.</div>`;}
+async function persist(r){if(db){try{await db.doc("requests/"+r.id).set(r);return}catch(e){}}saveLocal();}
+window.answer=async id=>{const r=reqs.find(x=>x.id===id);const t=prompt("رد المشتريات (الحالة + رقم QU + الخلاصة + الصلاحية):","تم التسعير — QU010xxx — 285 ج/كجم — تسليم 3 أيام — صالح حتى الخميس");if(!t)return;r.reply=t;r.status="answered";await persist(r);renderReqs();toast("اتبعت الرد للمبيعات")};
+window.closeReq=async id=>{const r=reqs.find(x=>x.id===id);r.status="closed";await persist(r);renderReqs();toast("الطلب اتقفل ✅")};
+$("sendReq").onclick=async()=>{const item=$("r_item").value.trim();if(!item){toast("اكتب الصنف الأول");return}const o=$("r_type").selectedOptions[0];
+ const r={id:"PR"+String(Date.now()).slice(-6),ts:Date.now(),type:$("r_type").value,typeLabel:o.textContent.split(" — ")[0],sla:+o.dataset.sla,pri:$("r_pri").value,item,qty:$("r_qty").value,cust:$("r_cust").value,note:$("r_note").value,status:"open"};
+ reqs.unshift(r);await persist(r);renderReqs();toast("اتبعت للمشتريات — "+r.id);$("r_item").value=$("r_qty").value=$("r_cust").value=$("r_note").value="";};
+loadLocal();renderReqs();
+CU("db").then(d=>{db=d;$("dbDot").className="dot"+(d?" on":"");if(!d){$("dbSt").textContent="التخزين المشترك مش متاح هنا — الطلبات محفوظة على جهازك بس.";return}
+ $("dbSt").textContent="متصل — الطلبات مشتركة live بين المبيعات والمشتريات.";
+ try{db.collection("requests").onSnapshot(snap=>{const rows=[];(snap.docs||[]).forEach(d=>{const x=d.data();if(x)rows.push(x)});if(rows.length){reqs=rows;renderReqs();}});}catch(e){}
+});
+setInterval(renderReqs,60e3);
+
+// ---------- report
+$("repDate").textContent="snapshot قاعدة hardsteel المحلية — "+SNAP_DATE+" — الكميات بالعدد أو أكبر وحدة (عود 6 م · لوح · طن) — التحويل من وحدة الأساس في نما";
+const byWh={};R.forEach(r=>{byWh[r[2]]=byWh[r[2]]||{n:0,items:0,val:0};byWh[r[2]].n+=r[3];byWh[r[2]].items++;byWh[r[2]].val+=r[3]*r[5];});
+const maxN=Math.max(...Object.values(byWh).map(x=>x.val));
+$("byWh").innerHTML=Object.entries(byWh).sort((a,b)=>b[1].val-a[1].val).map(([w,x])=>`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between"><b>${w}</b><span class="num">${x.items} صنف · قيمة ≈ ${fmt(x.val)}</span></div><div class="bar"><i style="width:${Math.max(3,100*x.val/maxN)}%"></i></div></div>`).join("");
+const tv=Object.values(items).map(it=>({...it,val:it.net*it.cost})).filter(x=>x.val>0).sort((a,b)=>b.val-a.val).slice(0,10);
+$("topVal").innerHTML="<tr><th>الصنف</th><th>الكمية</th><th>القيمة ≈</th></tr>"+tv.map(x=>`<tr><td>${x.name}<div class="muted en">${x.code}</div></td><td class="num">${(d=>fmt1(d.v)+" "+d.u)(disp(x.code,x.name,x.net))}</td><td class="num">${fmt(x.val)}</td></tr>`).join("");
+const rs=Object.values(items).filter(it=>it.net-it.av>0);
+$("reserved").innerHTML=rs.length?"<tr><th>الصنف</th><th>الرصيد</th><th>المتاح</th><th>المحجوز</th></tr>"+rs.map(x=>`<tr><td>${x.name}</td><td class="num">${(d=>fmt1(d.v)+" "+d.u)(disp(x.code,x.name,x.net))}</td><td class="num">${(d=>fmt1(d.v)+" "+d.u)(disp(x.code,x.name,x.av))}</td><td class="num" style="color:var(--amber)">${(d=>fmt1(d.v)+" "+d.u)(disp(x.code,x.name,x.net-x.av))}</td></tr>`).join(""):"<tr><td class='muted'>مفيش حجوزات في الـ snapshot</td></tr>";
+$("copyRep").onclick=()=>{const open=reqs.filter(r=>r.status!=="closed").length;const txt=`📊 تقرير الأرصدة — ${SNAP_DATE}\n`+Object.entries(byWh).map(([w,x])=>`• ${w}: ${x.items} صنف`).join("\n")+`\n• أصناف عليها حجز: ${rs.length}\n• طلبات مبيعات↔مشتريات مفتوحة: ${open}\nمن STLIX Enterprise Platform`;navigator.clipboard?.writeText(txt).then(()=>toast("اتنسخ — الصقه في الجروب")).catch(()=>toast("انسخ يدويًا: "+txt.slice(0,40)+"…"));};
+</script>
+
+</body>
+</html>

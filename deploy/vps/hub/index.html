@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0F1C2E">
+<title>STLIX Hub</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Almarai:wght@700;800&display=swap">
+<style>
+:root{--bg:#F2F4F7;--surface:#FFFFFF;--surface2:#E9EDF2;--line:#D3DAE3;--tx:#0F1C2E;--sub:#5B6B7F;--accent:#1F5FA8;--amber:#B9770E;--green:#1E8449;--red:#C0392B;--blue-bg:#E8F1FB;--green-bg:#E9F7EF;--amber-bg:#FFF4E0;--hero:#0F1C2E;--hero-tx:#F4F6F9;--focus:#E0A53A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0B1220;--surface:#131C2B;--surface2:#1A2536;--line:#26344A;--tx:#E9EDF3;--sub:#8E9BB0;--accent:#6FA6EE;--amber:#E0A53A;--green:#3BC77A;--red:#E56A5C;--blue-bg:#14243A;--green-bg:#10291B;--amber-bg:#2E2411;--hero:#070D18}}
+:root[data-theme="dark"]{--bg:#0B1220;--surface:#131C2B;--surface2:#1A2536;--line:#26344A;--tx:#E9EDF3;--sub:#8E9BB0;--accent:#6FA6EE;--amber:#E0A53A;--green:#3BC77A;--red:#E56A5C;--blue-bg:#14243A;--green-bg:#10291B;--amber-bg:#2E2411;--hero:#070D18}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;font-size:15px;line-height:1.5;direction:rtl}
+h1,h2{font-family:"Almarai",sans-serif;margin:0;text-wrap:balance}
+.en{font-family:"IBM Plex Sans","Segoe UI",sans-serif;direction:ltr;unicode-bidi:isolate}
+.top{background:var(--hero);color:var(--hero-tx);padding:26px 18px 22px;position:relative;overflow:hidden}
+.top:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 2px,transparent 2px 9px);pointer-events:none}
+.in{max-width:1040px;margin:0 auto;position:relative}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#E0A53A,#B9770E);display:grid;place-items:center;font-family:"Almarai";font-weight:800;color:#0F1C2E;font-size:20px}
+.brand h1{font-size:22px} .brand small{display:block;font-size:12px;color:#AEB9C8;letter-spacing:.1em;text-transform:uppercase;font-family:"IBM Plex Sans"}
+.search{margin-top:18px;position:relative}
+.search input{width:100%;font:inherit;font-size:17px;padding:15px 48px 15px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;outline:none}
+.search input::placeholder{color:#8E9BB0}
+.search input:focus{border-color:var(--focus);background:rgba(255,255,255,.12)}
+.search .k{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:20px;opacity:.7}
+.hint{font-size:12px;color:#8E9BB0;margin-top:8px}
+.roles{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.role{border:1px solid rgba(255,255,255,.18);background:transparent;color:#E6EBF2;font:inherit;font-weight:600;padding:8px 14px;border-radius:999px;cursor:pointer}
+.role[aria-pressed="true"]{background:#E0A53A;color:#0F1C2E;border-color:#E0A53A}
+.role:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+main{max-width:1040px;margin:0 auto;padding:18px 16px 60px}
+.grp{margin-top:22px}
+.grp h2{font-size:15px;color:var(--sub);letter-spacing:.04em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.grp h2:after{content:"";flex:1;height:1px;background:var(--line)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+a.card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;text-decoration:none;color:inherit;transition:transform .12s,border-color .12s;position:relative}
+a.card:hover{transform:translateY(-2px);border-color:var(--accent)}
+a.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card .ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:20px;background:var(--surface2);margin-bottom:10px}
+.card b{display:block;font-family:"Almarai";font-size:16px}
+.card p{margin:4px 0 0;color:var(--sub);font-size:13px;min-height:36px}
+.card .meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px}
+.card .host{color:var(--sub)}
+.pill{padding:2px 9px;border-radius:999px;font-weight:700;font-size:11px}
+.p-live{background:var(--green-bg);color:var(--green)} .p-prev{background:var(--amber-bg);color:var(--amber)} .p-int{background:var(--blue-bg);color:var(--accent)}
+.card.dim{opacity:.35}
+.empty{color:var(--sub);padding:20px;text-align:center}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.quick a{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;text-decoration:none;padding:8px 12px;border-radius:10px;font-size:13px;font-weight:600}
+.quick a:hover{border-color:#E0A53A}
+footer{max-width:1040px;margin:30px auto 0;padding:0 16px;color:var(--sub);font-size:12px}
+kbd{font-family:"IBM Plex Sans";font-size:11px;border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:1px 5px}
+</style>
+</head>
+<body>
+
+
+<div class="top"><div class="in">
+  <div class="brand"><div class="logo">S</div><div><h1>STLIX Hub</h1><small>Everything · One door</small></div></div>
+  <div class="search"><span class="k">🔎</span><input id="q" placeholder="ابحث عن أداة… أو اكتب صنف زي «ماسورة 316 2 بوصة» يوديك للرصيد" autocomplete="off" autofocus></div>
+  <div class="hint">اختصار: <kbd>/</kbd> للبحث · <kbd>Enter</kbd> يفتح أول نتيجة · لو كتبت صنف بيفتحه في المنصة مباشرة</div>
+  <div class="roles" id="roles">
+    <button class="role" aria-pressed="true" data-role="all">الكل</button>
+    <button class="role" aria-pressed="false" data-role="sales">🧑‍💼 بياع</button>
+    <button class="role" aria-pressed="false" data-role="proc">📦 مشتريات</button>
+    <button class="role" aria-pressed="false" data-role="mgmt">🏛️ إدارة</button>
+    <button class="role" aria-pressed="false" data-role="factory">🏭 مصنع</button>
+    <button class="role" aria-pressed="false" data-role="it">🛠️ IT</button>
+  </div>
+  <div class="quick" id="quick"></div>
+</div></div>
+
+<main id="main"></main>
+<footer>STLIX Valley · الأدوات دي كلها بتاعتنا ومستضافة على سيرفراتنا — الروابط الداخلية محتاجة تسجيل دخول. لإضافة أداة: عدّل قائمة <span class="en">TOOLS</span> في أول السكربت.</footer>
+
+<script>
+// ====== قائمة الأدوات — عدّل هنا بس ======
+// role: sales | proc | mgmt | factory | it   · status: live | preview | internal
+const PLATFORM="/platform.html"; const GW=(/^hub\./.test(location.hostname)?location.protocol+"//"+location.hostname.replace(/^hub\./,"gw."):"https://gw.stlixvalley.com");
+const TOOLS=[
+ {g:"العمليات اليومية",ic:"🏗️",name:"Enterprise Platform",desc:"رصيد صنف بالعربي · NAME BUILDER بالـ AI · طلبات مبيعات↔مشتريات بالـ SLA · التقرير اليومي",url:PLATFORM,host:"hub.stlixvalley.com",st:"live",roles:["sales","proc","mgmt"],kw:"رصيد صنف اسم كود طلب تقرير platform builder"},
+ {g:"العمليات اليومية",ic:"🧱",name:"NAME BUILDER",desc:"إنشاء صنف جديد بكود واسم مضبوطين — بدون تكرار",url:GW+"/tools/name-builder",host:"hub.stlixvalley.com",st:"live",roles:["proc","it"],kw:"صنف جديد اسم كود name builder"},
+ {g:"العمليات اليومية",ic:"📋",name:"تطبيق الجرد",desc:"عدّ المخزون من الموبايل ومزامنة مع النظام",url:"https://crm.stlixvalley.com/count/count.html",host:"crm.stlixvalley.com",st:"live",roles:["proc","factory"],kw:"جرد عد مخزون count stocktake"},
+ {g:"العمليات اليومية",ic:"💰",name:"Finance OS",desc:"لوحة الخزينة والعملاء والتقارير المالية (قراءة)",url:GW+"/tools/finance-os",host:"gw.stlixvalley.com",st:"live",roles:["mgmt"],kw:"مالية خزينة بنوك عملاء finance"},
+ {g:"العمليات اليومية",ic:"📐",name:"Engineer",desc:"حسابات المهندس: عرض الاستربس، أوزان، تقطيع اللفات",url:GW+"/tools/engineer",host:"gw.stlixvalley.com",st:"live",roles:["factory","sales"],kw:"مهندس وزن استربس تقطيع لفة حساب engineer"},
+ {g:"العملاء والمبيعات",ic:"🤝",name:"vTiger CRM",desc:"العملاء، الفرص، المتابعات — نظام العملاء الرئيسي",url:"https://crm.stlixvalley.com/",host:"crm.stlixvalley.com",st:"live",roles:["sales","mgmt"],kw:"عملاء crm فرص متابعة vtiger"},
+ {g:"العملاء والمبيعات",ic:"🌐",name:"stlixvalley.com",desc:"الموقع الرسمي — كتالوج المنتجات وطلبات التواصل",url:"https://stlixvalley.com/",host:"stlixvalley.com",st:"live",roles:["sales","mgmt"],kw:"موقع كتالوج منتجات website wordpress"},
+ {g:"العملاء والمبيعات",ic:"🏢",name:"egygrouphs.com",desc:"موقع المجموعة المصرية لتجارة المعادن + بانل الصور",url:"https://egygrouphs.com/",host:"egygrouphs.com",st:"live",roles:["sales","mgmt"],kw:"المجموعة المصرية موقع صور egygroup"},
+ {g:"الأنظمة الأساسية",ic:"🗄️",name:"نما ERP",desc:"نظام السجل الوحيد: الأصناف، المخازن، الفواتير، الحسابات",url:"https://stlixvalley.namasoft.net/erp",host:"namasoft.net",st:"live",roles:["proc","mgmt","it"],kw:"نما erp أصناف مخازن فواتير حسابات namasoft"},
+ {g:"الأنظمة الأساسية",ic:"🔌",name:"stlix-gateway",desc:"الـ API الموحد ورا كل الأنظمة — المفاتيح server-side",url:GW+"/health",host:"gw.stlixvalley.com",st:"live",roles:["it"],kw:"api gateway مفاتيح connector"},
+ {g:"الأنظمة الأساسية",ic:"🧠",name:"الذاكرة المشتركة (Notion)",desc:"توثيق المشاريع والقرارات — NAME BUILDER، الـ SOPs، الـ runbooks",url:"https://www.notion.so/",host:"notion.so",st:"live",roles:["mgmt","it"],kw:"توثيق notion ذاكرة قرارات sop"},
+ {g:"الإدارة والبنية التحتية",ic:"🖥️",name:"Hostinger VPS",desc:"لوحة السيرفر — الاستضافة، الـ SSL، الـ backups",url:"https://hpanel.hostinger.com/vps",host:"hostinger.com",st:"live",roles:["it"],kw:"سيرفر vps hostinger استضافة"},
+ {g:"الإدارة والبنية التحتية",ic:"📧",name:"Google Workspace",desc:"الإيميلات والحسابات والـ Drive",url:"https://admin.google.com/",host:"google.com",st:"live",roles:["it","mgmt"],kw:"ايميل حسابات google workspace drive"},
+ {g:"الإدارة والبنية التحتية",ic:"🌍",name:"GoDaddy Domains",desc:"النطاقات والـ DNS",url:"https://account.godaddy.com/products",host:"godaddy.com",st:"live",roles:["it"],kw:"دومين dns godaddy نطاق"},
+ {g:"الإدارة والبنية التحتية",ic:"📹",name:"الكاميرات (Hik-Connect)",desc:"كاميرات المصنع والمخازن",url:"https://www.hik-connect.com/",host:"hik-connect.com",st:"live",roles:["mgmt","factory"],kw:"كاميرات مراقبة hikvision cctv"},
+];
+const QUICK=[["🔎 رصيد صنف",PLATFORM],["📨 طلب من المشتريات",PLATFORM+"#bridge"],["📊 تقرير النهاردة",PLATFORM+"#report"],["📋 جرد",'https://crm.stlixvalley.com/count/count.html']];
+// ====== end config ======
+const $=s=>document.querySelector(s);
+const norm=s=>String(s||"").toLowerCase().replace(/[إأآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي");
+let role="all";
+try{role=localStorage.getItem("stlix_role")||"all"}catch(e){}
+$("#quick").innerHTML=QUICK.map(([t,u])=>`<a href="${u}">${t}</a>`).join("");
+function looksLikeItem(q){return /(ماسور|علب|لوح|كوع|فلانش|كويل|استانلس|304|316|بوصه|مم|سمك|جدول)/.test(norm(q))}
+function render(){
+ const q=norm($("#q").value.trim());
+ document.querySelectorAll(".role").forEach(b=>b.setAttribute("aria-pressed",b.dataset.role===role));
+ const groups={};let shown=0;
+ TOOLS.forEach(t=>{const inRole=role==="all"||t.roles.includes(role);const hit=!q||norm(t.name+" "+t.desc+" "+t.kw).includes(q);if(!inRole&&q)return;if(!hit)return;(groups[t.g]=groups[t.g]||[]).push({...t,dim:!inRole});if(!t.dim)shown++;});
+ let html="";
+ if(q&&looksLikeItem($("#q").value))html+=`<div class="grp"><h2>يبدو إنك بتدور على صنف</h2><div class="cards"><a class="card" href="${PLATFORM}#stock?q=${encodeURIComponent($("#q").value)}"><div class="ic">🔎</div><b>افتح رصيد «${$("#q").value}» في المنصة</b><p>الرصيد بالعدد أو أكبر وحدة، بالمخزن، ومحجوز ولا لأ</p><div class="meta"><span class="host">Enterprise Platform</span><span class="pill p-prev">preview</span></div></a></div></div>`;
+ for(const g in groups){html+=`<div class="grp"><h2>${g}</h2><div class="cards">`+groups[g].map(t=>`<a class="card ${t.dim?"dim":""}" href="${t.url}" ${t.url.startsWith("http")?'target="_blank" rel="noopener"':""}><div class="ic">${t.ic}</div><b>${t.name}</b><p>${t.desc}</p><div class="meta"><span class="host en">${t.host}</span><span class="pill ${t.st==="live"?"p-live":t.st==="preview"?"p-prev":"p-int"}">${t.st==="live"?"شغال":t.st==="preview"?"preview":"داخلي"}</span></div></a>`).join("")+`</div></div>`;}
+ $("#main").innerHTML=html||`<div class="empty">مفيش أداة بالاسم ده — جرّب كلمة تانية أو اكتب اسم صنف.</div>`;
+}
+$("#q").addEventListener("input",render);
+$("#q").addEventListener("keydown",e=>{if(e.key==="Enter"){const a=document.querySelector("#main a.card:not(.dim)")||document.querySelector("#main a.card");if(a)window.open(a.href,a.target||"_self");}});
+document.addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement!==$("#q")){e.preventDefault();$("#q").focus();}});
+document.querySelectorAll(".role").forEach(b=>b.onclick=()=>{role=b.dataset.role;try{localStorage.setItem("stlix_role",role)}catch(e){}render();});
+render();
+</script>
+
+</body>
+</html>
