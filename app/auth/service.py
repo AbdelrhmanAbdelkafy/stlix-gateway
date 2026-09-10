@@ -64,6 +64,20 @@ def current_user(request: Request, settings: Settings | None = None) -> dict | N
     return user
 
 
+def current_user_from_cookie(token: str | None, settings: Settings | None = None) -> dict | None:
+    """Same check as `current_user`, for the places that have a cookie but no
+    Request — WebSockets, which the auth middleware never sees."""
+    settings = settings or get_settings()
+    st = store(settings)
+    data = sessions.parse(st.secret(), token)
+    if not data:
+        return None
+    u = st.get_user(data.get("u", ""))
+    if u and u["active"] and u["session_version"] == data.get("v"):
+        return u
+    return None
+
+
 def issue_cookie(settings: Settings, user: dict) -> tuple[str, dict]:
     """(token, cookie kwargs) for a freshly authenticated user."""
     st = store(settings)

@@ -93,6 +93,12 @@ RESOURCES: tuple[Resource, ...] = (
                                         "/api/v1/finance", "/api/v1/banks"),
              host="gw.stlixvalley.com", audiences=("mgmt",),
              kw="مالية خزينة بنوك عملاء finance تقارير أرصدة", live_key="finance", order=10),
+    Resource("vat", "ض.ق.م والبورتال", G_MONEY, "🧾",
+             "مبيعات ومشتريات الشهر من بورتال الضرايب، الفجوة في فواتير المشتريات، المواعيد، الملغي/المرفوض، وباكدج الإقرار",
+             "/tools/vat", paths=("/tools/vat", "/api/v1/vat", "/api/v1/eta", "/tools/portal", "/vnc"),
+             host="hub.stlixvalley.com",
+             audiences=("mgmt", "it"), kw="ضريبة قيمة مضافة vat إقرار بورتال ضرايب فواتير مشتريات رامي",
+             live_key="vat", order=31),
     Resource("expert", "Nama Expert", G_MONEY, "🎓",
              "اسأل عن نما بالعربي — يجاوب من التوثيق والقرارات بتاعتنا",
              "/tools/expert", paths=("/tools/expert", "/api/v1/expert"), host="gw.stlixvalley.com",
@@ -204,6 +210,8 @@ PUBLIC_PREFIXES: tuple[str, ...] = (
     "/api/v1/auth/me", "/api/v1/auth/login", "/api/v1/auth/logout", "/hub/login.html",
     # the LAN agent has no session — its own key is checked in the cctv router
     "/api/v1/cctv/push",
+    # ETA pings this to register our system; it carries its own pre-shared key
+    "/eta/erp",
 )
 
 # Longest prefix wins, so "/tools/platform" beats "/".

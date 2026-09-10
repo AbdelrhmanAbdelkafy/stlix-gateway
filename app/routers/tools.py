@@ -63,6 +63,26 @@ async def name_builder(settings: Settings = Depends(get_settings)) -> HTMLRespon
     return _serve("name-builder/demo.gateway.html", settings)
 
 
+@router.get("/portal", response_class=HTMLResponse)
+async def portal_console(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """The tax portal's own screen, live, inside the hub.
+
+    A real browser runs on the server; this page is a window onto it, so the
+    person can sign in to the portal with their own hands and the session then
+    outlives their laptop. The password is typed into that browser, never into
+    this platform — there is no field here that would receive one."""
+    return _serve("portal/console.html", settings)
+
+
+@router.get("/vat", response_class=HTMLResponse)
+async def vat_planner(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """ض.ق.م planner — the owner's monthly routine as a screen: portal sales vs
+    purchases, the purchase gap, invoice slots, cancellations, and the return's
+    procedure states through to the paid receipt. Every figure comes from
+    /api/v1/vat/*; nothing on the page is typed in."""
+    return _serve("vat/planner.html", settings)
+
+
 @router.get("/cctv", response_class=HTMLResponse)
 async def cctv_wall(settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """Camera wall — one frame per channel, DVR/storage health, recent events.

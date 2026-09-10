@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ض.ق.م — STLIX</title>
+<style>
+:root{--bg:#0F1C2E;--card:#131C2B;--line:#26344A;--txt:#E9EDF3;--mut:#8E9BB0;--gold:#E0A53A;--ok:#3FB950;--bad:#F85149;--warn:#D29922;--blue:#58A6FF}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5;flex-wrap:wrap}
+header h1{font-size:18px;margin:0} header a{color:var(--gold);text-decoration:none}
+.tabs{display:flex;gap:6px} .tab{border:1px solid var(--line);border-radius:999px;padding:5px 14px;cursor:pointer;color:var(--mut);background:var(--card)}
+.tab.on{color:var(--txt);border-color:var(--gold)}
+select,input,button,textarea{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-family:inherit;font-size:13.5px}
+button.primary{background:var(--gold);color:#111;border-color:var(--gold);font-weight:600} button:disabled{opacity:.5}
+main{padding:16px 20px;display:grid;gap:16px;max-width:1300px;margin:auto}
+.note{background:#1E2A3D;border:1px solid var(--line);border-radius:12px;padding:12px 16px;color:var(--mut)} .note code{color:var(--gold)}
+.hero{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:grid;gap:10px}
+.hero .big{font-size:22px;font-weight:700} .hero.buy .big{color:var(--gold)} .hero.surplus .big{color:var(--ok)} .hero.none .big{color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{background:#0b1422;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi .l{color:var(--mut);font-size:12px} .kpi .v{font-size:18px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:1.2fr 1fr;gap:16px} @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h2{font-size:15px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:13px} td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top} th{color:var(--mut);font-weight:500}
+.num{font-variant-numeric:tabular-nums;text-align:left;direction:ltr}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--mut);margin-inline-end:6px} .dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)} .dot.warn{background:var(--warn)}
+.steps{display:flex;gap:6px;flex-wrap:wrap} .step{border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:12.5px;color:var(--mut)}
+.step.done{color:var(--ok);border-color:var(--ok)} .step.now{color:var(--gold);border-color:var(--gold);font-weight:600}
+.slot{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.tag{border-radius:6px;padding:1px 7px;font-size:11.5px;background:#1E2A3D} .tag.cancelled,.tag.rejected,.tag.invalid{background:#3d1a1a;color:var(--bad)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center} .muted{color:var(--mut);font-size:12.5px}
+.bar{height:8px;background:#0b1422;border-radius:4px;overflow:hidden;border:1px solid var(--line)} .bar i{display:block;height:100%;background:var(--gold)}
+details summary{cursor:pointer;color:var(--mut)}
+</style>
+</head>
+<body>
+<header>
+  <a href="/hub/">← الهَب</a>
+  <h1>🧾 ض.ق.م — الفجوة والإقرار</h1>
+  <div class="tabs" id="entities"></div>
+  <input type="month" id="month">
+  <button id="sync">⟳ اسحب من البورتال</button>
+  <span class="muted" id="syncInfo"></span>
+</header>
+<main>
+  <div class="note" id="note" hidden></div>
+  <section class="card" id="alertsCard" hidden><h2>تنبيهات <span class="muted" id="alertsInfo"></span> <button id="sweep">شغّل الجولة دلوقتي</button></h2><div id="alerts"></div></section>
+  <section class="hero" id="hero">
+    <div class="steps" id="steps"></div>
+    <div class="big" id="headline">—</div>
+    <div class="muted" id="sub"></div>
+    <div class="kpis" id="kpis"></div>
+  </section>
+  <div class="grid2">
+    <section class="card">
+      <h2>مواعيد فواتير المشتريات <span class="muted" id="slotsInfo"></span></h2>
+      <div id="slots"></div>
+    </section>
+    <section class="card">
+      <h2>الإجراء (procedure) <span class="muted" id="deadline"></span></h2>
+      <div class="row" id="actions"></div>
+      <div class="row" style="margin-top:10px">
+        <label>رصيد مرحّل من الشهر السابق (ض.ق.م) <input id="creditIn" type="number" step="0.01" style="width:140px"></label>
+        <button id="saveCredit">حفظ</button>
+      </div>
+      <details style="margin-top:10px"><summary>مطابقة درافت الإقرار (من رامي/البورتال)</summary>
+        <div class="row" style="margin-top:8px" id="draftForm"></div>
+        <div id="draftResult"></div>
+      </details>
+    </section>
+  </div>
+  <div class="grid2">
+    <section class="card">
+      <h2>الاستيراد (من الإفراج الضريبي) <span class="muted">القاعدة = ض.ق.م ÷ 14%</span></h2>
+      <div class="row"><input id="impNo" placeholder="رقم الإفراج"><input id="impVat" type="number" step="0.01" placeholder="ض.ق.م المدفوعة"><input id="impNote" placeholder="ملاحظة"><button id="impAdd">إضافة</button></div>
+      <table id="imports"></table>
+    </section>
+    <section class="card">
+      <h2>ملغي / مرفوض على البورتال <span class="muted" id="probInfo"></span></h2>
+      <div id="problems"></div>
+    </section>
+  </div>
+  <section class="card">
+    <h2>مستندات الشهر على البورتال <span class="muted" id="docsInfo"></span> <a id="csv" href="#" style="color:var(--gold)">CSV للمحاسب</a></h2>
+    <div class="row" style="margin-bottom:8px"><select id="dir"><option value="">الكل</option><option value="Sent">مبيعات (Sent)</option><option value="Received">مشتريات (Received)</option></select>
+      <select id="st"><option value="">كل الحالات</option><option>valid</option><option>submitted</option><option>cancelled</option><option>rejected</option><option>invalid</option></select></div>
+    <div style="overflow:auto;max-height:420px"><table id="docs"></table></div>
+  </section>
+</main>
+<script>
+const KEY = "__GATEWAY_API_KEY__";
+const H = KEY && !KEY.startsWith("__") ? {"X-API-Key": KEY} : {};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const n = v => v == null ? "—" : Number(v).toLocaleString("en-EG", {maximumFractionDigits: 0});
+const STATES = ["open","closing","packaged","draft_review","ready_to_pay","paid","closed"];
+const STATE_AR = {open:"مفتوح", closing:"مراجعة الملغي", packaged:"باكدج جاهزة", draft_review:"مراجعة الدرافت", ready_to_pay:"جاهز للدفع", paid:"اتدفع", closed:"مقفول"};
+let ents = [], ent = null, plan = null;
+const month = () => $("#month").value;
+const api = (p, o={}) => fetch(p, {...o, headers: {...H, "Content-Type": "application/json", accept: "application/json", ...(o.headers||{})}});
+
+async function init(){
+  const t = new Date(); $("#month").value = t.toISOString().slice(0,7);
+  const ov = await (await api("/api/v1/vat")).json();
+  ents = ov.entities || [];
+  if(!ents.length){ $("#note").hidden = false; $("#note").innerHTML = "ETA_ENTITIES_JSON فاضي على السيرفر — حط بيانات الكيانين (client_id/secret من بروفايل الممول → تسجيل ERP) في <code>/opt/stlix-gateway/.env</code>"; return; }
+  ent = ents[0].key;
+  $("#entities").innerHTML = ents.map(e => `<span class="tab ${e.key===ent?'on':''}" data-k="${esc(e.key)}">${esc(e.name)} <span class="muted">${e.k_total}‰</span>${e.configured?'':' ⚠️'}</span>`).join("");
+  load();
+}
+async function load(){
+  const r = await api(`/api/v1/vat/${ent}/${month()}`);
+  if(!r.ok){ $("#headline").textContent = "خطأ " + r.status; return; }
+  plan = await r.json();
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.k === ent));
+  const cfg = plan.entity.configured;
+  $("#note").hidden = cfg; if(!cfg) $("#note").textContent = `${plan.entity.name}: client_id/secret مش متحطين — الأرقام هنا من الكاش بس.`;
+  $("#syncInfo").textContent = plan.sync ? (plan.sync.ok ? `آخر سحب ${new Date(plan.sync.at*1000).toLocaleString("ar-EG",{hour12:false})} · ${plan.sync.count} مستند` : `آخر سحب فشل: ${plan.sync.error}`) : "لسه ما اتسحبش";
+  $("#hero").className = "hero " + plan.action;
+  $("#headline").textContent = plan.headline;
+  const s = plan.sales, i = plan.imports;
+  $("#sub").textContent = `المستهدف دفعه ${n(plan.target_payable)} ج (${plan.entity.k_total}‰ × ${n(s.net)}) · لو رفعنا دلوقتي: ${plan.payable_now>=0 ? "ندفع "+n(plan.payable_now) : "رصيد لينا "+n(-plan.payable_now)} ج · ${plan.calendar.days_to_deadline} يوم على آخر ميعاد للإقرار (${plan.calendar.filing_deadline})`;
+  $("#kpis").innerHTML = [
+    ["مبيعات الشهر (صافي)", n(s.net), `${s.count} فاتورة · تصنيع ${n(s.net_m)} · تجاري ${n(s.net_t)}`],
+    ["ض.ق.م مبيعات", n(s.vat), ""],
+    ["ض.ق.م مشتريات موجودة", n(plan.purchases.vat), `${plan.purchases.count} فاتورة · قاعدة ${n(plan.purchases.net)}`],
+    ["ض.ق.م استيراد", n(i.vat), `${i.portal_docs} من البورتال + ${i.manual.length} يدوي · قاعدة ${n(i.base)}`],
+    ["رصيد مرحّل", n(plan.credit_in), ""],
+    ["مشتريات مطلوبة (قاعدة)", n(plan.purchases_base_needed), `ض.ق.م ${n(plan.purchases_vat_needed)}`],
+    ["الفجوة", n(plan.gap_base), plan.gap_vat>0 ? `ض.ق.م ${n(plan.gap_vat)} — لسه ناقص` : plan.gap_vat<0 ? "فايض" : ""],
+  ].map(([l,v,x]) => `<div class="kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="muted">${x}</div></div>`).join("");
+  const have = Math.max(0, Math.min(1, plan.purchases_vat_needed>0 ? plan.purchases.vat/plan.purchases_vat_needed : 1));
+  $("#kpis").insertAdjacentHTML("beforeend", `<div class="kpi" style="grid-column:1/-1"><div class="l">تغطية المشتريات المطلوبة</div><div class="bar"><i style="width:${Math.round(have*100)}%"></i></div><div class="muted">${Math.round(have*100)}%${plan.per_slot_base?` · لو اتوزّعت على المواعيد الباقية: ${n(plan.per_slot_base)} ج لكل فاتورة`:""}</div></div>`);
+  // steps
+  const idx = STATES.indexOf(plan.status);
+  $("#steps").innerHTML = STATES.map((k,j) => `<span class="step ${j<idx?'done':j===idx?'now':''}">${j+1}. ${STATE_AR[k]}</span>`).join("");
+  // slots
+  $("#slots").innerHTML = plan.slots.map(sl => `<div class="slot"><span><span class="dot ${sl.covered?'ok':sl.past?'bad':''}"></span>${sl.date} — ${esc(sl.rule)}</span><span class="muted">${sl.covered?'فيه فاتورة':sl.past?'فات من غير فاتورة':'قادم'}</span></div>`).join("") + `<div class="muted" style="margin-top:6px">قاعدة: لا فواتير من يوم 30 · فاتورة أسبوعيًا · يوم 1 لو مفيش استيراد ولا رصيد</div>`;
+  $("#slotsInfo").textContent = `${plan.slots.filter(x=>x.covered).length}/${plan.slots.length} متغطي`;
+  // actions
+  const next = STATES[idx+1];
+  const labels = {closing:"الشهر خلص → ابدأ المراجعة", packaged:"جهّز باكدج الإقرار", draft_review:"اتبعتت لرامي → مراجعة الدرافت", ready_to_pay:"الدرافت متطابق", paid:"سجّل الدفع", closed:"اقفل الفترة"};
+  $("#actions").innerHTML = (next ? `<button class="primary" id="advance">${labels[next]||next}</button>` : `<span class="muted">الفترة مقفولة</span>`)
+    + ` <a href="/api/v1/vat/${ent}/${month()}/package" target="_blank"><button>باكدج JSON</button></a>`
+    + (plan.problems.length ? ` <span class="tag cancelled">${plan.problems.length} ملغي/مرفوض</span>` : "");
+  $("#deadline").textContent = `مراجعة الملغي ${plan.calendar.recheck_day} · الإقرار قبل ${plan.calendar.filing_deadline}`;
+  $("#advance") && ($("#advance").onclick = async () => {
+    const body = {status: next};
+    if(next === "paid"){ const amt = prompt("المبلغ المدفوع (ض.ق.م)", plan.payable_now>0?plan.payable_now:0); if(amt==null) return; body.paid_amount = +amt; body.paid_at = new Date().toISOString(); body.receipt = prompt("رقم/مرجع الإيصال") || ""; }
+    if(next === "closed"){ body.credit_out = plan.credit_out_if_filed_now; }
+    await api(`/api/v1/vat/${ent}/${month()}`, {method:"PATCH", body: JSON.stringify(body)}); load();
+  });
+  $("#creditIn").value = plan.credit_in;
+  // draft form
+  const fields = [["sales_vat","ض.ق.م مبيعات"],["purchases_vat","ض.ق.م مشتريات"],["imports_vat","ض.ق.م استيراد"],["credit_in","رصيد مرحّل"],["payable","المستحق"]];
+  $("#draftForm").innerHTML = fields.map(([k,l]) => `<label>${l} <input data-f="${k}" type="number" step="0.01" style="width:120px"></label>`).join("") + `<button id="draftGo">قارن</button>`;
+  $("#draftGo").onclick = async () => {
+    const body = {}; document.querySelectorAll("#draftForm input").forEach(i => { if(i.value!=="") body[i.dataset.f] = +i.value; });
+    const c = await (await api(`/api/v1/vat/${ent}/${month()}/draft`, {method:"POST", body: JSON.stringify(body)})).json();
+    $("#draftResult").innerHTML = `<table><tr><th>البند</th><th>عندنا</th><th>الدرافت</th><th>الفرق</th></tr>` + c.rows.map(r => `<tr><td>${r.field}</td><td class="num">${n(r.ours)}</td><td class="num">${n(r.draft)}</td><td class="num" style="color:${r.match?'var(--ok)':'var(--bad)'}">${r.diff==null?'—':n(r.diff)}</td></tr>`).join("") + `</table><div class="muted">${c.match?'✅ متطابق — الشهر بقى «جاهز للدفع»':'⚠️ فيه اختلاف — راجع مع رامي'}</div>`; load();
+  };
+  // imports
+  $("#imports").innerHTML = i.manual.length ? `<tr><th>الإفراج</th><th>ض.ق.م</th><th>القاعدة</th><th>ملاحظة</th><th></th></tr>` + i.manual.map(m => `<tr><td>${esc(m.release_no)}</td><td class="num">${n(m.vat)}</td><td class="num">${n(m.base)}</td><td>${esc(m.note)}</td><td><button data-del="${m.id}">✕</button></td></tr>`).join("") : `<tr><td class="muted">مفيش إفراجات يدوية · ${i.portal_docs} مستند استيراد اتعرف من البورتال</td></tr>`;
+  document.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => { await api(`/api/v1/vat/${ent}/${month()}/imports/${b.dataset.del}`, {method:"DELETE"}); load(); });
+  // problems
+  $("#probInfo").textContent = plan.problems.length ? `${plan.problems.length}` : "مفيش";
+  $("#problems").innerHTML = plan.problems.length ? `<table><tr><th>الاتجاه</th><th>رقم</th><th>الطرف</th><th>صافي</th><th>الحالة</th></tr>` + plan.problems.map(p => `<tr><td>${p.direction==='Sent'?'مبيعات':'مشتريات'}</td><td>${esc(p.internal_id)}</td><td>${esc(p.counterparty)}</td><td class="num">${n(p.net)}</td><td><span class="tag ${p.status}">${p.status}</span> ${esc(p.reason||'')}</td></tr>`).join("") + "</table>" : `<span class="muted">كل مستندات الشهر سليمة على البورتال</span>`;
+  $("#csv").href = `/api/v1/vat/${ent}/${month()}/package.csv`;
+  loadAlerts(); loadDocs();
+}
+const LEVEL = {critical:"bad", warn:"warn", info:"ok"};
+async function loadAlerts(){
+  const a = await (await api(`/api/v1/vat/alerts?entity=${ent}&limit=12`)).json();
+  $("#alertsCard").hidden = false;
+  $("#alertsInfo").textContent = a.count ? `${a.alerts.filter(x=>!x.seen).length} جديدة من ${a.count}` : "مفيش";
+  $("#alerts").innerHTML = a.count ? a.alerts.map(x => `<div class="slot" style="opacity:${x.seen?.55:1}"><span><span class="dot ${LEVEL[x.level]||''}"></span>${esc(x.text)}</span><span class="muted">${x.day} · ${esc(x.month)}</span></div>`).join("")
+    + `<div class="row" style="margin-top:8px"><button id="seen">تعليم الكل كمقروء</button></div>` : `<span class="muted">مفيش تنبيهات — كله ماشي</span>`;
+  $("#seen") && ($("#seen").onclick = async () => { await api("/api/v1/vat/alerts/seen", {method:"POST", body: JSON.stringify({ids: a.alerts.map(x=>x.id)})}); loadAlerts(); });
+}
+$("#sweep") && ($("#sweep").onclick = async () => { $("#sweep").disabled = true; await api("/api/v1/vat/sweep", {method:"POST"}); $("#sweep").disabled = false; load(); });
+async function loadDocs(){
+  const q = new URLSearchParams(); if($("#dir").value) q.set("direction", $("#dir").value); if($("#st").value) q.set("status", $("#st").value);
+  const d = await (await api(`/api/v1/vat/${ent}/${month()}/documents?` + q)).json();
+  $("#docsInfo").textContent = `${d.count}`;
+  $("#docs").innerHTML = `<tr><th>التاريخ</th><th>الاتجاه</th><th>نوع</th><th>رقم</th><th>الطرف</th><th>صافي</th><th>ض.ق.م</th><th>الحالة</th></tr>` + (d.documents||[]).map(x => `<tr><td>${(x.issued_at||"").slice(0,10)}</td><td>${x.direction==='Sent'?'مبيعات':'مشتريات'}</td><td>${x.doc_type}</td><td>${esc(x.internal_id)}</td><td>${esc(x.direction==='Sent'?x.receiver_name:x.issuer_name)}</td><td class="num">${n(x.net)}</td><td class="num">${n(x.vat)}${x.vat_known?'':' <span class="muted">~</span>'}</td><td><span class="tag ${x.status}">${x.status}</span></td></tr>`).join("");
+}
+$("#entities").onclick = e => { const t = e.target.closest(".tab"); if(t){ ent = t.dataset.k; load(); } };
+$("#month").onchange = load; $("#dir").onchange = loadDocs; $("#st").onchange = loadDocs;
+$("#sync").onclick = async () => { $("#sync").disabled = true; $("#syncInfo").textContent = "بيسحب…"; const r = await (await api(`/api/v1/vat/${ent}/${month()}/sync`, {method:"POST"})).json(); $("#sync").disabled = false; if(!r.ok) alert(r.error); load(); };
+$("#saveCredit").onclick = async () => { await api(`/api/v1/vat/${ent}/${month()}`, {method:"PATCH", body: JSON.stringify({credit_in: +$("#creditIn").value})}); load(); };
+$("#impAdd").onclick = async () => { const r = await api(`/api/v1/vat/${ent}/${month()}/imports`, {method:"POST", body: JSON.stringify({vat: +$("#impVat").value, release_no: $("#impNo").value, note: $("#impNote").value})}); if(!r.ok) alert("ض.ق.م مطلوبة"); $("#impVat").value=""; $("#impNo").value=""; $("#impNote").value=""; load(); };
+init();
+</script>
+</body>
+</html>

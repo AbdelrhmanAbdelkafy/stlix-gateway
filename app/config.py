@@ -186,6 +186,37 @@ class Settings(BaseSettings):
     def cctv_configured(self) -> bool:
         return bool(self.cctv_agent_key)
 
+    # --- ETA e-invoicing (بورتال الضرايب) + ض.ق.م planner ---
+    # JSON list, one object per legal entity:
+    # [{"key":"group","name":"المجموعة","rin":"...","client_id":"...","client_secret":"...",
+    #   "k_manufacturing":7.5,"k_trading":1.5,"customs_issuer_ids":[]}, {...}]
+    eta_entities_json: str = Field(default="")
+    eta_env: str = Field(default="prod", pattern="^(prod|preprod)$")
+    eta_db_path: str = Field(default="", description="blank = data/eta/eta.db")
+    vat_db_path: str = Field(default="", description="blank = data/vat/vat.db")
+    # total: k_total ‰ × all sales (the owner's wording); per_activity: k_m × manufacturing + k_t × trading
+    vat_k_mode: str = Field(default="total", pattern="^(total|per_activity)$")
+
+    # The portal browser agent on this host (agents/eta-browser) and the screen
+    # it draws on. Both are 127.0.0.1 services; from inside Docker they are
+    # reached through host.docker.internal.
+    eta_agent_url: str = Field(default="http://host.docker.internal:8021")
+    eta_vnc_url: str = Field(default="http://host.docker.internal:6081")
+    # The browser agent's own key (X-ETA-Browser-Key): it may upload documents
+    # scraped from the portal as the signed-in user, and nothing else.
+    eta_browser_key: str = Field(default="")
+    # Pre-shared key ETA sends as `Authorization: ApiKey <key>` when it pings our
+    # callback base during system registration. Blank = the ping is refused.
+    eta_erp_callback_key: str = Field(default="")
+    # Cancel/reject on the portal. Off by default: both are irreversible at ETA.
+    eta_allow_state_changes: bool = Field(default=False)
+    # 0 = off. On the VPS this is what makes the routine run without anyone asking.
+    vat_sync_interval_minutes: float = Field(default=0)
+
+    @property
+    def eta_configured(self) -> bool:
+        return bool(self.eta_entities_json.strip())
+
     @property
     def nama_base(self) -> str:
         return self.nama_base_url.rstrip("/")

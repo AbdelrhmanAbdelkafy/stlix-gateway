@@ -47,7 +47,7 @@ async def test_a_dead_site_is_down_not_an_exception():
 
 
 def test_every_live_key_on_a_card_exists_in_the_snapshot():
-    keys = {"gateway", "nama", "crm", "inventory", "finance", "expert", "rep", "cctv"} | {f"site:{k}" for k in SITES}
+    keys = {"gateway", "nama", "crm", "inventory", "finance", "expert", "rep", "cctv", "vat"} | {f"site:{k}" for k in SITES}
     dangling = [r.key for r in RESOURCES if r.live_key and r.live_key not in keys]
     assert not dangling, f"cards pointing at unknown live keys: {dangling}"
 

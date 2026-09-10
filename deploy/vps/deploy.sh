@@ -66,6 +66,9 @@ services:
     ports:
       - "127.0.0.1:${GW_PORT}:8000"
     env_file: [.env]
+    extra_hosts:
+      # the portal browser + its screen run on the host, not in this container
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./data/auth:/app/data/auth
       - ./data/cctv:/app/data/cctv

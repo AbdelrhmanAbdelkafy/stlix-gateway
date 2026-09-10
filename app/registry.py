@@ -34,6 +34,9 @@ SYSTEMS: list[System] = [
            url="https://stlixvalley.namasoft.net/erp"),
     System("attendance", "Attendance & Fingerprint", "البصمة والحضور", Status.LIVE,
            "Punch push/read (routes to Nama TimeAttendance)."),
+    System("vat", "VAT planner (ETA portal)", "ض.ق.م والبورتال", Status.LIVE,
+           "Sales/purchases pulled from the ETA e-invoicing portal per entity; the month's purchase "
+           "gap, invoice slots, cancellations, the return package and its procedure states.", url="/tools/vat"),
     System("cctv", "CCTV (Hikvision)", "الكاميرات", Status.LIVE,
            "DVR state, channels, storage, snapshots and events — pushed by the LAN agent "
            "(agents/cctv-agent); the VPS never dials a DVR.", url="/tools/cctv"),

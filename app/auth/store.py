@@ -30,7 +30,7 @@ DEFAULT_ROLES: dict[str, dict] = {
     "mgmt": {"name": "إدارة", "desc": "يشوف كل حاجة، يعدّل في REP والأفكار",
              "perms": {"hub": ["view"], "platform": ["view"], "gateway": ["view"],
                        "name-builder": ["view"], "engineer": ["view"], "rep": ["view", "edit"],
-                       "certificate": ["view"], "count-app": ["view"], "finance": ["view"],
+                       "certificate": ["view"], "count-app": ["view"], "finance": ["view"], "vat": ["view", "edit"],
                        "expert": ["view", "edit"], "legal": ["view", "edit"],
                        "ideas": ["view", "edit"],
                        "crm-site": ["view"], "erp-site": ["view"],

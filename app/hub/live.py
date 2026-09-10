@@ -147,6 +147,27 @@ async def _probe_cctv(settings: Settings) -> dict:
     return out
 
 
+async def _probe_vat(settings: Settings) -> dict:
+    from ..integrations.eta import store as eta_store
+    out = {"key": "vat", "kind": "connector", "configured": settings.eta_configured, "mode": settings.vat_k_mode,
+           "up": False, "latency_ms": 0}
+    if not settings.eta_configured:
+        out["error"] = "ETA_ENTITIES_JSON مش متحط في .env"
+        return out
+    try:
+        ents = eta_store.entities(settings)
+        t = time.strftime("%Y-%m")
+        syncs = [eta_store.last_sync(e.key, t, settings) for e in ents]
+        ok = [s for s in syncs if s and s.get("ok")]
+        out["up"] = bool(ents) and all(e.configured for e in ents)
+        out["numbers"] = {"entities": len(ents), "synced_this_month": len(ok)}
+        if not ok:
+            out["error"] = "لسه ما اتسحبش الشهر الحالي من البورتال"
+    except Exception as exc:  # noqa: BLE001
+        out["error"] = f"{type(exc).__name__}: {exc}"[:200]
+    return out
+
+
 def _probe_gateway() -> dict:
     from .. import __version__
     return {"key": "gateway", "kind": "connector", "configured": True, "up": True, "latency_ms": 0,
@@ -160,7 +181,7 @@ async def snapshot(settings: Settings | None = None) -> dict:
     async with httpx.AsyncClient(timeout=PROBE_TIMEOUT, headers={"User-Agent": "stlix-hub-live/1"}) as client:
         tasks = [
             _probe_nama(settings), _probe_crm(settings), _probe_inventory(settings),
-            _probe_finance(settings), _probe_expert(settings), _probe_rep(), _probe_cctv(settings),
+            _probe_finance(settings), _probe_expert(settings), _probe_rep(), _probe_cctv(settings), _probe_vat(settings),
             *[_probe_site(client, k, u) for k, u in SITES.items()],
         ]
         results = await asyncio.gather(*tasks, return_exceptions=True)

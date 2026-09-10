@@ -31,6 +31,12 @@ from .integrations.nama.router import router as nama_router
 from .integrations.rep.router import router as rep_router
 from .integrations.cctv.router import push_router as cctv_push_router
 from .integrations.cctv.router import router as cctv_router
+from .integrations.eta.callback import router as eta_callback_router
+from .integrations.eta.console import router as eta_browser_router
+from .integrations.eta.console import vnc_router as eta_vnc_router
+from .integrations.eta.ingest import router as eta_ingest_router
+from .integrations.eta.router import router as eta_router
+from .integrations.vat.router import router as vat_router
 from .registry import SYSTEMS, Status
 from .routers.graph import router as graph_router
 from .routers.meta import router as meta_router
@@ -83,14 +89,19 @@ async def _lifespan(app: FastAPI):
     set, so importing the app (as the test suite does) never touches the ERP.
     """
     settings = get_settings()
-    task = None
+    tasks = []
     if settings.live_finance_refresh_seconds > 0:
-        task = asyncio.create_task(
-            refresh_loop(settings, settings.live_finance_refresh_seconds))
+        tasks.append(asyncio.create_task(
+            refresh_loop(settings, settings.live_finance_refresh_seconds)))
+    # The VAT routine runs itself: pull the portal, re-check the gap, raise the
+    # alerts a person used to raise by remembering. Off unless configured.
+    if settings.vat_sync_interval_minutes > 0 and settings.eta_configured:
+        from .integrations.vat.watcher import loop as vat_loop
+        tasks.append(asyncio.create_task(vat_loop(settings, settings.vat_sync_interval_minutes)))
     try:
         yield
     finally:
-        if task:
+        for task in tasks:
             task.cancel()
             with suppress(asyncio.CancelledError):
                 await task
@@ -142,6 +153,13 @@ def create_app() -> FastAPI:
     app.include_router(rep_router, prefix=API_PREFIX)
     app.include_router(cctv_router, prefix=API_PREFIX)
     app.include_router(cctv_push_router, prefix=API_PREFIX)
+    app.include_router(vat_router, prefix=API_PREFIX)
+    app.include_router(eta_router, prefix=API_PREFIX)
+    app.include_router(eta_ingest_router, prefix=API_PREFIX)
+    app.include_router(eta_browser_router, prefix=API_PREFIX)
+    app.include_router(eta_vnc_router)
+    # No prefix: ETA is told one short base URL and appends /ping itself.
+    app.include_router(eta_callback_router)
     app.include_router(workspace_router, prefix=API_PREFIX)
     app.include_router(ideas_router, prefix=API_PREFIX)
     app.include_router(graph_router, prefix=API_PREFIX)
