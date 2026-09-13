@@ -145,7 +145,9 @@ async def tables():
 #: in the portal's markup shows up as `how: "repeat"` instead of as wrong rows.
 _GRID_JS = """() => {
   const txt = e => (e.innerText || '').replace(/\\s+/g, ' ').trim();
-  const table = () => {
+  const ID = /^[A-Z0-9]{18,}$/;
+
+  const byTable = () => {
     for (const t of document.querySelectorAll('table')) {
       const rows = [...t.querySelectorAll('tbody tr')]
         .map(r => [...r.querySelectorAll('td')].map(txt)).filter(r => r.length);
@@ -154,31 +156,95 @@ _GRID_JS = """() => {
     }
     return null;
   };
-  const aria = () => {
+
+  const byAria = () => {
     const rs = [...document.querySelectorAll('[role=row]')];
     if (rs.length < 2) return null;
-    const cells = r => [...r.querySelectorAll('[role=gridcell],[role=cell]')].map(txt);
-    const head = [...rs[0].querySelectorAll('[role=columnheader]')].map(txt);
-    const body = rs.map(cells).filter(r => r.length);
-    return body.length ? {how: 'aria', headers: head, rows: body.slice(0, 500)} : null;
+    const body = rs.map(r => [...r.querySelectorAll('[role=gridcell],[role=cell]')].map(txt))
+                   .filter(r => r.length);
+    return body.length ? {how: 'aria', rows: body.slice(0, 500),
+      headers: [...rs[0].querySelectorAll('[role=columnheader]')].map(txt)} : null;
   };
-  const repeated = () => {
+
+  // The portal draws its list with plain divs whose classes differ row to row, so
+  // structure alone finds nothing. Anchor on content instead: every row carries one
+  // long document id. Climb from it until the ancestor would swallow a second id —
+  // that ancestor is the row, whatever it is called.
+  const byAnchor = () => {
+    const leaves = [...document.querySelectorAll('*')].filter(e => !e.children.length);
+    const anchors = leaves.filter(e => ID.test(txt(e)));
+    if (anchors.length < 2) return null;
+    const ids = n => [...n.querySelectorAll('*')].filter(e => !e.children.length && ID.test(txt(e))).length;
+    const seen = new Set(), rows = [];
+    for (const a of anchors) {
+      let n = a;
+      while (n.parentElement && n.parentElement !== document.body && ids(n.parentElement) <= 1)
+        n = n.parentElement;
+      if (seen.has(n)) continue;
+      seen.add(n);
+      let cells = [...n.children].map(txt);
+      while (cells.length === 1 && n.children.length === 1) { n = n.children[0]; cells = [...n.children].map(txt); }
+      if (cells.filter(Boolean).length >= 3) rows.push(cells);
+    }
+    return rows.length ? {how: 'anchor', headers: [], rows: rows.slice(0, 500)} : null;
+  };
+
+  const byRepeat = () => {
     let best = null;
     for (const el of document.querySelectorAll('div,ul,section,tbody')) {
       const kids = [...el.children];
       if (kids.length < 3) continue;
-      const cls = kids[0].className;
-      if (typeof cls !== 'string' || !cls || !kids.every(k => k.className === cls)) continue;
+      const tag = kids[0].tagName;
+      if (!kids.every(k => k.tagName === tag)) continue;
       const rows = kids.map(k => [...k.children].map(txt));
       const n = rows[0].length;
-      if (n < 4 || !rows.every(r => r.length === n)) continue;
+      if (n < 4 || !rows.every(r => r.length === n) || !rows.every(r => r.filter(Boolean).length >= 3)) continue;
       if (!best || rows.length * n > best.rows.length * best.rows[0].length)
         best = {how: 'repeat', headers: [], rows: rows.slice(0, 500)};
     }
     return best;
   };
-  return table() || aria() || repeated() || {how: 'none', headers: [], rows: []};
+
+  const got = byTable() || byAria() || byAnchor() || byRepeat() || {how: 'none', headers: [], rows: []};
+  if (!got.headers || !got.headers.length) {
+    const hs = [...document.querySelectorAll('[role=columnheader],th,[class*=header] [class*=cell],[class*=head] span')]
+      .map(txt).filter(Boolean);
+    got.headers = hs.slice(0, 20);
+  }
+  return got;
 }"""
+
+#: Read-only and text-free: shapes and counts, never cell contents. It exists so
+#: that a portal redesign is answered by looking at what is actually there
+#: instead of guessing at selectors from the outside.
+_PROBE_JS = """() => {
+  const txt = e => (e.innerText || '').replace(/\\s+/g, ' ').trim();
+  const ID = /^[A-Z0-9]{18,}$/;
+  const leaves = [...document.querySelectorAll('*')].filter(e => !e.children.length);
+  const anchor = leaves.find(e => ID.test(txt(e)));
+  const describe = n => ({tag: n.tagName.toLowerCase(),
+                         cls: String(n.className || '').slice(0, 70),
+                         role: n.getAttribute && n.getAttribute('role'),
+                         kids: n.children.length, chars: txt(n).length});
+  const chain = [];
+  let n = anchor;
+  while (n && n !== document.body && chain.length < 9) { chain.push(describe(n)); n = n.parentElement; }
+  return {
+    id_like_cells: leaves.filter(e => ID.test(txt(e))).length,
+    tables: document.querySelectorAll('table').length,
+    aria_rows: document.querySelectorAll('[role=row]').length,
+    aria_grids: document.querySelectorAll('[role=grid],[role=table]').length,
+    iframes: document.querySelectorAll('iframe').length,
+    chain,
+  };
+}"""
+
+
+@app.get("/probe")
+async def probe():
+    """What the current page's list is actually made of — shapes, not contents."""
+    pg = await page()
+    return {"url": pg.url, **await pg.evaluate(_PROBE_JS)}
 
 
 @app.get("/rows")
@@ -187,6 +253,63 @@ async def rows():
     pg = await page()
     got = await pg.evaluate(_GRID_JS)
     return {"url": pg.url, **got, "count": len(got.get("rows") or [])}
+
+
+#: Finding "the next page" without being told a selector: an aria-label, a
+#: title, a rel, a class, or failing all of those the link whose text is the
+#: number after the one that is currently marked active. Pagination is the only
+#: clicking this does — nothing here can submit, cancel or pay.
+_NEXT_JS = """(page) => {
+  const cand = [...document.querySelectorAll(
+    '[aria-label],[title],a,button,li,span,[class*=next],[class*=pagination] *')];
+  const looksNext = e => {
+    const s = ((e.getAttribute('aria-label') || '') + ' ' + (e.getAttribute('title') || '') + ' ' +
+               (e.getAttribute('rel') || '') + ' ' + String(e.className || '')).toLowerCase();
+    return /next|التالي|التالى/.test(s) && !/prev|disabled/.test(s);
+  };
+  let el = cand.find(e => looksNext(e) && e.offsetParent !== null);
+  if (!el) {
+    const want = String(page + 1);
+    el = cand.find(e => e.children.length === 0 &&
+                        (e.innerText || '').trim() === want && e.offsetParent !== null);
+  }
+  if (!el) return false;
+  (el.closest('a,button,li') || el).click();
+  return true;
+}"""
+
+
+@app.get("/collect")
+async def collect(pages: int = 10):
+    """Every page of the current list, not just the ten rows on screen.
+
+    Stops on its own when there is no next control, when a page repeats itself,
+    or at `pages` — a portal that paginates forever must not turn into a loop
+    that clicks forever.
+    """
+    pg = await page()
+    seen: set[str] = set()
+    out: list[list[str]] = []
+    headers: list[str] = []
+    read = 0
+    for n in range(1, max(1, min(pages, 60)) + 1):
+        got = await pg.evaluate(_GRID_JS)
+        headers = headers or (got.get("headers") or [])
+        fresh = 0
+        for row in got.get("rows") or []:
+            key = "|".join(row)[:200]
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(row)
+            fresh += 1
+        read = n
+        if not fresh and n > 1:
+            break
+        if not await pg.evaluate(_NEXT_JS, n):
+            break
+        await pg.wait_for_timeout(2500)
+    return {"url": pg.url, "headers": headers, "rows": out, "count": len(out), "pages_read": read}
 
 
 @app.get("/find")
@@ -248,9 +371,11 @@ async def push(request: Request):
     payload: dict = {"source": "browser-agent"}
     if body.get("grid"):
         # Read the page's own grid here rather than making the caller carry it
-        # across two hops: this is the normal path for the document list.
+        # across two hops: this is the normal path for the document list, and it
+        # walks the pagination unless asked for the visible page only.
         pg = await page()
-        got = await pg.evaluate(_GRID_JS)
+        got = (await collect(int(body.get("pages") or 10))
+               if body.get("all_pages", True) else await pg.evaluate(_GRID_JS))
         if not got.get("rows"):
             return JSONResponse({"ok": False, "error": "مفيش صفوف على الصفحة دي",
                                  "how": got.get("how"), "url": pg.url}, status_code=400)
