@@ -138,6 +138,57 @@ async def tables():
         })).filter(t => t.rows.length)""")}
 
 
+#: Read-only, and fixed: no selector or script ever comes from the caller. The
+#: portal's document list is an Angular grid rather than a <table>, so a table
+#: reader alone comes back empty on the one page that matters. Three strategies,
+#: most trustworthy first, and it reports which one it used so a silent change
+#: in the portal's markup shows up as `how: "repeat"` instead of as wrong rows.
+_GRID_JS = """() => {
+  const txt = e => (e.innerText || '').replace(/\\s+/g, ' ').trim();
+  const table = () => {
+    for (const t of document.querySelectorAll('table')) {
+      const rows = [...t.querySelectorAll('tbody tr')]
+        .map(r => [...r.querySelectorAll('td')].map(txt)).filter(r => r.length);
+      if (rows.length) return {how: 'table', rows: rows.slice(0, 500),
+        headers: [...t.querySelectorAll('thead th, tr:first-child th')].map(txt)};
+    }
+    return null;
+  };
+  const aria = () => {
+    const rs = [...document.querySelectorAll('[role=row]')];
+    if (rs.length < 2) return null;
+    const cells = r => [...r.querySelectorAll('[role=gridcell],[role=cell]')].map(txt);
+    const head = [...rs[0].querySelectorAll('[role=columnheader]')].map(txt);
+    const body = rs.map(cells).filter(r => r.length);
+    return body.length ? {how: 'aria', headers: head, rows: body.slice(0, 500)} : null;
+  };
+  const repeated = () => {
+    let best = null;
+    for (const el of document.querySelectorAll('div,ul,section,tbody')) {
+      const kids = [...el.children];
+      if (kids.length < 3) continue;
+      const cls = kids[0].className;
+      if (typeof cls !== 'string' || !cls || !kids.every(k => k.className === cls)) continue;
+      const rows = kids.map(k => [...k.children].map(txt));
+      const n = rows[0].length;
+      if (n < 4 || !rows.every(r => r.length === n)) continue;
+      if (!best || rows.length * n > best.rows.length * best.rows[0].length)
+        best = {how: 'repeat', headers: [], rows: rows.slice(0, 500)};
+    }
+    return best;
+  };
+  return table() || aria() || repeated() || {how: 'none', headers: [], rows: []};
+}"""
+
+
+@app.get("/rows")
+async def rows():
+    """The current page's data grid, however the portal happens to draw it."""
+    pg = await page()
+    got = await pg.evaluate(_GRID_JS)
+    return {"url": pg.url, **got, "count": len(got.get("rows") or [])}
+
+
 @app.get("/find")
 async def find(text: str):
     pg = await page()
@@ -194,11 +245,22 @@ async def push(request: Request):
     """Hand rows already read off the page to the gateway's ingest endpoint."""
     body = await request.json()
     entity, rows = str(body.get("entity") or ""), body.get("documents") or []
-    if not entity or not rows:
-        return JSONResponse({"ok": False, "error": "entity و documents مطلوبين"}, status_code=400)
+    payload: dict = {"source": "browser-agent"}
+    if body.get("grid"):
+        # Read the page's own grid here rather than making the caller carry it
+        # across two hops: this is the normal path for the document list.
+        pg = await page()
+        got = await pg.evaluate(_GRID_JS)
+        if not got.get("rows"):
+            return JSONResponse({"ok": False, "error": "مفيش صفوف على الصفحة دي",
+                                 "how": got.get("how"), "url": pg.url}, status_code=400)
+        payload["grid"] = {"headers": got.get("headers"), "rows": got.get("rows")}
+    elif rows:
+        payload["documents"] = rows
+    if not entity or ("grid" not in payload and "documents" not in payload):
+        return JSONResponse({"ok": False, "error": "entity ومعاه documents أو grid"}, status_code=400)
     async with httpx.AsyncClient(timeout=120) as c:
-        r = await c.post(f"{GW}/api/v1/eta/{entity}/ingest",
-                         json={"documents": rows, "source": "browser-agent"},
+        r = await c.post(f"{GW}/api/v1/eta/{entity}/ingest", json=payload,
                          headers={"X-ETA-Browser-Key": GW_KEY})
         return JSONResponse(r.json() if r.content else {"ok": r.is_success}, status_code=r.status_code)
 

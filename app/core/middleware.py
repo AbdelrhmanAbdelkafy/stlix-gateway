@@ -25,6 +25,12 @@ _SECURITY_HEADERS = {
     "X-XSS-Protection": "0",
 }
 
+#: The live-portal screen is a same-origin page the console embeds in an iframe,
+#: so a blanket DENY would leave the operator staring at a broken box. Only this
+#: prefix is relaxed, and only to SAMEORIGIN: the hub may frame its own screen,
+#: nobody else may frame anything.
+_FRAMEABLE_PREFIXES = ("/vnc/",)
+
 
 def _route_label(request: Request) -> str:
     route = request.scope.get("route")
@@ -78,6 +84,8 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
         if settings.security_headers:
             for k, v in _SECURITY_HEADERS.items():
                 response.headers.setdefault(k, v)
+            if request.url.path.startswith(_FRAMEABLE_PREFIXES):
+                response.headers["X-Frame-Options"] = "SAMEORIGIN"
         return response
 
 

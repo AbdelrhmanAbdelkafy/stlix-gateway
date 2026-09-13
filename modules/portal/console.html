@@ -16,7 +16,11 @@ header h1{font-size:17px;margin:0} header a{color:var(--gold);text-decoration:no
 button{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-family:inherit;font-size:13.5px;cursor:pointer}
 button.primary{background:var(--gold);color:#111;border-color:var(--gold);font-weight:600}
 main{flex:1;display:flex;min-height:0}
-#screen{flex:1;border:0;background:#000}
+#stage{flex:1;position:relative;min-width:0;background:#000}
+#screen{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+#screenErr{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;background:#0b1422;color:var(--mut);font-size:14px;line-height:1.9}
+#screenErr b{color:var(--txt);font-size:15px}
+#screenErr code{color:var(--gold);font-size:12.5px;word-break:break-all}
 aside{width:330px;border-inline-start:1px solid var(--line);padding:14px;overflow:auto;display:flex;flex-direction:column;gap:12px}
 .note{background:#1E2A3D;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--mut);font-size:13px;line-height:1.7}
 .note b{color:var(--txt)} .note code{color:var(--gold)}
@@ -34,10 +38,18 @@ pre{background:#0b1422;border:1px solid var(--line);border-radius:8px;padding:8p
   <div class="row" style="margin-inline-start:auto">
     <button id="refresh">حدّث الحالة</button>
     <button id="reload">افتح البورتال من الأول</button>
+    <a id="pop" class="pill" href="#" target="_blank" rel="noopener" style="color:var(--gold)">افتح الشاشة في تاب ↗</a>
   </div>
 </header>
 <main>
-  <iframe id="screen" title="شاشة البراوزر"></iframe>
+  <div id="stage">
+    <iframe id="screen" title="شاشة البراوزر"></iframe>
+    <div id="screenErr">
+      <b>الشاشة مش راضية تفتح جوه الصفحة</b>
+      <div id="screenWhy">—</div>
+      <a class="pill" id="pop2" href="#" target="_blank" rel="noopener" style="color:var(--gold);padding:8px 16px">افتح الشاشة في تاب لوحدها ↗</a>
+    </div>
+  </div>
   <aside>
     <div class="note" id="hint"></div>
     <div class="note">
@@ -68,7 +80,47 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const api = (p, o={}) => fetch(p, {...o, headers: {...H, "Content-Type":"application/json", accept:"application/json", ...(o.headers||{})}});
 
-$("#screen").src = "/vnc/vnc.html?autoconnect=1&resize=scale&reconnect=1&path=" + encodeURIComponent("vnc/websockify");
+const SCREEN = "/vnc/vnc.html?autoconnect=1&resize=scale&reconnect=1&path=" + encodeURIComponent("vnc/websockify");
+$("#screen").src = SCREEN;
+$("#pop").href = SCREEN;
+$("#pop2").href = SCREEN;
+
+/* الـ iframe لو فشل بيطلع مربع فاضي من غير أي رسالة، فبنسأل نفس الرابط
+   بـ fetch علشان نعرف السبب بالظبط ونكتبه للمستخدم بدل ما يبص في الفراغ. */
+function screenProblem(why){
+  $("#screenWhy").innerHTML = why;
+  $("#screenErr").style.display = "flex";
+  $("#screen").style.display = "none";
+}
+(async () => {
+  try {
+    const r = await fetch(SCREEN, {headers: H, redirect: "manual"});
+    const ct = (r.headers.get("content-type") || "").toLowerCase();
+    if (r.type === "opaqueredirect" || r.status === 401 || r.status === 403)
+      return screenProblem("الجلسة بتاعتك مش مسموح لها تفتح الشاشة — محتاج صلاحية <code>vat</code> (edit)، أو سجّل دخول الهَب من الأول.");
+    if (r.status === 503)
+      return screenProblem("شاشة المتصفح مش شغالة على السيرفر. شغّل:<br><code>systemctl restart stlix-xvfb stlix-x11vnc stlix-novnc stlix-portal</code>");
+    if (!r.ok)
+      return screenProblem(`الشاشة ردّت <code>HTTP ${r.status}</code>.`);
+    if (!ct.includes("html"))
+      return screenProblem(`الشاشة ردّت نوع غلط: <code>${esc(ct || "بدون content-type")}</code> — المفروض <code>text/html</code>.`);
+  } catch (e) {
+    return screenProblem(`الشاشة ما ردّتش خالص: <code>${esc(e)}</code>`);
+  }
+})();
+
+/* وحتى لو الرد سليم، المتصفح ممكن يرفض يعرضه جوه iframe. الـ iframe بيفضل ساكت
+   في الحالة دي، فبنبص جوه المستند نفسه بعد شوية: فاضي أو ممنوع = نقول للمستخدم. */
+setTimeout(() => {
+  if ($("#screenErr").style.display === "flex") return;
+  try {
+    const d = $("#screen").contentDocument;
+    if (!d || !d.body || d.body.children.length === 0)
+      screenProblem("المتصفح رفض يعرض الشاشة جوه الصفحة. افتحها في تاب لوحدها.");
+  } catch (e) {
+    screenProblem("المتصفح رفض يعرض الشاشة جوه الصفحة. افتحها في تاب لوحدها.");
+  }
+}, 6000);
 
 async function status(){
   let s;

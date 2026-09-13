@@ -32,7 +32,7 @@ router = APIRouter(prefix="/eta/browser", tags=["eta"], dependencies=[Depends(re
 #: Mounted at the root: noVNC asks for its own assets by relative path.
 vnc_router = APIRouter(prefix="/vnc", tags=["eta"])
 
-_AGENT_PATHS = {"status", "text", "tables", "find", "shot"}
+_AGENT_PATHS = {"status", "text", "tables", "rows", "find", "shot"}
 _AGENT_POSTS = {"goto", "click", "fill", "ingest"}
 
 
@@ -51,7 +51,7 @@ async def _agent(settings: Settings, method: str, path: str, **kw):
 
 @router.get("/read/{action}")
 async def agent_get(action: str, request: Request, settings: Settings = Depends(get_settings)):
-    """status · text · tables · find · shot — straight from the live browser."""
+    """status · text · tables · rows · find · shot — straight from the live browser."""
     if action not in _AGENT_PATHS:
         return JSONResponse({"error": f"unknown action {action}"}, status_code=404)
     return await _agent(settings, "GET", action, params=dict(request.query_params))

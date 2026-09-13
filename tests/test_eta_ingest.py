@@ -115,3 +115,46 @@ def test_the_same_document_keeps_its_id_across_scrapes():
     assert normalise(row)["uuid"] != normalise(dict(row, internal_id="INV-10"))["uuid"]
     # a real uuid from the page always wins over the synthetic one
     assert normalise(dict(row, uuid="abc-123"))["uuid"] == "abc-123"
+
+
+# --- the portal's own document grid -------------------------------------------------
+ETA_HEADERS = ["ID / Internal ID", "Date Time Received", "Type / Version",
+               "Total Value (EGP)", "Issuer (From)", "Receiver (To)", "Submission", "Status"]
+ETA_ROW = ["CKP4XT3J92A2M4G1VNKXWZ1M10 FA2609-4002", "8/9/2026 9:57 AM", "Invoice 1.0",
+           "2,736.00", "المجموعه المصريه لتشكيل المعادن 504685740",
+           "شركة العميل 205168604", "WMV92BHFKDY9KQHCVNKXWZ1M10", "Valid"]
+
+
+def test_the_grid_splits_the_cells_that_hold_two_facts():
+    from app.integrations.eta.ingest import map_grid
+    row = map_grid(ETA_HEADERS, [ETA_ROW], "504685740")[0]
+    assert row["uuid"] == "CKP4XT3J92A2M4G1VNKXWZ1M10"
+    assert row["internal_id"] == "FA2609-4002"
+    assert row["issuer_id"] == "504685740" and row["receiver_id"] == "205168604"
+    assert row["issuer_name"].startswith("المجموعه")
+    assert row["doc_type"] == "Invoice"
+    assert row["total"] == "2,736.00"
+
+
+def test_our_own_registration_number_is_what_says_sale_or_purchase():
+    from app.integrations.eta.ingest import map_grid
+    assert map_grid(ETA_HEADERS, [ETA_ROW], "504685740")[0]["direction"] == "Sent"
+    assert map_grid(ETA_HEADERS, [ETA_ROW], "205168604")[0]["direction"] == "Received"
+    # An entity we are neither side of: better unset than guessed.
+    assert "direction" not in map_grid(ETA_HEADERS, [ETA_ROW], "999999999")[0]
+
+
+def test_the_portal_writes_the_day_first_and_a_twelve_hour_clock():
+    from app.integrations.eta.ingest import _iso, normalise, map_grid
+    assert _iso("8/9/2026 9:57 AM") == "2026-09-08T09:57:00Z"      # 8 September, not 9 August
+    assert _iso("8/9/2026 2:05 PM") == "2026-09-08T14:05:00Z"
+    doc = normalise(map_grid(ETA_HEADERS, [ETA_ROW], "504685740")[0])
+    assert doc["dateTimeIssued"].startswith("2026-09-08")
+    assert doc["total"] == 2736.0
+    assert "vat" not in doc           # the list shows no VAT — it must not invent one
+
+
+def test_a_grid_with_unreadable_headers_falls_back_to_the_known_order():
+    from app.integrations.eta.ingest import map_grid
+    row = map_grid([], [ETA_ROW], "504685740")[0]
+    assert row["internal_id"] == "FA2609-4002" and row["direction"] == "Sent"

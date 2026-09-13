@@ -125,3 +125,15 @@ def test_a_viewer_without_vat_edit_cannot_open_the_screen(tmp_path, monkeypatch)
     assert e.value.code == 4401
     assert sara.get("/tools/portal", headers={"accept": "text/html"}).status_code == 403
     config.get_settings.cache_clear()
+
+
+@respx.mock
+def test_the_screen_may_be_framed_by_the_hub_but_nothing_else_may(gw):
+    """`X-Frame-Options: DENY` everywhere would leave the console showing a
+    broken box instead of the portal. Only the screen is frameable, and only by
+    the same origin."""
+    respx.get(f"{VNC}/vnc.html").mock(return_value=Response(
+        200, content=b"<html>noVNC</html>", headers={"content-type": "text/html"}))
+    assert gw.get("/vnc/vnc.html", headers=GW).headers["x-frame-options"] == "SAMEORIGIN"
+    assert gw.get("/health").headers["x-frame-options"] == "DENY"
+    assert gw.get("/api/v1/eta", headers=GW).headers["x-frame-options"] == "DENY"

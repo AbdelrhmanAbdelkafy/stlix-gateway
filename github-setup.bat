@@ -22,9 +22,11 @@ git add -A
 git -c user.name="MU" -c user.email="mokafy93@gmail.com" commit -q -m "VPS deploy import (%date%)" 2>nul
 git branch -M main
 
-echo [4/5] remote
+echo [4/5] remote + pull first
 git remote remove origin 2>nul
 git remote add origin https://github.com/AbdelrhmanAbdelkafy/stlix-gateway.git
+REM take anything pushed from elsewhere BEFORE pushing, so the push is never rejected
+git pull --rebase origin main
 
 echo [5/5] push  (a GitHub login window may open - sign in as AbdelrhmanAbdelkafy)
 git push -u origin main
