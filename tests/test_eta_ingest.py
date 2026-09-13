@@ -158,3 +158,35 @@ def test_a_grid_with_unreadable_headers_falls_back_to_the_known_order():
     from app.integrations.eta.ingest import map_grid
     row = map_grid([], [ETA_ROW], "504685740")[0]
     assert row["internal_id"] == "FA2609-4002" and row["direction"] == "Sent"
+
+
+def test_the_agent_may_post_what_it_read_but_may_not_read_anything_back():
+    """The browser agent has no session, only its own key — so the ingest path
+    has to pass the login middleware. Nothing else under /api/v1/eta does."""
+    from app.auth.resources import is_public
+    assert is_public("/api/v1/eta/group/ingest")
+    assert is_public("/api/v1/eta/group/ingest?source=browser")
+    for guarded in ("/api/v1/eta/group/documents", "/api/v1/eta/group/ingest/x",
+                    "/api/v1/eta", "/api/v1/eta/group/../../auth/admin/users"):
+        assert not is_public(guarded), guarded
+
+
+def test_an_icon_in_the_status_cell_does_not_make_a_valid_invoice_unknown():
+    """The portal renders "<icon> Valid" in one cell. Read literally that is not
+    "valid", and the whole month silently drops out of the plan."""
+    from app.integrations.eta.ingest import _status, clean
+    assert _status(" Valid") == "valid"
+    assert _status(" Invalid") == "invalid"      # longest name wins
+    assert _status(" ملغاة") == "cancelled"
+    assert clean(" 18 09732108260") == "18 09732108260"
+
+
+def test_a_total_without_a_net_is_backed_out_not_read_as_zero():
+    """The list shows one money column, tax included. Zero would erase the month."""
+    from app.integrations.vat.engine import _net_or_estimate, _vat_or_estimate
+    doc = {"total": 11400.0, "net": None, "vat": None, "vat_known": 0}
+    assert _net_or_estimate(doc) == 10000.0
+    assert _vat_or_estimate(doc) == 1400.0
+    # a figure the portal actually printed is never second-guessed
+    known = {"total": 11400.0, "net": 10000.0, "vat": 1234.0, "vat_known": 1}
+    assert _vat_or_estimate(known) == 1234.0

@@ -53,7 +53,7 @@ def _split(doc: dict, codes: set[str]) -> tuple[float, float, float, float]:
     """(net_manufacturing, vat_manufacturing, net_trading, vat_trading) for one document."""
     lines = doc.get("lines")
     if not lines:
-        net, vat = float(doc.get("net") or 0), float(doc.get("vat") or 0)
+        net, vat = _net_or_estimate(doc), _vat_or_estimate(doc)
         return (net, vat, 0.0, 0.0) if not codes else (0.0, 0.0, net, vat)
     nm = vm = nt = vt = 0.0
     for ln in lines:
@@ -68,13 +68,27 @@ def _split(doc: dict, codes: set[str]) -> tuple[float, float, float, float]:
     return nm, vm, nt, vt
 
 
+def _net_or_estimate(doc: dict) -> float:
+    """The portal's document list shows one money column: the total, tax included.
+    Reading a missing net as zero would silently drop the whole month, so back
+    the net out of the total instead — and `vat_known` stays false, which is how
+    the screen knows to call the figure an estimate."""
+    net = doc.get("net")
+    if net is not None:
+        return float(net)
+    total = float(doc.get("total") or 0)
+    return round(total / (1 + VAT_RATE), 2) if total else 0.0
+
+
 def _vat_or_estimate(doc: dict) -> float:
     if doc.get("vat") is not None and doc.get("vat_known"):
         return float(doc["vat"])
     net = float(doc.get("net") or 0)
     total = float(doc.get("total") or 0)
-    diff = total - net
-    return diff if 0 <= diff <= net * 0.2 else round(net * VAT_RATE, 2)
+    if net:
+        diff = total - net
+        return diff if 0 <= diff <= net * 0.2 else round(net * VAT_RATE, 2)
+    return round(total - total / (1 + VAT_RATE), 2) if total else 0.0
 
 
 def schedule(month: str, today: date, has_imports: bool, credit_in: float,
@@ -109,6 +123,7 @@ def plan(entity: Entity, month: str, settings: Settings | None = None, today: da
     purch = {"net": 0.0, "vat": 0.0, "count": 0, "days": []}
     imp_docs = {"net": 0.0, "vat": 0.0, "count": 0}
     problems: list[dict] = []
+    estimated = 0
     customs = set(entity.customs_issuer_ids)
     for d in docs:
         st = d.get("status") or ""
@@ -121,7 +136,9 @@ def plan(entity: Entity, month: str, settings: Settings | None = None, today: da
         if st not in ("valid",):
             continue  # submitted-but-not-yet-valid is not money yet
         vat = _vat_or_estimate(d) * sign
-        net = float(d.get("net") or 0) * sign
+        net = _net_or_estimate(d) * sign
+        if not d.get("vat_known"):
+            estimated += 1
         if d["direction"] == "Sent":
             nm, vm, nt, vt = _split(d, codes)
             sales["net"] += net
@@ -188,6 +205,11 @@ def plan(entity: Entity, month: str, settings: Settings | None = None, today: da
         "status": row["status"], "status_ar": row["status_ar"],
         "k_mode": settings.vat_k_mode, "vat_rate": VAT_RATE,
         "sync": sync, "synced": bool(sync and sync.get("ok")),
+        # How many of the month's documents had no VAT figure on the portal and
+        # were backed out of the total instead. The screen says so out loud:
+        # a plan built on estimates is not the same promise as one built on
+        # figures the portal printed.
+        "estimated_docs": estimated,
         "sales": {k: round(v, 2) if isinstance(v, float) else v for k, v in sales.items()},
         "purchases": {"net": round(purch["net"], 2), "vat": round(purch["vat"], 2), "count": purch["count"]},
         "imports": {"vat": round(imports_vat, 2), "base": round(imports_base, 2),

@@ -8,6 +8,8 @@ paths — the hub just hides the card from people without `view`).
 """
 from __future__ import annotations
 
+import re
+
 from dataclasses import dataclass, field
 
 ACTIONS: tuple[str, ...] = ("view", "edit", "admin")
@@ -93,6 +95,13 @@ RESOURCES: tuple[Resource, ...] = (
                                         "/api/v1/finance", "/api/v1/banks"),
              host="gw.stlixvalley.com", audiences=("mgmt",),
              kw="مالية خزينة بنوك عملاء finance تقارير أرصدة", live_key="finance", order=10),
+    Resource("secrets", "المفاتيح والإعدادات", G_INFRA, "🔑",
+             "غيّر أي مفتاح أو باسورد بتشتغل بيه المنصة من غير ما تفتح ملف على السيرفر — "
+             "الشاشة بتقول متحطّة ولا لأ ومين غيّرها إمتى، وماتعرضش القيمة نفسها أبدًا",
+             "/tools/keys", paths=("/tools/keys", "/api/v1/keys"),
+             host="hub.stlixvalley.com", audiences=(),
+             kw="مفاتيح باسورد سر secrets keys env إعدادات تغيير كلمة المرور",
+             order=95),
     Resource("vat", "ض.ق.م والبورتال", G_MONEY, "🧾",
              "مبيعات ومشتريات الشهر من بورتال الضرايب، الفجوة في فواتير المشتريات، المواعيد، الملغي/المرفوض، وباكدج الإقرار",
              "/tools/vat", paths=("/tools/vat", "/api/v1/vat", "/api/v1/eta", "/tools/portal", "/vnc"),
@@ -235,9 +244,18 @@ def resource_for_path(path: str) -> str:
     return "gateway"
 
 
+#: The portal browser posts what it read to `/api/v1/eta/<entity>/ingest`. The
+#: entity sits in the middle of the path, so no prefix can name it — and like
+#: the CCTV agent it has no session, only its own pre-shared key, which the
+#: ingest router checks. Writes only: nothing here is readable without a login.
+_AGENT_POST = re.compile(r"^/api/v1/eta/[A-Za-z0-9_-]{1,40}/ingest$")
+
+
 def is_public(path: str) -> bool:
-    return any(path == p or path.startswith(p + "/") or path.startswith(p + "?")
-               for p in PUBLIC_PREFIXES)
+    if any(path == p or path.startswith(p + "/") or path.startswith(p + "?")
+           for p in PUBLIC_PREFIXES):
+        return True
+    return bool(_AGENT_POST.match(path.split("?")[0]))
 
 
 def as_dicts() -> list[dict]:

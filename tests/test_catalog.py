@@ -56,9 +56,14 @@ def test_write_endpoints_are_declared():
     """A write must be visible as one on the map — that is the read-only
     promise being auditable rather than assumed."""
     writes = [e for e in catalog.ENDPOINTS if e.write]
-    # Two, and both deliberate: a punch reaching Nama, and cancel/reject on the
-    # tax portal (irreversible there, and gated by ETA_ALLOW_STATE_CHANGES).
-    assert [e.path for e in writes] == ["/api/v1/attendance/punch",
-                                        "/api/v1/eta/browser/do/{action}",
-                                        "/api/v1/eta/{entity}/documents/{uuid}/state"]
+    # Every one deliberate: a punch reaching Nama; rotating the platform's own
+    # keys (admin session only, and the value never comes back); a click on the
+    # tax portal; and cancel/reject there, which is irreversible and gated by
+    # ETA_ALLOW_STATE_CHANGES.
+    assert sorted(e.path for e in writes) == sorted([
+        "/api/v1/attendance/punch",
+        "/api/v1/keys/{name}",
+        "/api/v1/keys/{name}/generate",
+        "/api/v1/eta/browser/do/{action}",
+        "/api/v1/eta/{entity}/documents/{uuid}/state"])
     assert all(e.method != "GET" for e in writes)

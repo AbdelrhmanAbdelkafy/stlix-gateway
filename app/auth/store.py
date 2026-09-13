@@ -376,6 +376,13 @@ class AuthStore:
                            (time.time(), actor or "", action, target or "",
                             json.dumps(detail, ensure_ascii=False)))
 
+    def note(self, actor: str, action: str, target: str, detail: dict) -> None:
+        """Record something that happened outside this store — a key rotated, say.
+        Callers pass what changed, never what it changed to."""
+        with self._lock:
+            self._audit(actor, action, target, detail)
+            self._conn.commit()
+
     def audit(self, limit: int = 200) -> list[dict]:
         with self._lock:
             rows = self._conn.execute(

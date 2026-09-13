@@ -37,6 +37,7 @@ from .integrations.eta.console import vnc_router as eta_vnc_router
 from .integrations.eta.ingest import router as eta_ingest_router
 from .integrations.eta.router import router as eta_router
 from .integrations.vat.router import router as vat_router
+from .admin.keys import router as keys_router
 from .registry import SYSTEMS, Status
 from .routers.graph import router as graph_router
 from .routers.meta import router as meta_router
@@ -154,6 +155,7 @@ def create_app() -> FastAPI:
     app.include_router(cctv_router, prefix=API_PREFIX)
     app.include_router(cctv_push_router, prefix=API_PREFIX)
     app.include_router(vat_router, prefix=API_PREFIX)
+    app.include_router(keys_router, prefix=API_PREFIX)
     app.include_router(eta_router, prefix=API_PREFIX)
     app.include_router(eta_ingest_router, prefix=API_PREFIX)
     app.include_router(eta_browser_router, prefix=API_PREFIX)

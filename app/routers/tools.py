@@ -74,6 +74,14 @@ async def portal_console(settings: Settings = Depends(get_settings)) -> HTMLResp
     return _serve("portal/console.html", settings)
 
 
+@router.get("/keys", response_class=HTMLResponse)
+async def keys_screen(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """The platform's own keys and settings. Deliberately served without the
+    gateway API key: this page talks to `/api/v1/keys`, which takes a signed-in
+    admin and refuses an API key — the very key every other page carries."""
+    return _serve("settings/keys.html", settings)
+
+
 @router.get("/vat", response_class=HTMLResponse)
 async def vat_planner(settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """ض.ق.م planner — the owner's monthly routine as a screen: portal sales vs

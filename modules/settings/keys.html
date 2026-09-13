@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>المفاتيح والإعدادات — STLIX</title>
+<style>
+:root{--bg:#0F1C2E;--card:#131C2B;--line:#26344A;--txt:#E9EDF3;--mut:#8E9BB0;--gold:#E0A53A;--ok:#3FB950;--bad:#F85149;--warn:#D29922}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+header h1{font-size:18px;margin:0} a{color:var(--gold);text-decoration:none}
+main{max-width:980px;margin:0 auto;padding:18px 22px 60px}
+.note{background:#1E2A3D;border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--mut);font-size:13.5px;line-height:1.85;margin-bottom:18px}
+.note b{color:var(--txt)}
+h2{font-size:15px;color:var(--gold);margin:26px 0 10px;font-weight:600}
+.k{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;flex-wrap:wrap}
+.k .who{flex:1;min-width:220px}
+.k .name{font-size:12px;color:var(--mut);font-family:ui-monospace,Menlo,monospace;direction:ltr;text-align:right}
+.k .lbl{font-size:14.5px}
+.k .hint{font-size:12.5px;color:var(--mut);line-height:1.8;margin-top:5px}
+.k .hint.warn{color:var(--warn)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:7px;background:var(--mut)}
+.dot.on{background:var(--ok);box-shadow:0 0 6px var(--ok)} .dot.off{background:var(--bad)}
+.state{font-size:12.5px;color:var(--mut);white-space:nowrap}
+button{background:#1b2537;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-family:inherit;font-size:13.5px;cursor:pointer}
+button:hover{border-color:var(--gold)} button.primary{background:var(--gold);color:#111;border-color:var(--gold);font-weight:600}
+dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:12px;padding:0;width:min(520px,92vw)}
+dialog::backdrop{background:rgba(6,11,20,.72)}
+.dlg{padding:18px 20px}
+.dlg h3{margin:0 0 4px;font-size:16px} .dlg p{color:var(--mut);font-size:13px;line-height:1.8;margin:6px 0 14px}
+input,textarea{width:100%;background:#0b1422;border:1px solid var(--line);border-radius:8px;color:var(--txt);
+  padding:10px 12px;font-family:inherit;font-size:14px;margin-bottom:10px}
+input[type=text].mono{font-family:ui-monospace,Menlo,monospace;direction:ltr;text-align:left}
+.row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.shown{background:#0b1422;border:1px solid var(--gold);border-radius:8px;padding:12px;font-family:ui-monospace,Menlo,monospace;
+  direction:ltr;text-align:left;word-break:break-all;font-size:13px;margin-bottom:10px}
+.msg{font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:10px;display:none}
+.msg.ok{display:block;background:#13301c;color:#9be3ad;border:1px solid #2c6b3d}
+.msg.bad{display:block;background:#35161a;color:#ffb3ad;border:1px solid #7a2b31}
+</style>
+</head>
+<body>
+<header>
+  <a href="/hub/">← الهَب</a>
+  <h1>🔑 المفاتيح والإعدادات</h1>
+  <span style="margin-inline-start:auto"><button id="reload">حدّث</button></span>
+</header>
+<main>
+  <div class="msg" id="msg"></div>
+  <div class="note">
+    <b>الشاشة دي بتغيّر ومابتعرضش.</b> مفيش مكان هنا بيطلّع قيمة مفتاح متخزّن — لا على الشاشة ولا في اللوج ولا في
+    السجل. لو نسيت مفتاح، بتحطّ واحد جديد بدل ما تقراه. المفتاح اللي <b>المنصة بتولّده</b> بيتعرض
+    <b>مرة واحدة بس</b> ساعة التوليد، علشان تقدر تنسخه للجهاز اللي محتاجه.
+    <br>التغيير بيتكتب في <code>.env</code> وبيشتغل في نفس اللحظة — مفيش restart للمنصة.
+  </div>
+  <div id="list"></div>
+  <h2>مين غيّر إيه</h2>
+  <div id="log" class="note" style="margin-top:0"></div>
+</main>
+
+<dialog id="dlg"><form method="dialog" class="dlg">
+  <h3 id="dTitle">—</h3>
+  <p id="dNote"></p>
+  <input type="text" class="mono" id="dValue" autocomplete="off" spellcheck="false" placeholder="القيمة الجديدة">
+  <input type="text" id="dReason" placeholder="سبب التغيير (بيتسجّل — من غير القيمة)">
+  <div class="row"><button value="cancel">إلغاء</button><button class="primary" id="dSave" value="save">احفظ</button></div>
+</form></dialog>
+
+<dialog id="once"><div class="dlg">
+  <h3>المفتاح الجديد — مرة واحدة</h3>
+  <p>انسخه دلوقتي. مش هيتعرض تاني، ومفيش طريقة تقراه بعد كده.</p>
+  <div class="shown" id="oVal">—</div>
+  <p id="oWhere" style="color:var(--warn)"></p>
+  <div class="row"><button onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('oVal').textContent)">انسخ</button><button class="primary" onclick="document.getElementById('once').close()">تمام، نسخته</button></div>
+</div></dialog>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const api = (p, o={}) => fetch("/api/v1/keys" + p, {...o, credentials:"same-origin",
+  headers:{"Content-Type":"application/json", accept:"application/json", ...(o.headers||{})}});
+const when = ts => ts ? new Date(ts*1000).toLocaleString("ar-EG",{dateStyle:"medium",timeStyle:"short"}) : "—";
+let KEYS = [];
+
+function say(text, bad){ const m=$("#msg"); m.textContent=text; m.className="msg "+(bad?"bad":"ok");
+  setTimeout(()=>{m.className="msg";}, 6000); }
+
+function draw(){
+  const groups = [...new Set(KEYS.map(k => k.group))];
+  $("#list").innerHTML = groups.map(g => `<h2>${esc(g)}</h2>` + KEYS.filter(k=>k.group===g).map((k,i) => `
+    <div class="k">
+      <div class="who">
+        <div class="lbl"><span class="dot ${k.set?"on":"off"}"></span>${esc(k.label)}</div>
+        <div class="name">${esc(k.name)}</div>
+        ${k.note ? `<div class="hint">${esc(k.note)}</div>` : ""}
+        ${k.restart ? `<div class="hint warn">بعد التغيير لازم كمان: ${esc(k.restart)}</div>` : ""}
+      </div>
+      <div class="state">${k.set ? "متحطّة" : "فاضية"}<br>${when(k.updated_at)}${k.updated_by?" · "+esc(k.updated_by):""}</div>
+      <div class="row">
+        <button data-set="${esc(k.name)}">${k.set ? "غيّرها" : "حطّها"}</button>
+        ${k.can_generate ? `<button data-gen="${esc(k.name)}">ولّد واحدة</button>` : ""}
+      </div>
+    </div>`).join("")).join("");
+  $("#list").querySelectorAll("[data-set]").forEach(b => b.onclick = () => ask(b.dataset.set));
+  $("#list").querySelectorAll("[data-gen]").forEach(b => b.onclick = () => gen(b.dataset.gen));
+}
+
+async function load(){
+  const r = await api("");
+  if(!r.ok){ say(r.status===403 ? "الشاشة دي للأدمن بس." : "مش قادر أقرا الحالة ("+r.status+")", true); return; }
+  KEYS = (await r.json()).keys; draw(); loadLog();
+}
+async function loadLog(){
+  const r = await api("/audit/log"); if(!r.ok) return;
+  const rows = (await r.json()).log || [];
+  $("#log").innerHTML = rows.length ? rows.slice(0,20).map(x =>
+    `<div>${when(x.ts)} — <b>${esc(x.actor)}</b> ${x.action==="key.generate"?"ولّد":"غيّر"} <code>${esc(x.target)}</code></div>`
+  ).join("") : "مفيش تغييرات لسه.";
+}
+
+let current = null;
+function ask(name){
+  current = KEYS.find(k => k.name === name);
+  $("#dTitle").textContent = current.label;
+  $("#dNote").textContent = (current.note ? current.note + " " : "") +
+    "القيمة القديمة مش هتتعرض — اللي هتكتبه هنا هو اللي هيبقى شغال.";
+  $("#dValue").value = ""; $("#dReason").value = "";
+  $("#dlg").showModal(); setTimeout(()=>$("#dValue").focus(), 50);
+}
+$("#dlg").addEventListener("close", async () => {
+  if($("#dlg").returnValue !== "save" || !current) return;
+  const value = $("#dValue").value;
+  if(!value){ say("مكتبتش قيمة.", true); return; }
+  const r = await api("/" + encodeURIComponent(current.name),
+    {method:"PUT", body: JSON.stringify({value, reason: $("#dReason").value})});
+  if(!r.ok){ say("مااتغيّرش: " + ((await r.json().catch(()=>({}))).detail || r.status), true); return; }
+  say(current.label + " اتغيّرت وشغالة دلوقتي." + (current.restart ? " فاضل: " + current.restart : ""));
+  load();
+});
+
+async function gen(name){
+  const k = KEYS.find(x => x.name === name);
+  if(!confirm("هيتولّد مفتاح جديد لـ «" + k.label + "» والقديم يبطل فورًا. تمام؟")) return;
+  const r = await api("/" + encodeURIComponent(name) + "/generate", {method:"POST"});
+  if(!r.ok){ say("مااتولّدش (" + r.status + ")", true); return; }
+  const j = await r.json();
+  $("#oVal").textContent = j.value;
+  $("#oWhere").textContent = k.restart ? "لازم تحطّه كمان في: " + k.restart : "";
+  $("#once").showModal(); load();
+}
+
+$("#reload").onclick = load;
+load();
+</script>
+</body>
+</html>

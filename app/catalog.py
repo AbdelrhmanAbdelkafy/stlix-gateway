@@ -181,6 +181,13 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/api/v1/inventory", "تقدّم الجرد", "inventory"),
     Endpoint("/api/v1/inventory/counts", "أعداد الجرد", "inventory"),
     Endpoint("/api/v1/inventory/manual", "أصناف يدوية", "inventory"),
+    # the platform's own keys and settings
+    Endpoint("/tools/keys", "المفاتيح والإعدادات", "", kind="page"),
+    Endpoint("/api/v1/keys", "حالة المفاتيح — متحطّة ولا لأ", ""),
+    Endpoint("/api/v1/keys/audit/log", "سجل تغيير المفاتيح", ""),
+    Endpoint("/api/v1/keys/{name}", "غيّر مفتاح", "", method="PUT", write=True),
+    Endpoint("/api/v1/keys/{name}/generate", "ولّد مفتاح جديد", "", method="POST", write=True),
+
     # vat / eta
     Endpoint("/api/v1/vat", "ض.ق.م — الكيانات والشهر الحالي", "vat"),
     Endpoint("/api/v1/vat/log", "ض.ق.م — سجل التغييرات", "vat"),

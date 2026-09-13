@@ -66,9 +66,27 @@ def num(value) -> float | None:
         return None
 
 
+#: The portal puts an icon glyph in the same cell as the word ("\ue930 Valid"),
+#: and those live in the private-use area, so they are stripped before matching
+#: rather than turning a perfectly valid invoice into an unknown status.
+_GLYPHS = re.compile(r"[\u0000-\u001f\ue000-\uf8ff\ufe00-\ufe0f\u200b-\u200f]+")
+
+
+def clean(value) -> str:
+    return re.sub(r"\s+", " ", _GLYPHS.sub(" ", str(value or ""))).strip()
+
+
 def _status(value) -> str:
-    v = str(value or "").strip().lower()
-    return _STATUS.get(v, _STATUS.get(v.replace("ة", "ه"), v or "valid"))
+    v = clean(value).lower()
+    if v in _STATUS:
+        return _STATUS[v]
+    if v.replace("ة", "ه") in _STATUS:
+        return _STATUS[v.replace("ة", "ه")]
+    # "invalid" contains "valid", so the longest name wins.
+    for name in sorted(_STATUS, key=len, reverse=True):
+        if name in v:
+            return _STATUS[name]
+    return v or "valid"
 
 
 def _iso(value) -> str | None:
@@ -136,7 +154,7 @@ def _col_key(header) -> str | None:
 
 def _split_ids(cell: str) -> tuple[str | None, str | None]:
     """'CKP4XT…ZW1M10 FA2609-4002' -> (uuid, internal id). Either may be absent."""
-    parts = [p for p in re.split(r"\s+", str(cell or "").strip()) if p]
+    parts = [p for p in re.split(r"\s+", clean(cell)) if p]
     uuid = next((p for p in parts if _LONG_ID.match(p)), None)
     rest = [p for p in parts if p != uuid]
     return uuid, (" ".join(rest) or None)
@@ -144,7 +162,7 @@ def _split_ids(cell: str) -> tuple[str | None, str | None]:
 
 def _split_party(cell: str) -> tuple[str | None, str | None]:
     """'<اسم الشركة> 504685740' -> (name, registration number)."""
-    text = re.sub(r"\s+", " ", str(cell or "")).strip()
+    text = clean(cell)
     m = _TRAILING_ID.search(text)
     if not m:
         return (text or None), None
@@ -165,7 +183,7 @@ def map_grid(headers, rows, rin: str | None = None) -> list[dict]:
     for cells in rows or []:
         row: dict = {}
         for key, cell in zip(keys, cells):
-            text = re.sub(r"\s+", " ", str(cell or "")).strip()
+            text = clean(cell)
             if not key or not text:
                 continue
             if key == "ids":
