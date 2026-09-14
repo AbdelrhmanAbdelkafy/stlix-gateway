@@ -189,7 +189,36 @@ async function loadDocs(){
 }
 $("#entities").onclick = e => { const t = e.target.closest(".tab"); if(t){ ent = t.dataset.k; load(); } };
 $("#month").onchange = load; $("#dir").onchange = loadDocs; $("#st").onchange = loadDocs;
-$("#sync").onclick = async () => { $("#sync").disabled = true; $("#syncInfo").textContent = "بيسحب…"; const r = await (await api(`/api/v1/vat/${ent}/${month()}/sync`, {method:"POST"})).json(); $("#sync").disabled = false; if(!r.ok) alert(r.error); load(); };
+$("#sync").onclick = async () => {
+  // The portal is reached through the signed-in browser on the server, not
+  // through the API: this tenant has no registered ERP, so a token request can
+  // only answer invalid_client. The API is tried only for an entity that has
+  // real credentials, and only after the browser door is closed.
+  const btn = $("#sync"); btn.disabled = true;
+  $("#syncInfo").textContent = "بيسحب من شاشة البورتال…";
+  let r = {};
+  try {
+    r = await (await api("/api/v1/eta/browser/do/ingest", {method: "POST",
+      body: JSON.stringify({entity: ent, grid: true})})).json();
+  } catch (e) { r = {ok: false, error: "مش قادر أوصل للسيرفر"}; }
+  const configured = plan && plan.entity && plan.entity.configured;
+  if (!r.ok && configured) {
+    $("#syncInfo").textContent = "الشاشة مش متاحة — بجرّب الـ API…";
+    try { r = await (await api(`/api/v1/vat/${ent}/${month()}/sync`, {method: "POST"})).json(); }
+    catch (e) { r = {ok: false, error: "مش قادر أوصل للسيرفر"}; }
+  }
+  btn.disabled = false;
+  if (!r.ok) {
+    $("#syncInfo").textContent = "آخر سحب فشل";
+    alert((r.error || "السحب مانفعش") + "\n\nافتح /tools/portal، سجّل دخولك على الشاشة، " +
+          "وافتح صفحة المستندات (invoicing.eta.gov.eg/documents)، وبعدين جرّب تاني.");
+  } else if (r.stored != null) {
+    $("#syncInfo").textContent = `اتسحب ${r.stored} مستند من الشاشة` +
+      ((r.months || []).length ? ` — ${(r.months || []).join("، ")}` : "") +
+      (r.skipped_count ? ` · ${r.skipped_count} اتخطّوا` : "");
+  }
+  load();
+};
 $("#saveCredit").onclick = async () => { await api(`/api/v1/vat/${ent}/${month()}`, {method:"PATCH", body: JSON.stringify({credit_in: +$("#creditIn").value})}); load(); };
 $("#impAdd").onclick = async () => { const r = await api(`/api/v1/vat/${ent}/${month()}/imports`, {method:"POST", body: JSON.stringify({vat: +$("#impVat").value, release_no: $("#impNo").value, note: $("#impNote").value})}); if(!r.ok) alert("ض.ق.م مطلوبة"); $("#impVat").value=""; $("#impNo").value=""; $("#impNote").value=""; load(); };
 init();
