@@ -17,12 +17,25 @@ from app import config
 
 @pytest.fixture
 def env(tmp_path, monkeypatch):
+    """A throwaway `.env`, and the process environment put back afterwards.
+
+    Writing a key deliberately updates `os.environ` so the change takes effect
+    without a restart — which means a test that sets one would otherwise leave
+    the whole suite thinking Nama or the CCTV agent is configured."""
+    import os
     envfile = tmp_path / ".env"
     envfile.write_text("# STLIX\nGATEWAY_API_KEY=gw-key-123456\nCCTV_AGENT_KEY=old-cctv\n",
                        encoding="utf-8")
     from app.admin import keys
     monkeypatch.setattr(keys, "ENV_FILE", envfile)
-    return envfile
+    before = {k.name: os.environ.get(k.name) for k in keys.KEYS}
+    yield envfile
+    for name, value in before.items():
+        if value is None:
+            os.environ.pop(name, None)
+        else:
+            os.environ[name] = value
+    config.get_settings.cache_clear()
 
 
 @pytest.fixture
@@ -111,3 +124,15 @@ def test_only_known_keys_may_be_written(app):
     assert c.put("/api/v1/keys/GATEWAY_API_KEY",
                  json={"value": "one\nTWO=injected"}).status_code == 400
     assert c.post("/api/v1/keys/NAMA_CLIENT_SECRET/generate").status_code == 404
+
+
+def test_the_env_file_keeps_its_identity_so_a_bind_mount_still_works(app, env):
+    """In production `.env` is a bind-mounted file inside the container.
+    Renaming onto a mount point fails, so the writer copies over the existing
+    file — and the file's inode must therefore survive a change."""
+    before = env.stat().st_ino
+    boss(app).put("/api/v1/keys/NAMA_CLIENT_ID", json={"value": "abc"})
+    assert env.stat().st_ino == before
+    assert "NAMA_CLIENT_ID=abc" in env.read_text(encoding="utf-8")
+    assert oct(env.stat().st_mode)[-3:] == "600"
+    assert list(env.parent.glob(".env.bak-*")), "a change without a backup is a change you cannot undo"

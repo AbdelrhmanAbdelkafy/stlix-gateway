@@ -152,6 +152,26 @@ async def platform_hub(settings: Settings = Depends(get_settings)) -> HTMLRespon
     return _serve("platform/hub.html", settings)
 
 
+@router.get("/imports", response_class=HTMLResponse)
+async def imports_shipments(settings: Settings = Depends(get_settings)) -> HTMLResponse:
+    """الاستيراد والشحن — SOP-IMP-001 و SOP-IMP-002 كملف شحنة حيّ.
+
+    The two SOPs are approved documents; this page does not retype them. It
+    renders `/api/v1/imports/sop` — the same data the gates run on — so the
+    screen and the procedure cannot drift apart. Everything else on it is
+    derived: which step the shipment is on, whether the ACID survives the walk
+    across the documents, how much free time is left, what the landed cost per
+    ton came to. Nothing is estimated: with no demurrage tariff entered the page
+    shows the days and says the tariff is missing, rather than a figure somebody
+    would put in an email to a shipping line.
+
+    The shipment's dates, BL number, ports and line come from Nama's sea-shipping
+    module (LCShipment) through /api/v1/imports/{ref}/sync — نما هي سجل الشحنة،
+    والهَب بيضيف عليها طبقة الإجراء.
+    """
+    return _serve("import/shipments.html", settings)
+
+
 @router.get("/certificate", response_class=HTMLResponse)
 async def quality_certificate(settings: Settings = Depends(get_settings)) -> HTMLResponse:
     """Product quality certificate for imported steel — Foshan Amax Pro.

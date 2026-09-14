@@ -17,7 +17,7 @@ _ROOT = Path(__file__).resolve().parent.parent.parent
 _HUB = _ROOT / "modules" / "hub"
 _VOICE = '<script src="/tools/voice.js" defer></script>'
 #: Files the hub may serve by name. Login is served by `/login`; nothing else.
-_PAGES = {"index.html", "platform.html", "admin.html"}
+_PAGES = {"index.html", "platform.html", "admin.html", "resets.html"}
 
 pages = APIRouter(prefix="/hub", tags=["hub"])
 api = APIRouter(prefix="/hub", tags=["hub"])

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>استرجاع كلمات السر — STLIX</title>
+<style>
+:root{--bg:#0F1C2E;--card:#131C2B;--line:#26344A;--txt:#E9EDF3;--mut:#8E9BB0;--gold:#E0A53A;--ok:#3FB950;--bad:#F85149;--warn:#D29922;--blue:#58A6FF}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5;flex-wrap:wrap}
+header h1{font-size:18px;margin:0} header a{color:var(--gold);text-decoration:none}
+main{padding:16px 20px;display:grid;gap:16px;max-width:1200px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h2{font-size:15px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+select,input,button{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-family:inherit;font-size:13.5px}
+button{cursor:pointer} button.primary{background:var(--gold);color:#111;border-color:var(--gold);font-weight:600}
+button.ghost{background:transparent}
+table{width:100%;border-collapse:collapse;font-size:13px} td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top} th{color:var(--mut);font-weight:500}
+.tag{border-radius:6px;padding:1px 8px;font-size:11.5px;background:#1E2A3D;white-space:nowrap}
+.tag.ok{background:#12301c;color:var(--ok)} .tag.bad{background:#3d1a1a;color:var(--bad)}
+.tag.warn{background:#3a2f12;color:var(--warn)} .tag.blue{background:#132a3a;color:var(--blue)}
+.muted{color:var(--mut);font-size:12.5px} .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.note{background:#1E2A3D;border:1px solid var(--line);border-radius:12px;padding:12px 16px;color:var(--mut)}
+.note.bad{background:#2a1618;border-color:#5b2a2a;color:#f0b3ae}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;direction:ltr}
+.empty{color:var(--mut);font-size:13px;padding:8px 0}
+.linkbox{margin-top:10px;padding:10px 12px;border:1px dashed var(--gold);border-radius:10px;word-break:break-all}
+</style>
+</head>
+<body>
+<header>
+  <a href="/hub/">← الهَب</a>
+  <h1>🔑 استرجاع كلمات السر</h1>
+  <a href="/hub/admin.html">المستخدمون والصلاحيات →</a>
+  <span class="muted" id="hint"></span>
+</header>
+<main>
+  <div class="note" id="mail"></div>
+
+  <section class="card">
+    <h2>طلبات الاسترجاع
+      <span class="row"><label class="muted"><input type="checkbox" id="all"> اعرض المنفّذة كمان</label>
+      <button id="refresh">⟳ تحديث</button></span>
+    </h2>
+    <div style="overflow:auto"><table id="reqs"></table></div>
+  </section>
+
+  <section class="card">
+    <h2>إيميل كل مستخدم <span class="muted">لينك الاسترجاع بيروح على العنوان ده</span></h2>
+    <div class="muted" style="margin-bottom:8px">مستخدم من غير إيميل مش هيقدر يسترجع بنفسه — طلبه بيروح لمسؤول النظام، وإنت بتولّدله لينك بإيدك.</div>
+    <div style="overflow:auto"><table id="users"></table></div>
+    <div class="linkbox" id="linkbox" hidden></div>
+  </section>
+</main>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const when=t=>t?new Date(t*1000).toLocaleString("ar-EG",{hour12:false}):"—";
+const api=(p,o={})=>fetch(p,{...o,headers:{"Content-Type":"application/json",accept:"application/json",...(o.headers||{})}});
+const STATE={open:["warn","مفتوح"],used:["ok","اتنفّذ"],expired:["","انتهى"],cancelled:["","ملغي"]};
+const DELIV={sent:["ok","الإيميل خرج"],failed:["bad","الإيميل فشل"],manual:["blue","يدوي"],pending:["","لسه"]};
+
+async function load(){
+  const d=await (await api("/api/v1/auth/admin/resets?limit=100&all="+($("#all").checked?"true":"false"))).json();
+  const m=d.mail||{};
+  $("#mail").className="note"+(m.configured?"":" bad");
+  $("#mail").innerHTML=m.configured
+    ? `الإيميل شغّال — التنبيهات بتروح على <b>${esc((m.owners||[]).join("، ")||"—")}</b>. <button id="test">ابعت رسالة تجربة</button>`
+    : `<b>الإيميل مش متظبّط</b> — ${esc(m.why_not||"")}. يعني لينكات الاسترجاع مش بتتبعت لوحدها: كل طلب هيستنى هنا، وإنت بتولّد اللينك بإيدك من تحت وتسلّمه.`;
+  $("#test")&&($("#test").onclick=async e=>{
+    e.target.disabled=true;
+    const r=await (await api("/api/v1/auth/admin/mail/test",{method:"POST"})).json();
+    e.target.disabled=false;
+    alert((r.results||[]).map(x=>x.to+": "+(x.ok?"اتبعتت":"فشل — "+x.detail)).join("\n")||"مفيش عناوين"); });
+
+  const rq=d.requests||[];
+  $("#reqs").innerHTML=rq.length
+    ? `<tr><th>#</th><th>النظام</th><th>مين</th><th>الحالة</th><th>الإيميل</th><th>وقت الطلب</th><th>IP</th><th></th></tr>`
+      +rq.map(r=>{
+        const [sc,sl]=STATE[r.state]||["",r.state], [dc,dl]=DELIV[r.delivery]||["",r.delivery];
+        return `<tr><td class="muted">${r.id}</td><td>${esc(r.system_label)}</td>
+          <td>${r.username?`<b>${esc(r.username)}</b>`:`<span class="muted">${esc(r.identifier||"—")}</span>`}
+            ${r.username?"":'<div class="muted">حساب مش معروف</div>'}</td>
+          <td><span class="tag ${sc}">${sl}</span></td>
+          <td><span class="tag ${dc}">${dl}</span>${r.delivery_note?`<div class="muted">${esc(r.delivery_note)}</div>`:""}</td>
+          <td class="muted">${when(r.created_at)}</td><td class="muted mono">${esc(r.ip||"—")}</td>
+          <td>${r.state==="open"?`<button class="ghost" data-cancel="${r.id}">إلغاء</button>`:""}</td></tr>`;}).join("")
+    : `<tr><td class="empty">مفيش طلبات مفتوحة.</td></tr>`;
+  $$("[data-cancel]").forEach(b=>b.onclick=async()=>{
+    await api(`/api/v1/auth/admin/resets/${b.dataset.cancel}/cancel`,{method:"POST"}); load(); });
+
+  const em=d.emails||{};
+  const names=Object.keys(em).sort();
+  $("#users").innerHTML=names.length
+    ? `<tr><th>المستخدم</th><th>الإيميل</th><th></th></tr>`
+      +names.map(u=>`<tr><td><b>${esc(u)}</b></td>
+        <td><input data-email="${esc(u)}" value="${esc(em[u])}" placeholder="مفيش إيميل" style="width:260px" class="mono"></td>
+        <td class="row"><button data-save="${esc(u)}">حفظ</button>
+          <button class="ghost" data-link="${esc(u)}">ولّد لينك استرجاع</button></td></tr>`).join("")
+    : `<tr><td class="empty">مفيش مستخدمين.</td></tr>`;
+  $$("[data-save]").forEach(b=>b.onclick=async()=>{
+    const inp=document.querySelector(`[data-email="${b.dataset.save}"]`);
+    const r=await api(`/api/v1/auth/admin/users/${encodeURIComponent(b.dataset.save)}/email`,
+      {method:"PUT",body:JSON.stringify({email:inp.value.trim()})});
+    if(!r.ok){ const e=await r.json().catch(()=>({})); alert(e.detail||"مانفعش"); return; }
+    b.textContent="اتحفظ"; setTimeout(()=>b.textContent="حفظ",1200); });
+  $$("[data-link]").forEach(b=>b.onclick=async()=>{
+    const r=await (await api(`/api/v1/auth/admin/users/${encodeURIComponent(b.dataset.link)}/link`,
+      {method:"POST"})).json();
+    if(!r.ok){ alert(r.detail||"مانفعش"); return; }
+    const box=$("#linkbox"); box.hidden=false;
+    box.innerHTML=`<b>لينك لـ ${esc(b.dataset.link)}</b> — صالح ${r.expires_in_minutes} دقيقة، مرة واحدة، ومش هيتعرض تاني:
+      <div class="mono" style="margin-top:6px">${esc(r.url)}</div>
+      <button style="margin-top:8px" id="copy">انسخ</button>`;
+    $("#copy").onclick=()=>navigator.clipboard.writeText(r.url).then(()=>$("#copy").textContent="اتنسخ");
+    load(); });
+}
+$("#all").onchange=load; $("#refresh").onclick=load;
+load();
+</script>
+</body>
+</html>

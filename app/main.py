@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import __version__, graph
 from .auth.middleware import AuthMiddleware
 from .auth.router import admin as auth_admin_router, api as auth_api_router, router as auth_router
+from .auth.reset_router import admin as reset_admin_router, api as reset_api_router, pages as reset_pages_router
 from .hub.router import api as hub_api_router, pages as hub_pages_router
 from .config import get_settings
 from .core.errors import register_error_handlers
@@ -27,6 +28,7 @@ from .integrations.finance.live import refresh_loop
 from .integrations.legal.router import router as legal_router
 from .integrations.finance.router import router as finance_router
 from .integrations.inventory.router import router as inventory_router
+from .integrations.imports.router import router as imports_router
 from .integrations.nama.router import router as nama_router
 from .integrations.rep.router import router as rep_router
 from .integrations.cctv.router import push_router as cctv_push_router
@@ -137,9 +139,12 @@ def create_app() -> FastAPI:
     app.include_router(tools_router)
     # users / permissions + the hub (PA2/PA3)
     app.include_router(auth_router)
+    app.include_router(reset_pages_router)
     app.include_router(hub_pages_router)
     app.include_router(auth_api_router, prefix=API_PREFIX)
     app.include_router(auth_admin_router, prefix=API_PREFIX)
+    app.include_router(reset_api_router, prefix=API_PREFIX)
+    app.include_router(reset_admin_router, prefix=API_PREFIX)
     app.include_router(hub_api_router, prefix=API_PREFIX)
 
     # live integrations
@@ -155,6 +160,7 @@ def create_app() -> FastAPI:
     app.include_router(cctv_router, prefix=API_PREFIX)
     app.include_router(cctv_push_router, prefix=API_PREFIX)
     app.include_router(vat_router, prefix=API_PREFIX)
+    app.include_router(imports_router, prefix=API_PREFIX)
     app.include_router(keys_router, prefix=API_PREFIX)
     app.include_router(eta_router, prefix=API_PREFIX)
     app.include_router(eta_ingest_router, prefix=API_PREFIX)

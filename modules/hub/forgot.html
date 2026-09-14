@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0F1C2E">
+<title>نسيت كلمة السر — STLIX</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Almarai:wght@700;800&display=swap">
+<style>
+:root{--bg:#0F1C2E;--card:#131C2B;--line:#26344A;--tx:#E9EDF3;--sub:#8E9BB0;--gold:#E0A53A;--gold2:#B9770E;--red:#E56A5C;--red-bg:#3A1A17;--green:#3BC77A;--blue:#58A6FF}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;font-size:15px;line-height:1.55;display:grid;place-items:center;padding:24px;min-height:100vh;position:relative;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 2px,transparent 2px 9px);pointer-events:none}
+.card{position:relative;width:100%;max-width:520px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.logo{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));display:grid;place-items:center;font-family:"Almarai";font-weight:800;color:#0F1C2E;font-size:22px}
+h1{font-family:"Almarai";font-size:21px;margin:0}
+.brand small{display:block;font-size:12px;color:var(--sub);letter-spacing:.1em;text-transform:uppercase;direction:ltr;text-align:right}
+label{display:block;font-size:13px;color:var(--sub);margin:14px 0 6px;font-weight:600}
+input,select{width:100%;font:inherit;font-size:15px;padding:12px 13px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:#fff;outline:none}
+input{direction:ltr;text-align:left}
+input:focus,select:focus{border-color:var(--gold);background:rgba(255,255,255,.1)}
+button.go{width:100%;margin-top:18px;font:inherit;font-weight:700;font-size:16px;padding:13px;border-radius:12px;border:0;background:var(--gold);color:#0F1C2E;cursor:pointer}
+button.go:hover{background:#f0b64a} button.go:disabled{opacity:.6;cursor:wait}
+a.btn{display:block;text-align:center;margin-top:14px;font-weight:700;padding:13px;border-radius:12px;background:rgba(88,166,255,.12);border:1px solid rgba(88,166,255,.4);color:var(--blue);text-decoration:none}
+.how{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--sub);font-size:13.5px}
+.how b{color:var(--tx);font-weight:600}
+.msg{display:none;margin-top:16px;padding:12px 14px;border-radius:12px;font-size:13.5px;font-weight:600}
+.msg.err{display:block;background:var(--red-bg);color:var(--red);border:1px solid rgba(229,106,92,.35)}
+.msg.ok{display:block;background:#10291B;color:var(--green);border:1px solid rgba(59,199,122,.3)}
+.foot{margin-top:18px;font-size:12.5px;color:var(--sub);text-align:center}
+.foot a{color:var(--gold);text-decoration:none}
+.self{display:inline-block;font-size:11px;padding:1px 8px;border-radius:6px;background:rgba(59,199,122,.15);color:var(--green);margin-inline-start:6px}
+.ask{display:inline-block;font-size:11px;padding:1px 8px;border-radius:6px;background:rgba(224,165,58,.15);color:var(--gold);margin-inline-start:6px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="brand"><div class="logo">S</div><div><h1>نسيت كلمة السر</h1><small>Password recovery</small></div></div>
+
+  <label for="sys">أي نظام؟</label>
+  <select id="sys"></select>
+  <div class="how" id="how"></div>
+
+  <div id="selfBox" hidden>
+    <a class="btn" id="selfLink" href="#" target="_blank" rel="noopener">افتح صفحة الاسترجاع الخاصة بالنظام ↗</a>
+    <div class="foot">لو الاسترجاع ده مشتغلش معاك، ابعت طلب للـ IT من تحت.</div>
+  </div>
+
+  <form id="f">
+    <label for="id" id="idLabel">اسم المستخدم أو الإيميل</label>
+    <input id="id" name="identifier" autocomplete="username" autocapitalize="off" spellcheck="false" required>
+    <button class="go" type="submit" id="go">ابعت الطلب</button>
+  </form>
+
+  <div class="msg" id="msg"></div>
+  <div class="foot"><a href="/login">← رجوع لتسجيل الدخول</a></div>
+</div>
+<script>
+(function(){
+  var sel=document.getElementById('sys'), how=document.getElementById('how'),
+      msg=document.getElementById('msg'), f=document.getElementById('f'),
+      go=document.getElementById('go'), selfBox=document.getElementById('selfBox'),
+      selfLink=document.getElementById('selfLink'), idLabel=document.getElementById('idLabel');
+  var SYS=[], cur=null;
+  var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+
+  fetch('/api/v1/auth/systems',{headers:{accept:'application/json'}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      SYS=d.systems||[];
+      sel.innerHTML=SYS.map(function(s){
+        return '<option value="'+esc(s.key)+'">'+esc(s.label)+'</option>';}).join('');
+      pick();
+    })
+    .catch(function(){
+      how.innerHTML='مش قادر أوصل للسيرفر دلوقتي — جرّب تاني، أو كلّم الـ IT.';
+    });
+
+  function pick(){
+    cur=SYS.filter(function(s){return s.key===sel.value;})[0];
+    if(!cur) return;
+    var tag=cur.self?'<span class="self">استرجاع ذاتي من هنا</span>'
+           :cur.url?'<span class="self">استرجاع ذاتي على النظام</span>'
+           :'<span class="ask">محتاج الـ IT</span>';
+    how.innerHTML='<b>'+esc(cur.label)+'</b>'+tag+'<div style="margin-top:6px">'+esc(cur.how)+'</div>';
+    selfBox.hidden=!cur.url;
+    if(cur.url) selfLink.href=cur.url;
+    idLabel.textContent=cur.self?'اسم المستخدم أو الإيميل':'اسمك أو إيميلك (عشان الـ IT يعرف مين طلب)';
+    go.textContent=cur.self?'ابعتلي لينك':'ابعت طلب للـ IT';
+    msg.className='msg';
+  }
+  sel.onchange=pick;
+
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    go.disabled=true; msg.className='msg';
+    fetch('/api/v1/auth/forgot',{method:'POST',
+      headers:{'Content-Type':'application/json',accept:'application/json'},
+      body:JSON.stringify({identifier:document.getElementById('id').value.trim(),system:sel.value})})
+      .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});})
+      .then(function(res){
+        go.disabled=false;
+        if(res.s===429){ msg.className='msg err'; msg.textContent=res.j.detail||'طلبات كتير — استنى شوية.'; return; }
+        if(res.s>=400){ msg.className='msg err'; msg.textContent=res.j.detail||'حصل خطأ — جرّب تاني.'; return; }
+        msg.className='msg ok'; msg.textContent=res.j.answer||'تم.';
+      })
+      .catch(function(){ go.disabled=false; msg.className='msg err';
+        msg.textContent='مش قادر أوصل للسيرفر — جرّب تاني.'; });
+  });
+})();
+</script>
+</body>
+</html>

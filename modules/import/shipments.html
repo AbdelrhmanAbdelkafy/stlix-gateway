@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>الاستيراد والشحن — STLIX</title>
+<style>
+:root{--bg:#0F1C2E;--card:#131C2B;--line:#26344A;--txt:#E9EDF3;--mut:#8E9BB0;--gold:#E0A53A;--ok:#3FB950;--bad:#F85149;--warn:#D29922;--blue:#58A6FF}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
+header{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5;flex-wrap:wrap}
+header h1{font-size:18px;margin:0} header a{color:var(--gold);text-decoration:none}
+.tabs{display:flex;gap:6px;flex-wrap:wrap} .tab{border:1px solid var(--line);border-radius:999px;padding:5px 14px;cursor:pointer;color:var(--mut);background:var(--card);font-size:13px}
+.tab.on{color:var(--txt);border-color:var(--gold)}
+select,input,button,textarea{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-family:inherit;font-size:13.5px}
+button{cursor:pointer} button.primary{background:var(--gold);color:#111;border-color:var(--gold);font-weight:600} button:disabled{opacity:.5;cursor:default}
+button.ghost{background:transparent}
+main{padding:16px 20px;display:grid;gap:16px;max-width:1400px;margin:auto}
+.note{background:#1E2A3D;border:1px solid var(--line);border-radius:12px;padding:12px 16px;color:var(--mut)} .note code{color:var(--gold)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.card h2{font-size:15px;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.hero{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:grid;gap:12px}
+.hero .big{font-size:22px;font-weight:700}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.kpi{background:#0b1422;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi .l{color:var(--mut);font-size:12px} .kpi .v{font-size:18px;font-weight:600;margin-top:4px;font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:1.25fr 1fr;gap:16px} @media(max-width:980px){.grid2{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:13px} td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top} th{color:var(--mut);font-weight:500}
+tr.click{cursor:pointer} tr.click:hover{background:#18243a}
+.num{font-variant-numeric:tabular-nums;text-align:left;direction:ltr}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;direction:ltr;letter-spacing:.5px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--mut);margin-inline-end:6px}
+.dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)} .dot.warn{background:var(--warn)} .dot.blue{background:var(--blue)}
+.tag{border-radius:6px;padding:1px 8px;font-size:11.5px;background:#1E2A3D;white-space:nowrap}
+.tag.ok{background:#12301c;color:var(--ok)} .tag.bad{background:#3d1a1a;color:var(--bad)} .tag.warn{background:#3a2f12;color:var(--warn)}
+.tag.gate{background:#2a2136;color:#c9a7ff} .tag.auto{background:#132a3a;color:var(--blue)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center} .muted{color:var(--mut);font-size:12.5px}
+.bar{height:8px;background:#0b1422;border-radius:4px;overflow:hidden;border:1px solid var(--line)} .bar i{display:block;height:100%;background:var(--gold)}
+.bar.ok i{background:var(--ok)} .bar.bad i{background:var(--bad)}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--line)}
+.alert .lv{width:6px;border-radius:3px;align-self:stretch;background:var(--mut)}
+.alert.critical .lv{background:var(--bad)} .alert.warn .lv{background:var(--warn)} .alert.info .lv{background:var(--blue)}
+.alert b{font-weight:600} .alert .do{color:var(--mut);font-size:12.5px}
+.countdown{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.countdown .n{font-size:38px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.countdown.ok .n{color:var(--ok)} .countdown.warn .n{color:var(--warn)} .countdown.overdue .n{color:var(--bad)} .countdown.released .n{color:var(--blue)} .countdown.unset .n{color:var(--mut)}
+.phase{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
+.phase>summary{cursor:pointer;padding:9px 12px;background:#0b1422;display:flex;justify-content:space-between;align-items:center;gap:10px;list-style:none}
+.phase>summary::-webkit-details-marker{display:none}
+.phase .pname{font-weight:600;font-size:13.5px}
+.step{display:grid;grid-template-columns:34px 1fr auto;gap:8px;padding:8px 12px;border-top:1px solid var(--line);align-items:start}
+.step .n{color:var(--mut);font-size:12px;font-variant-numeric:tabular-nums}
+.step .t{font-size:13.5px} .step .c{color:var(--mut);font-size:12px;margin-top:2px}
+.step.done .t{color:var(--ok)} .step.blocked .t{color:var(--bad)}
+.acts{display:flex;gap:4px} .acts button{padding:3px 8px;font-size:12px}
+.chk{display:grid;grid-template-columns:1fr auto;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line);align-items:center}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.form label{display:grid;gap:4px;font-size:12.5px;color:var(--mut)} .form input,.form select{width:100%}
+.form label.nama::after{content:"من نما";font-size:10.5px;color:var(--blue)}
+details summary{cursor:pointer;color:var(--mut)}
+.empty{color:var(--mut);font-size:13px;padding:8px 0}
+dialog{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:680px;width:92vw}
+dialog::backdrop{background:#0008}
+</style>
+</head>
+<body>
+<header>
+  <a href="/hub/">← الهَب</a>
+  <h1>🚢 الاستيراد والشحن</h1>
+  <div class="tabs">
+    <span class="tab on" data-v="fleet">الشحنات</span>
+    <span class="tab" data-v="file">ملف الشحنة</span>
+    <span class="tab" data-v="sop">الإجراء (SOP)</span>
+  </div>
+  <select id="pick" style="min-width:190px"></select>
+  <button id="new">+ ملف شحنة</button>
+  <button id="fromNama">استورد من نما</button>
+  <span class="muted" id="hint"></span>
+</header>
+
+<main>
+  <div class="note" id="note" hidden></div>
+
+  <!-- ============ الأسطول ============ -->
+  <section data-view="fleet">
+    <div class="kpis" id="kpis"></div>
+    <section class="card" style="margin-top:16px">
+      <h2>تنبيهات حرجة على كل الشحنات <span class="muted" id="fleetAlertsInfo"></span></h2>
+      <div id="fleetAlerts"></div>
+    </section>
+    <section class="card" style="margin-top:16px">
+      <h2>الملفات المفتوحة <span class="muted" id="fleetInfo"></span>
+        <select id="statusFilter"><option value="open">المفتوحة</option><option value="closed">المقفولة</option><option value="">الكل</option></select>
+      </h2>
+      <div style="overflow:auto"><table id="fleet"></table></div>
+    </section>
+  </section>
+
+  <!-- ============ ملف الشحنة ============ -->
+  <section data-view="file" hidden>
+    <div class="hero">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <div class="big" id="fRef">—</div>
+          <div class="muted" id="fSub"></div>
+        </div>
+        <div class="row">
+          <span class="tag" id="fNama"></span>
+          <button id="sync">⟳ اسحب من نما</button>
+          <a id="csv" href="#" target="_blank"><button class="ghost">CSV</button></a>
+        </div>
+      </div>
+      <div class="grid2">
+        <div>
+          <div class="countdown" id="cd"><span class="n">—</span><span class="muted" id="cdText"></span></div>
+          <div class="muted" id="cdSub" style="margin-top:6px"></div>
+        </div>
+        <div>
+          <div class="muted">الإنجاز <span id="pctText"></span></div>
+          <div class="bar" id="pbar"><i style="width:0"></i></div>
+          <div class="muted" id="gateText" style="margin-top:6px"></div>
+        </div>
+      </div>
+      <div class="card" id="nextCard" style="background:#0b1422"></div>
+    </div>
+
+    <section class="card"><h2>التنبيهات <span class="muted" id="alertsInfo"></span></h2><div id="alerts"></div></section>
+
+    <div class="grid2">
+      <section class="card">
+        <h2>مطابقة الـ ACID <span class="muted" id="acidInfo"></span></h2>
+        <div class="row" style="margin-bottom:8px">
+          <label class="muted">رقم نافذة <input id="acidMain" class="mono" placeholder="19 رقم من نافذة" style="width:230px"></label>
+          <button id="acidSave">حفظ</button>
+          <label class="muted"><input type="checkbox" id="nafeza"> المظروف مقبول من نافذة</label>
+        </div>
+        <table id="acidTable"></table>
+        <div class="muted" style="margin-top:6px">أي اختلاف في رقم واحد = توقيف الشحنة في الميناء (SOP-IMP-001 خطوة 12).</div>
+      </section>
+      <section class="card">
+        <h2>checklist مسودة البوليصة <span class="muted" id="chkInfo"></span></h2>
+        <div id="checklist"></div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>خطوات الإجراء <span class="muted" id="stepsInfo"></span>
+        <span class="row"><label class="muted"><input type="checkbox" id="onlyOpen"> المفتوح بس</label></span>
+      </h2>
+      <div id="steps"></div>
+    </section>
+
+    <div class="grid2">
+      <section class="card">
+        <h2>التكاليف والـ landed cost</h2>
+        <div id="landed"></div>
+        <table id="costs" style="margin-top:8px"></table>
+        <div class="row" style="margin-top:8px">
+          <select id="cKind"></select>
+          <input id="cAmount" type="number" step="0.01" placeholder="المبلغ" style="width:110px">
+          <input id="cCur" placeholder="EGP" style="width:70px" value="EGP">
+          <input id="cInv" placeholder="رقم الفاتورة" style="width:130px">
+          <input id="cVendor" placeholder="الجهة" style="width:120px">
+          <button id="cAdd">إضافة</button>
+        </div>
+        <div class="muted" style="margin-top:6px">ضابط: لا صرف إلا مقابل فاتورة أصلية من الجهة المُصدِرة.</div>
+      </section>
+      <section class="card">
+        <h2>الحاويات <span class="muted" id="contInfo"></span></h2>
+        <table id="containers"></table>
+        <div class="row" style="margin-top:8px">
+          <input id="ctNo" placeholder="رقم الحاوية" style="width:130px">
+          <input id="ctSeal" placeholder="السيل" style="width:100px">
+          <input id="ctDep" type="number" placeholder="التأمين" style="width:100px">
+          <button id="ctAdd">إضافة</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>المستندات</h2>
+      <div style="overflow:auto"><table id="docs"></table></div>
+    </section>
+
+    <section class="card">
+      <h2>بيانات الشحنة</h2>
+      <div class="form" id="fields"></div>
+      <div class="row" style="margin-top:10px"><button class="primary" id="saveFields">حفظ</button>
+        <span class="muted" id="saveInfo"></span></div>
+      <details style="margin-top:12px"><summary>تعريفة الأرضيات (شرائح الخط)</summary>
+        <div class="muted" style="margin:6px 0">من غير التعريفة الأرضيات بتتحسب بالأيام بس — الرقم مش بيتخمّن.</div>
+        <table id="tariff"></table>
+        <div class="row" style="margin-top:6px">
+          <input id="tFrom" type="number" placeholder="من يوم" style="width:90px">
+          <input id="tTo" type="number" placeholder="لحد يوم" style="width:90px">
+          <input id="tRate" type="number" step="0.01" placeholder="لكل حاوية/يوم" style="width:130px">
+          <button id="tAdd">إضافة شريحة</button>
+        </div>
+      </details>
+    </section>
+
+    <section class="card"><h2>السجل</h2><div style="overflow:auto;max-height:320px"><table id="log"></table></div></section>
+  </section>
+
+  <!-- ============ الإجراء ============ -->
+  <section data-view="sop" hidden>
+    <div class="note">الإجراء ده هو نفسه اللي الشاشة بتشتغل بيه — الخطوات والضوابط اللي فوق متقروءة من هنا، فمفيش نسختين يختلفوا.</div>
+    <div id="sopBody"></div>
+  </section>
+</main>
+
+<dialog id="dlg"><div id="dlgBody"></div><div class="row" style="margin-top:14px;justify-content:flex-end"><button id="dlgClose">إغلاق</button></div></dialog>
+
+<script>
+const KEY = "__GATEWAY_API_KEY__";
+const H = KEY && !KEY.startsWith("__") ? {"X-API-Key": KEY} : {};
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const n = v => v == null || v === "" ? "—" : Number(v).toLocaleString("en-EG", {maximumFractionDigits: 0});
+const api = (p, o={}) => fetch(p, {...o, headers: {...H, "Content-Type": "application/json", accept: "application/json", ...(o.headers||{})}});
+const jget = async p => { const r = await api(p); if(!r.ok) throw new Error(await r.text()); return r.json(); };
+
+let SOP = null, PLAN = null, REF = null, view = "fleet";
+
+// ---------- navigation ----------
+function show(v){
+  view = v;
+  $$(".tab").forEach(t => t.classList.toggle("on", t.dataset.v === v));
+  $$("[data-view]").forEach(s => s.hidden = s.dataset.view !== v);
+  if(v === "fleet") loadFleet();
+  if(v === "sop") renderSop();
+  if(v === "file" && REF) loadFile(REF);
+}
+$$(".tab").forEach(t => t.onclick = () => show(t.dataset.v));
+
+// ---------- fleet ----------
+async function loadFleet(){
+  const d = await jget("/api/v1/imports?status=" + encodeURIComponent($("#statusFilter").value));
+  $("#kpis").innerHTML = Object.values(d.kpis).map(k =>
+    `<div class="kpi"><div class="l">${esc(k.label)}</div><div class="v">${k.value == null ? "—" : k.value}</div>
+     <div class="muted">${k.n ? `على ${k.n} شحنة` : "لسه مفيش شحنة مقفولة تتقاس"} · المستهدف ${esc(k.target)}</div></div>`).join("")
+    + `<div class="kpi"><div class="l">الإجراء</div><div class="v">${d.sop_counts.steps}</div>
+       <div class="muted">خطوة · منهم ${d.sop_counts.gates} بوابة توقف · ${d.sop_counts.controls} ضابط رقابي</div></div>`;
+  $("#fleetAlertsInfo").textContent = d.alerts.length ? `${d.alerts.length}` : "";
+  $("#fleetAlerts").innerHTML = d.alerts.length ? d.alerts.map(a => alertRow(a, true)).join("")
+    : `<div class="empty">مفيش تنبيه حرج — كل الملفات ماشية.</div>`;
+  $("#fleetInfo").textContent = `${d.count}`;
+  $("#fleet").innerHTML = d.count ? `<tr><th>الملف</th><th>المورد</th><th>البضاعة</th><th>الإنجاز</th><th>ACID</th><th>free time</th><th>الخطوة الجاية</th><th>تكلفة الطن</th></tr>`
+    + d.shipments.map(s => `<tr class="click" data-ref="${esc(s.ref)}">
+        <td><b>${esc(s.ref)}</b>${s.nama_code ? `<div class="muted mono">${esc(s.nama_code)}</div>` : ""}</td>
+        <td>${esc(s.supplier)}</td><td>${esc(s.goods)}</td>
+        <td style="min-width:110px"><div class="bar"><i style="width:${s.progress}%"></i></div><div class="muted">${s.progress}%</div></td>
+        <td><span class="dot ${s.acid_ok ? "ok" : "bad"}"></span></td>
+        <td>${freeChip(s)}</td>
+        <td>${esc(s.next || "—")}<div class="muted">${esc(s.next_owner || "")}</div></td>
+        <td class="num">${n(s.per_ton)}</td></tr>`).join("")
+    : `<tr><td class="empty">مفيش ملفات — افتح ملف جديد أو استورد شحنة من نما.</td></tr>`;
+  $$("#fleet tr.click").forEach(tr => tr.onclick = () => { REF = tr.dataset.ref; show("file"); });
+  $("#pick").innerHTML = d.shipments.map(s => `<option value="${esc(s.ref)}" ${s.ref===REF?"selected":""}>${esc(s.ref)} — ${esc(s.supplier||s.goods||"")}</option>`).join("")
+    || `<option value="">مفيش ملفات</option>`;
+}
+function freeChip(s){
+  if(s.overdue_days > 0) return `<span class="tag bad">متأخر ${s.overdue_days} يوم</span>`;
+  if(s.days_left == null) return `<span class="tag">—</span>`;
+  return `<span class="tag ${s.days_left <= 5 ? "warn" : "ok"}">فاضل ${s.days_left} يوم</span>`;
+}
+$("#statusFilter").onchange = loadFleet;
+$("#pick").onchange = () => { REF = $("#pick").value; show("file"); };
+
+function alertRow(a, withRef){
+  return `<div class="alert ${a.level}"><div class="lv"></div><div>
+    <b>${withRef && a.ref ? `<a href="#" data-go="${esc(a.ref)}" style="color:var(--gold)">${esc(a.ref)}</a> — ` : ""}${esc(a.text)}</b>
+    <div class="do">اعمل إيه: ${esc(a.do)} · <span class="tag">${esc(a.who)}</span></div></div></div>`;
+}
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]");
+  if(g){ e.preventDefault(); REF = g.dataset.go; show("file"); }
+});
+
+// ---------- one shipment ----------
+async function loadFile(ref){
+  PLAN = await jget("/api/v1/imports/" + encodeURIComponent(ref));
+  const s = PLAN.shipment, c = PLAN.clock, l = PLAN.landed;
+  REF = s.ref;
+  $("#fRef").textContent = s.ref;
+  $("#fSub").innerHTML = [s.supplier, s.goods, s.origin, s.consignee && `Consignee: ${s.consignee}`]
+    .filter(Boolean).map(esc).join(" · ") || "لسه مفيش بيانات — املا بيانات الشحنة تحت";
+  $("#fNama").innerHTML = s.nama_code
+    ? `<span class="dot blue"></span>نما: <span class="mono">${esc(s.nama_code)}</span>${s.nama_state ? " · " + esc(s.nama_state) : ""}`
+    : `<span class="dot"></span>مش مربوط بنما`;
+  $("#csv").href = `/api/v1/imports/${encodeURIComponent(s.ref)}/file.csv`;
+
+  // countdown
+  const cd = $("#cd"); cd.className = "countdown " + c.state;
+  const map = {overdue: [c.overdue_days, "يوم أرضيات — الـ free time خلص"],
+               warn: [c.days_left, "يوم فاضل على نهاية الـ free time"],
+               ok: [c.days_left, "يوم فاضل على نهاية الـ free time"],
+               released: [c.overdue_days, c.overdue_days ? "يوم أرضيات على الشحنة دي" : "يوم أرضيات — خرجت في الميعاد"],
+               unset: ["—", "العدّاد مش شغال"]};
+  const [num, txt] = map[c.state] || ["—", ""];
+  cd.querySelector(".n").textContent = num;
+  $("#cdText").textContent = txt;
+  $("#cdSub").innerHTML = [
+    c.arrival ? `الوصول ${c.arrival}${c.ata ? " (فعلي)" : " (متوقع)"}` : "الوصول مش متحدد",
+    c.free_time_end ? `نهاية السماح ${c.free_time_end}` : (c.missing.length ? "محتاج " + c.missing.map(m => m === "eta" ? "ETA" : "أيام السماح").join(" و") : ""),
+    c.demurrage_estimate ? `أرضيات تقديرية ${n(c.demurrage_estimate)}` : (c.demurrage_note ? `<span style="color:var(--warn)">${esc(c.demurrage_note)}</span>` : ""),
+    c.aci_deadline ? `آخر ميعاد لمظروف الـ ACI ${c.aci_deadline}` : "",
+  ].filter(Boolean).join(" · ");
+
+  // progress
+  const p = PLAN.progress;
+  $("#pctText").textContent = `${p.done} من ${p.steps} خطوة (${p.pct}%)`;
+  $("#pbar").querySelector("i").style.width = p.pct + "%";
+  $("#pbar").className = "bar" + (p.pct === 100 ? " ok" : "");
+  const openGates = PLAN.phases.flatMap(ph => ph.gates_open);
+  $("#gateText").innerHTML = openGates.length
+    ? `<span class="tag gate">${openGates.length} بوابة مقفولة</span> ${esc(openGates[0].title)}`
+    : `<span class="tag ok">كل البوابات عدّت</span>`;
+
+  const nx = PLAN.next;
+  $("#nextCard").innerHTML = nx
+    ? `<div class="muted">الخطوة الجاية${nx.gate ? " — بوابة توقف" : ""}</div>
+       <div style="font-size:16px;font-weight:600;margin:4px 0">${esc(nx.sop)}#${nx.no} · ${esc(nx.title)}</div>
+       <div class="muted">${esc(nx.why)} · <span class="tag">${esc(nx.owner)}</span></div>`
+    : `<div class="muted">كل الخطوات اتقفلت — الملف جاهز للأرشفة.</div>`;
+
+  // alerts
+  $("#alertsInfo").textContent = PLAN.alerts.length ? `${PLAN.alerts.length}` : "";
+  $("#alerts").innerHTML = PLAN.alerts.length ? PLAN.alerts.map(a => alertRow(a, false)).join("")
+    : `<div class="empty">مفيش تنبيهات على الملف ده.</div>`;
+
+  renderAcid(); renderChecklist(); renderSteps(); renderCosts(); renderContainers();
+  renderDocs(); renderFields(); renderTariff(); loadLog();
+}
+
+// ---------- ACID ----------
+function renderAcid(){
+  const a = PLAN.acid_check;
+  $("#acidMain").value = a.acid || "";
+  $("#nafeza").checked = !!PLAN.shipment.nafeza_accepted;
+  $("#acidInfo").innerHTML = a.ok ? `<span class="tag ok">متطابق على ${a.checked} مستند</span>`
+    : a.mismatches.length ? `<span class="tag bad">${a.mismatches.length} اختلاف</span>`
+    : `<span class="tag warn">${a.checked} من ${a.expected} اتراجعوا</span>`;
+  const st = {ok:["ok","مطابق"], mismatch:["bad","مختلف"], blank:["warn","مش متسجّل"], missing:["","مستند لسه مستلمش"]};
+  $("#acidTable").innerHTML = `<tr><th>المستند</th><th>الرقم المكتوب عليه</th><th>الحالة</th></tr>` + a.docs.map(d => {
+    const [cls, label] = st[d.state];
+    return `<tr><td>${esc(d.label)}</td>
+      <td><input class="mono acidIn" data-kind="${esc(d.kind)}" value="${esc(d.on_doc)}" placeholder="—" style="width:200px"></td>
+      <td><span class="tag ${cls}">${label}</span>${d.detail ? `<div class="muted">${esc(d.detail)}</div>` : ""}</td></tr>`;
+  }).join("");
+  $$(".acidIn").forEach(i => i.onchange = async () => {
+    await api(`/api/v1/imports/${REF}/docs/${i.dataset.kind}`, {method:"POST",
+      body: JSON.stringify({acid_on_doc: i.value.trim(), received: true})});
+    loadFile(REF);
+  });
+}
+$("#acidSave").onclick = async () => { await patch({acid: $("#acidMain").value.trim()}); };
+$("#nafeza").onchange = async () => { await patch({nafeza_accepted: $("#nafeza").checked}); };
+
+// ---------- checklist ----------
+function renderChecklist(){
+  const done = PLAN.checklist.filter(c => c.state === "ok").length;
+  $("#chkInfo").textContent = `${done} من ${PLAN.checklist.length}`;
+  $("#checklist").innerHTML = PLAN.checklist.map(c => `<div class="chk">
+      <div><b>${esc(c.label)}</b>${c.critical ? ' <span class="tag bad">حرج</span>' : ""}<div class="muted">${esc(c.what)}</div></div>
+      <div class="acts">
+        <button data-ck="${c.key}" data-st="ok" class="${c.state==='ok'?'primary':'ghost'}">✔</button>
+        <button data-ck="${c.key}" data-st="fix" class="${c.state==='fix'?'primary':'ghost'}">يتعدّل</button>
+        <button data-ck="${c.key}" data-st="na" class="${c.state==='na'?'primary':'ghost'}">—</button>
+      </div></div>`).join("");
+  $$("[data-ck]").forEach(b => b.onclick = async () => {
+    PLAN = await (await api(`/api/v1/imports/${REF}/checklist/${b.dataset.ck}`,
+      {method:"POST", body: JSON.stringify({state: b.dataset.st})})).json();
+    loadFile(REF);
+  });
+}
+
+// ---------- steps ----------
+function renderSteps(){
+  const onlyOpen = $("#onlyOpen").checked;
+  const out = [];
+  for(const ph of PLAN.phases){
+    let rows = PLAN.steps.filter(s => s.sop === ph.sop && s.phase === ph.phase);
+    if(onlyOpen) rows = rows.filter(s => s.state !== "done" && s.state !== "na");
+    if(!rows.length) continue;
+    const cls = {done:"ok", blocked:"bad", open:"warn", pending:""}[ph.state] || "";
+    out.push(`<details class="phase" ${ph.state === "done" ? "" : "open"}>
+      <summary><span class="pname">${esc(ph.sop)} · ${esc(ph.phase)}</span>
+        <span class="row"><span class="tag ${cls}">${ph.done}/${ph.total}</span>
+        ${ph.gates_open.length ? `<span class="tag gate">${ph.gates_open.length} بوابة</span>` : ""}</span></summary>
+      ${rows.map(stepRow).join("")}</details>`);
+  }
+  $("#steps").innerHTML = out.join("") || `<div class="empty">مفيش خطوات مفتوحة.</div>`;
+  $$("[data-step]").forEach(b => b.onclick = async () => {
+    const [sopc, no] = b.dataset.step.split("#");
+    await api(`/api/v1/imports/${REF}/steps/${sopc}/${no}`,
+      {method:"POST", body: JSON.stringify({state: b.dataset.st})});
+    loadFile(REF);
+  });
+  $("#stepsInfo").textContent = `${PLAN.progress.done}/${PLAN.progress.steps} · البوابات ${PLAN.progress.gates_done}/${PLAN.progress.gates}`;
+}
+function stepRow(s){
+  const id = `${s.sop}#${s.no}`;
+  return `<div class="step ${s.state}">
+    <div class="n">${s.no}</div>
+    <div><div class="t">${esc(s.title)} ${s.gate ? '<span class="tag gate">بوابة</span>' : ""}
+      ${s.source === "تلقائي" ? '<span class="tag auto">تلقائي</span>' : s.source === "يدوي" ? '<span class="tag">يدوي</span>' : ""}</div>
+      <div class="c">${esc(s.owner)} · ${esc(s.check)}</div>
+      ${s.why ? `<div class="c" style="color:var(--warn)">${esc(s.why)}</div>` : ""}
+      ${s.note ? `<div class="c">${esc(s.note)}</div>` : ""}</div>
+    <div class="acts">
+      <button data-step="${id}" data-st="done" class="${s.state==='done'?'primary':'ghost'}">تم</button>
+      <button data-step="${id}" data-st="blocked" class="${s.state==='blocked'?'primary':'ghost'}">موقوف</button>
+      <button data-step="${id}" data-st="na" class="${s.state==='na'?'primary':'ghost'}">لا ينطبق</button>
+      <button data-step="${id}" data-st="pending" class="ghost">↺</button>
+    </div></div>`;
+}
+$("#onlyOpen").onchange = renderSteps;
+
+// ---------- costs ----------
+function renderCosts(){
+  const l = PLAN.landed;
+  const rows = [
+    ["CIF", l.cif, l.cif_fc != null && l.currency !== "EGP" ? `${n(l.cif_fc)} ${l.currency} × ${l.fx_rate ?? "?"}` : ""],
+    ["تكاليف إضافية", l.extras, `${l.by_kind.length} بند`],
+    ["الإجمالي", l.total, ""],
+    ["تكلفة الطن", l.per_ton, l.qty_ton ? `${l.qty_ton} طن` : "الكمية مش متحطة"],
+    ["التقديري للطن", l.estimate_per_ton, l.diff_pct == null ? "" : `الفرق ${l.diff_pct > 0 ? "+" : ""}${l.diff_pct}%`],
+  ];
+  $("#landed").innerHTML = `<div class="kpis">` + rows.map(([k, v, x]) =>
+    `<div class="kpi"><div class="l">${k}</div><div class="v">${n(v)}</div><div class="muted">${esc(x)}</div></div>`).join("") + `</div>`
+    + (l.missing.length ? `<div class="muted" style="margin-top:6px;color:var(--warn)">${l.missing.map(esc).join(" · ")}</div>` : "")
+    + (l.within_tolerance === false ? `<div class="muted" style="color:var(--bad)">برّه حد الـ ±5% اللي في الإجراء — لازم يتوثّق سبب الفرق</div>` : "");
+  $("#costs").innerHTML = PLAN.costs.length
+    ? `<tr><th>البند</th><th>المبلغ</th><th>فاتورة</th><th>الجهة</th><th></th></tr>` + PLAN.costs.map(c => `<tr>
+        <td>${esc(SOP ? (SOP.cost_kinds[c.kind] || c.kind) : c.kind)}</td>
+        <td class="num">${n(c.amount)} ${esc(c.currency)}</td>
+        <td>${c.invoice_no ? esc(c.invoice_no) : '<span class="tag bad">بدون فاتورة</span>'}</td>
+        <td>${esc(c.vendor || "")}</td><td><button class="ghost" data-delcost="${c.id}">✕</button></td></tr>`).join("")
+    : `<tr><td class="empty">لسه مفيش تكاليف متسجّلة.</td></tr>`;
+  $$("[data-delcost]").forEach(b => b.onclick = async () => {
+    await api(`/api/v1/imports/${REF}/costs/${b.dataset.delcost}`, {method:"DELETE"}); loadFile(REF);
+  });
+}
+$("#cAdd").onclick = async () => {
+  const r = await api(`/api/v1/imports/${REF}/costs`, {method:"POST", body: JSON.stringify({
+    kind: $("#cKind").value, amount: +$("#cAmount").value, currency: $("#cCur").value.trim() || "EGP",
+    invoice_no: $("#cInv").value.trim(), vendor: $("#cVendor").value.trim()})});
+  if(!r.ok) return alert("المبلغ مطلوب");
+  ["#cAmount","#cInv","#cVendor"].forEach(s => $(s).value = "");
+  loadFile(REF);
+};
+
+// ---------- containers ----------
+function renderContainers(){
+  const d = PLAN.clock.detention;
+  $("#contInfo").textContent = d.total ? `${d.returned}/${d.total} رجعت · تأمين معلّق ${n(d.deposit_held)}` : "";
+  $("#containers").innerHTML = PLAN.containers.length
+    ? `<tr><th>الحاوية</th><th>السيل</th><th>خرجت</th><th>رجعت</th><th>تأمين</th><th></th></tr>`
+      + PLAN.containers.map(c => `<tr>
+        <td class="mono">${esc(c.container_no)}</td><td>${esc(c.seal || "")}</td>
+        <td><input type="date" data-ct="${c.id}" data-f="out_at" value="${esc(c.out_at || "")}"></td>
+        <td><input type="date" data-ct="${c.id}" data-f="returned_at" value="${esc(c.returned_at || "")}"></td>
+        <td class="num">${n(c.deposit)}${c.deposit && !c.deposit_back ? ' <span class="tag warn">لسه</span>' : ""}</td>
+        <td><button class="ghost" data-delct="${c.id}">✕</button></td></tr>`).join("")
+    : `<tr><td class="empty">لسه مفيش حاويات متسجّلة.</td></tr>`;
+  $$("[data-ct]").forEach(i => i.onchange = async () => {
+    await api(`/api/v1/imports/${REF}/containers/${i.dataset.ct}`,
+      {method:"PATCH", body: JSON.stringify({[i.dataset.f]: i.value || null})});
+    loadFile(REF);
+  });
+  $$("[data-delct]").forEach(b => b.onclick = async () => {
+    await api(`/api/v1/imports/${REF}/containers/${b.dataset.delct}`, {method:"DELETE"}); loadFile(REF);
+  });
+}
+$("#ctAdd").onclick = async () => {
+  if(!$("#ctNo").value.trim()) return;
+  await api(`/api/v1/imports/${REF}/containers`, {method:"POST", body: JSON.stringify({
+    container_no: $("#ctNo").value.trim(), seal: $("#ctSeal").value.trim(),
+    deposit: $("#ctDep").value ? +$("#ctDep").value : null})});
+  ["#ctNo","#ctSeal","#ctDep"].forEach(s => $(s).value = "");
+  loadFile(REF);
+};
+
+// ---------- documents ----------
+function renderDocs(){
+  $("#docs").innerHTML = `<tr><th>المستند</th><th>الرقم</th><th>ACID عليه</th><th>استلمناه</th><th>في الحزمة</th></tr>`
+    + PLAN.documents.map(d => `<tr>
+      <td>${esc(d.label)}</td>
+      <td><input data-doc="${esc(d.kind)}" data-f="number" value="${esc(d.number || "")}" style="width:140px"></td>
+      <td>${d.needs_acid ? `<input class="mono" data-doc="${esc(d.kind)}" data-f="acid_on_doc" value="${esc(d.acid_on_doc || "")}" style="width:180px">` : '<span class="muted">—</span>'}</td>
+      <td><input type="checkbox" data-doc="${esc(d.kind)}" data-f="received" ${d.received ? "checked" : ""}></td>
+      <td>${d.in_pack ? (d.received ? '<span class="tag ok">✔</span>' : '<span class="tag warn">ناقص</span>') : '<span class="muted">—</span>'}</td>
+    </tr>`).join("");
+  $$("[data-doc]").forEach(i => i.onchange = async () => {
+    const v = i.type === "checkbox" ? i.checked : i.value.trim();
+    await api(`/api/v1/imports/${REF}/docs/${i.dataset.doc}`,
+      {method:"POST", body: JSON.stringify({[i.dataset.f]: v})});
+    loadFile(REF);
+  });
+}
+
+// ---------- fields ----------
+const FIELDS = [
+  ["entity","الكيان المستورد","text"], ["supplier","المورد","text"], ["origin","بلد المنشأ","text"],
+  ["goods","البضاعة","text"], ["hs_code","HS Code","text"], ["consignee","Consignee","text"],
+  ["incoterm","Incoterm","select",["","EXW","FOB","CFR","CIF","DAP","DDP"]],
+  ["payment_term","طريقة السداد","term"], ["bl_type","نوع البوليصة","bl"],
+  ["bl_no","رقم البوليصة","text","nama"], ["vessel","الباخرة","text"],
+  ["shipping_line","الخط الملاحي","text","nama"], ["broker","المخلص الجمركي","text"],
+  ["port_loading","ميناء الشحن","text","nama"], ["port_discharge","ميناء التفريغ","text","nama"],
+  ["etd","الإبحار (ETD)","date","nama"], ["eta","الوصول (ETA)","date","nama"],
+  ["ata","الوصول الفعلي","date","nama"], ["free_days","أيام الـ free time","number"],
+  ["free_time_start","بداية السماح","date"], ["released_at","تاريخ الإفراج","date"],
+  ["customs_declaration","رقم البيان الجمركي","text","nama"],
+  ["containers","عدد الحاويات","number"], ["qty_ton","الكمية (طن)","number"],
+  ["currency","العملة","text","nama"], ["fx_rate","سعر الصرف","number"],
+  ["value_fob","قيمة البضاعة","number","nama"], ["freight","النولون","number"], ["insurance","التأمين","number"],
+  ["est_landed_per_ton","تكلفة الطن التقديرية","number"],
+  ["po_code","أمر الشراء (نما)","text"], ["grn_code","سند الاستلام (نما)","text"],
+  ["nama_code","كود الشحنة في نما","text"],
+  ["weight_checked","الوزن اتطابق","bool"], ["endorsed","البوليصة مُظهَّرة من البنك","bool"],
+  ["telex_verified","التلكس متأكد من الخط","bool"],
+  ["status","حالة الملف","select",["open","closed","cancelled"]],
+];
+function renderFields(){
+  const s = PLAN.shipment;
+  $("#fields").innerHTML = FIELDS.map(([k, label, type, extra]) => {
+    const nama = extra === "nama";
+    let input;
+    if(type === "bool") input = `<input type="checkbox" data-fld="${k}" ${s[k] ? "checked" : ""}>`;
+    else if(type === "term") input = `<select data-fld="${k}"><option value=""></option>` +
+      Object.entries(SOP ? SOP.payment_terms : {}).map(([v, t]) => `<option value="${v}" ${s[k]===v?"selected":""}>${esc(t.label)}</option>`).join("") + `</select>`;
+    else if(type === "bl") input = `<select data-fld="${k}"><option value=""></option>` +
+      Object.entries(SOP ? SOP.bl_types : {}).map(([v, t]) => `<option value="${v}" ${s[k]===v?"selected":""}>${esc(t)}</option>`).join("") + `</select>`;
+    else if(type === "select") input = `<select data-fld="${k}">` +
+      extra.map(v => `<option value="${v}" ${s[k]===v?"selected":""}>${esc(v)}</option>`).join("") + `</select>`;
+    else input = `<input type="${type}" data-fld="${k}" value="${esc(s[k] ?? "")}">`;
+    return `<label class="${nama ? "nama" : ""}">${esc(label)} ${input}</label>`;
+  }).join("");
+  const term = PLAN.payment_term;
+  $("#saveInfo").innerHTML = term
+    ? `${esc(term.label)} → المفروض ${esc(term.bl_label)} · ${esc(term.control)}`
+    : "حدد طريقة السداد عشان نعرف نوع البوليصة الصح";
+}
+$("#saveFields").onclick = async () => {
+  const body = {};
+  $$("[data-fld]").forEach(i => {
+    const v = i.type === "checkbox" ? i.checked : (i.value === "" ? null : (i.type === "number" ? +i.value : i.value));
+    body[i.dataset.fld] = v;
+  });
+  await patch(body);
+};
+async function patch(body){
+  const r = await api(`/api/v1/imports/${REF}`, {method:"PATCH", body: JSON.stringify(body)});
+  if(!r.ok){ const e = await r.json().catch(() => ({})); alert(e.detail || "مانفعش الحفظ"); return; }
+  loadFile(REF);
+}
+
+// ---------- tariff ----------
+function renderTariff(){
+  const t = PLAN.shipment.demurrage_tariff || [];
+  $("#tariff").innerHTML = t.length
+    ? `<tr><th>من يوم</th><th>لحد يوم</th><th>لكل حاوية/يوم</th><th></th></tr>` + t.map((x, i) =>
+      `<tr><td>${x.from}</td><td>${x.to ?? "وما بعده"}</td><td class="num">${n(x.rate)}</td>
+       <td><button class="ghost" data-deltier="${i}">✕</button></td></tr>`).join("")
+    : `<tr><td class="empty">مفيش تعريفة — الأرضيات هتتعرض بالأيام من غير مبلغ.</td></tr>`;
+  $$("[data-deltier]").forEach(b => b.onclick = async () => {
+    const next = t.filter((_, i) => i !== +b.dataset.deltier);
+    await patch({demurrage_tariff: next});
+  });
+}
+$("#tAdd").onclick = async () => {
+  const t = [...(PLAN.shipment.demurrage_tariff || [])];
+  if(!$("#tFrom").value || !$("#tRate").value) return;
+  t.push({from: +$("#tFrom").value, to: $("#tTo").value ? +$("#tTo").value : null, rate: +$("#tRate").value});
+  ["#tFrom","#tTo","#tRate"].forEach(s => $(s).value = "");
+  await patch({demurrage_tariff: t});
+};
+
+// ---------- log ----------
+async function loadLog(){
+  const d = await jget(`/api/v1/imports/${REF}/log?limit=60`);
+  $("#log").innerHTML = d.count ? `<tr><th>الوقت</th><th>مين</th><th>الحدث</th><th>التفاصيل</th></tr>`
+    + d.log.map(r => `<tr><td class="muted">${new Date(r.at*1000).toLocaleString("ar-EG",{hour12:false})}</td>
+      <td>${esc(r.who || "—")}</td><td>${esc(r.action)}</td><td class="muted">${esc(r.detail || "")}</td></tr>`).join("")
+    : `<tr><td class="empty">لسه مفيش حركة.</td></tr>`;
+}
+
+// ---------- sync / create ----------
+$("#sync").onclick = async () => {
+  $("#sync").disabled = true;
+  const r = await (await api(`/api/v1/imports/${REF}/sync`, {method:"POST"})).json();
+  $("#sync").disabled = false;
+  if(!r.ok) return alert(r.error);
+  alert(r.changed.length ? "اتغيّر من نما:\n" + r.changed.map(c => `${c.field}: ${c.was ?? "—"} ← ${c.now}`).join("\n") : r.note);
+  loadFile(REF);
+};
+$("#new").onclick = async () => {
+  const supplier = prompt("المورد (تقدر تسيبها فاضية وتكمّل بعدين)");
+  if(supplier === null) return;
+  const s = await (await api("/api/v1/imports", {method:"POST", body: JSON.stringify({supplier})})).json();
+  REF = s.ref; show("file");
+};
+$("#fromNama").onclick = async () => {
+  const d = await jget("/api/v1/imports/nama/shipments?limit=60");
+  $("#dlgBody").innerHTML = `<h2 style="margin:0 0 10px">شحنات الشحن البحري في نما</h2>`
+    + (d.ok ? (d.count ? `<div style="max-height:60vh;overflow:auto"><table>
+        <tr><th>الكود</th><th>البوليصة</th><th>ETA</th><th>ميناء التفريغ</th><th>الخط</th><th></th></tr>`
+        + d.rows.map(r => `<tr><td class="mono">${esc(r.code)}</td><td>${esc(r.bl_no || "—")}</td>
+          <td>${esc(r.eta || "—")}</td><td>${esc(r.port_discharge || "—")}</td><td>${esc(r.shipping_line || "—")}</td>
+          <td><button data-open="${esc(r.code)}">افتح ملف</button></td></tr>`).join("") + `</table></div>`
+      : `<div class="empty">مفيش شحنات في نما.</div>`)
+      : `<div class="note">${esc(d.error)}</div>`);
+  $("#dlg").showModal();
+  $$("[data-open]").forEach(b => b.onclick = async () => {
+    const s = await (await api(`/api/v1/imports/nama/${encodeURIComponent(b.dataset.open)}/open`,
+      {method:"POST", body: "{}"})).json();
+    $("#dlg").close();
+    if(s.ref){ REF = s.ref; show("file"); } else alert(s.detail || "مانفعش");
+  });
+};
+$("#dlgClose").onclick = () => $("#dlg").close();
+
+// ---------- SOP view ----------
+function renderSop(){
+  if(!SOP) return;
+  const stepsTable = d => `<table><tr><th>#</th><th>الخطوة</th><th>المسؤول</th><th>نقطة التحقق</th></tr>`
+    + d.steps.map(s => `<tr><td>${s.no}</td><td>${esc(s.title)} ${s.gate ? '<span class="tag gate">بوابة</span>' : ""}</td>
+       <td>${esc(s.owner)}</td><td class="muted">${esc(s.check)}</td></tr>`).join("") + `</table>`;
+  const tbl = (head, rows) => `<table><tr>${head.map(h => `<th>${esc(h)}</th>`).join("")}</tr>`
+    + rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("") + `</table>`;
+  $("#sopBody").innerHTML = SOP.sops.map(d =>
+      `<section class="card" style="margin-bottom:16px"><h2>${esc(d.code)} — ${esc(d.title)}
+        <span class="muted">${d.steps.length} خطوة</span></h2>${stepsTable(d)}</section>`).join("")
+    + `<div class="grid2">
+        <section class="card"><h2>طريقة الإفراج حسب طريقة السداد</h2>${
+          tbl(["طريقة السداد","نوع البوليصة","الضبط"], Object.values(SOP.payment_terms).map(t =>
+            [esc(t.label), esc(t.bl_label), `<span class="muted">${esc(t.control)}</span>`]))}</section>
+        <section class="card"><h2>checklist مسودة البوليصة</h2>${
+          tbl(["البند","اللي بيتراجع عليه"], SOP.bl_checklist.map(c =>
+            [esc(c.label) + (c.critical ? ' <span class="tag bad">حرج</span>' : ""), `<span class="muted">${esc(c.what)}</span>`]))}</section>
+       </div>
+       <div class="grid2" style="margin-top:16px">
+        <section class="card"><h2>الضوابط الرقابية</h2>${
+          tbl(["الخطر","الضابط","مين يتحقق"], SOP.controls.map(c =>
+            [esc(c.risk), `<span class="muted">${esc(c.control)}</span>`, `<span class="tag">${esc(c.who)}</span>`]))}</section>
+        <section class="card"><h2>الحالات الاستثنائية</h2>${
+          tbl(["الحالة","التصرف"], SOP.exceptions.map(e => [esc(e.case), `<span class="muted">${esc(e.do)}</span>`]))}</section>
+       </div>
+       <section class="card" style="margin-top:16px"><h2>المصطلحات</h2>${
+          tbl(["المصطلح","المعنى"], SOP.glossary.map(g => [`<b>${esc(g.term)}</b>`, `<span class="muted">${esc(g.means)}</span>`]))}</section>
+       <div class="note" style="margin-top:16px">رسوم ومواعيد منظومة ACI ومتطلبات قوالب الفواتير بتتغير بقرارات إدارية.
+         المرجع الملزم هو منصة نافذة في تاريخ الشحنة، مش نسخة الإجراء دي.</div>`;
+}
+
+// ---------- boot ----------
+(async function init(){
+  try{
+    SOP = await jget("/api/v1/imports/sop");
+    $("#cKind").innerHTML = Object.entries(SOP.cost_kinds).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join("");
+    $("#hint").textContent = `${SOP.counts.steps} خطوة · ${SOP.counts.gates} بوابة توقف`;
+  }catch(e){
+    $("#note").hidden = false;
+    $("#note").innerHTML = "الـ API مش رادّ — افتح الصفحة من الجيتواي مش كملف على الجهاز.";
+  }
+  await loadFleet();
+  if(!REF && $("#pick").value){ REF = $("#pick").value; }
+})();
+</script>
+</body>
+</html>

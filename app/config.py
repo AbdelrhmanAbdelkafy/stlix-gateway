@@ -52,6 +52,23 @@ class Settings(BaseSettings):
     # Seconds between live-status refreshes pushed to the hub.
     hub_live_interval: float = Field(default=20.0)
 
+    # --- نسيت كلمة السر + الإيميل ------------------------------------------
+    # The address every reset request is copied to. Blank = nobody is told.
+    auth_owner_email: str = Field(default="")
+    # Used to build the reset link (e.g. https://hub.stlixvalley.com). Blank =
+    # the host the request came in on, which is right for one machine and wrong
+    # the moment somebody opens the hub by IP.
+    public_base_url: str = Field(default="")
+    reset_ttl_minutes: int = Field(default=30)
+    # Plain SMTP. Blank host = mail is off, and the reset flow says so out loud
+    # instead of pretending a message was sent.
+    smtp_host: str = Field(default="")
+    smtp_port: int = Field(default=587)
+    smtp_user: str = Field(default="")
+    smtp_password: str = Field(default="")
+    smtp_from: str = Field(default="")
+    smtp_tls: bool = Field(default=True)
+
     @property
     def auth_enabled(self) -> bool:
         if self.auth_mode == "on":
@@ -194,6 +211,7 @@ class Settings(BaseSettings):
     eta_env: str = Field(default="prod", pattern="^(prod|preprod)$")
     eta_db_path: str = Field(default="", description="blank = data/eta/eta.db")
     vat_db_path: str = Field(default="", description="blank = data/vat/vat.db")
+    imports_db_path: str = Field(default="", description="blank = data/imports/imports.db")
     # total: k_total ‰ × all sales (the owner's wording); per_activity: k_m × manufacturing + k_t × trading
     vat_k_mode: str = Field(default="total", pattern="^(total|per_activity)$")
 

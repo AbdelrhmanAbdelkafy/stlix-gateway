@@ -160,8 +160,10 @@ _GRID_JS = """() => {
   const byAria = () => {
     const rs = [...document.querySelectorAll('[role=row]')];
     if (rs.length < 2) return null;
-    const body = rs.map(r => [...r.querySelectorAll('[role=gridcell],[role=cell]')].map(txt))
-                   .filter(r => r.length);
+    // The portal's list is a Fluent DetailsList: the first cell of each row is a
+    // rowheader, not a gridcell. Miss it and every column shifts by one.
+    const body = rs.map(r => [...r.querySelectorAll('[role=gridcell],[role=rowheader],[role=cell]')].map(txt))
+                   .filter(r => r.filter(Boolean).length >= 3);
     return body.length ? {how: 'aria', rows: body.slice(0, 500),
       headers: [...rs[0].querySelectorAll('[role=columnheader]')].map(txt)} : null;
   };
@@ -331,6 +333,8 @@ async def screenshot():
 @app.post("/click")
 async def click(request: Request):
     body = await request.json()
+    # `exact` matters for pagination: "2" appears inside every amount on the
+    # page, so a loose match clicks a number in a table instead of a page link.
     label, confirm = str(body.get("text") or ""), bool(body.get("confirm"))
     before = await shot("before-click")
     if DANGEROUS.search(label) and not confirm:
@@ -338,7 +342,8 @@ async def click(request: Request):
                 "refused": "عملية بتغيّر حاجة على البورتال — محتاجة confirm صريح"}
     pg = await page()
     try:
-        await pg.get_by_text(label, exact=False).nth(int(body.get("nth") or 0)).click(timeout=15_000)
+        await pg.get_by_text(label, exact=bool(body.get("exact"))).nth(
+            int(body.get("nth") or 0)).click(timeout=15_000)
     except Exception as exc:  # noqa: BLE001
         return {"clicked": False, "error": f"{type(exc).__name__}: {exc}"[:200], "screenshot": before}
     await pg.wait_for_timeout(2000)

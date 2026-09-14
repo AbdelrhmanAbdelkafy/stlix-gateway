@@ -84,6 +84,13 @@ RESOURCES: tuple[Resource, ...] = (
              "إصدار شهادة/مستند استيراد للشحنة بالبيانات المضبوطة",
              "/tools/certificate", paths=("/tools/certificate",), host="gw.stlixvalley.com",
              audiences=("proc", "mgmt"), kw="شهادة استيراد شحنة certificate import", order=6),
+    Resource("imports", "الاستيراد والشحن", G_DAILY, "🚢",
+             "ملف الشحنة: خطوات SOP-IMP-001/002، مطابقة الـ ACID، عدّاد الأرضيات، والتكلفة للطن — مربوط بالشحن البحري في نما",
+             "/tools/imports", paths=("/tools/imports", "/api/v1/imports"),
+             host="hub.stlixvalley.com", audiences=("proc", "mgmt", "it"),
+             kw="استيراد شحنة بوليصة acid نافذة اضافة اضافات ارضيات demurrage free time landed cost "
+                "تخليص جمارك bl shipment import customs clearance نولون حاوية",
+             live_key="nama", order=7),
     Resource("count-app", "تطبيق الجرد", G_DAILY, "📋",
              "عدّ المخزون من الموبايل ومزامنة مع النظام",
              "https://crm.stlixvalley.com/count/count.html", paths=("/api/v1/inventory",),
@@ -123,7 +130,8 @@ RESOURCES: tuple[Resource, ...] = (
              audiences=("mgmt", "it"), kw="افكار backlog مهام ideas", status="internal", order=13),
     Resource("users", "المستخدمون والصلاحيات", G_INFRA, "🛡️",
              "إنشاء مستخدمين، الأدوار، ومين يشوف/يعدّل إيه",
-             "/hub/admin.html", paths=("/hub/admin.html", "/api/v1/auth/admin"),
+             "/hub/admin.html", paths=("/hub/admin.html", "/hub/resets.html",
+                                       "/api/v1/auth/admin"),
              host="hub.stlixvalley.com", audiences=("it",),
              kw="مستخدمين صلاحيات أدوار users roles permissions admin", order=40),
     # ---- other systems of ours (links) ----------------------------------------
@@ -216,6 +224,10 @@ BY_KEY: dict[str, Resource] = {r.key: r for r in RESOURCES}
 #: Paths that need no permission at all (login, probes, the voice asset).
 PUBLIC_PREFIXES: tuple[str, ...] = (
     "/login", "/logout", "/health", "/favicon.ico", "/tools/voice.js",
+    # نسيت كلمة السر: حد مش قادر يدخل مايتطلبش منه يدخل الأول. كل واحد
+    # منهم بيرد نفس الجملة سواء الحساب موجود أو لأ، وعليه rate limit.
+    "/forgot", "/reset", "/api/v1/auth/forgot", "/api/v1/auth/reset",
+    "/api/v1/auth/systems",
     "/api/v1/auth/me", "/api/v1/auth/login", "/api/v1/auth/logout", "/hub/login.html",
     # the LAN agent has no session — its own key is checked in the cctv router
     "/api/v1/cctv/push",
