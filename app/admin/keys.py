@@ -125,9 +125,21 @@ def _backup() -> None:
 
 
 def _write_env(name: str, value: str) -> None:
-    """Replace one line in place, keeping comments and order. Written to a
-    temporary file and renamed, so a crash mid-write cannot leave the platform
-    with half an `.env`."""
+    """Replace one line in place, keeping comments and order.
+
+    The new text is staged in `.env.tmp` first, so a crash mid-write cannot
+    leave the platform with half an `.env` — but the staged file is then
+    **copied over** the original rather than renamed onto it. That distinction
+    is the whole point: in production `.env` is a bind-mounted *file* inside the
+    container (`./.env:/app/.env`), and renaming onto a mount point fails with
+    EBUSY — so the screen that saves a key worked on a laptop and raised on the
+    VPS, which is the worst place to find out. Copying keeps the file's inode,
+    so the mount stays the same file and the container sees the change.
+
+    If the copy is interrupted, the complete new text is still in `.env.tmp` and
+    the previous one in the newest `.env.bak-*`; the staged file is removed only
+    after the copy and its fsync have succeeded.
+    """
     lines = ENV_FILE.read_text(encoding="utf-8").splitlines() if ENV_FILE.exists() else []
     replaced = False
     for i, line in enumerate(lines):
@@ -138,10 +150,22 @@ def _write_env(name: str, value: str) -> None:
     if not replaced:
         lines.append(f"{name}={value}")
     _backup()
+    body = ("\n".join(lines) + "\n").encode("utf-8")
+
     tmp = ENV_FILE.with_name(".env.tmp")
-    tmp.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    with open(tmp, "wb") as fh:
+        fh.write(body)
+        fh.flush()
+        os.fsync(fh.fileno())
     os.chmod(tmp, 0o600)
-    tmp.replace(ENV_FILE)
+
+    # in place, same inode — never `tmp.replace(ENV_FILE)`
+    with open(ENV_FILE, "wb") as fh:
+        fh.write(body)
+        fh.flush()
+        os.fsync(fh.fileno())
+    os.chmod(ENV_FILE, 0o600)
+    tmp.unlink(missing_ok=True)
 
 
 def set_value(name: str, value: str, actor: str, reason: str = "") -> dict:

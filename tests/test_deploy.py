@@ -95,3 +95,51 @@ def test_the_read_only_default_survives_a_release():
     assert s.crm_mode == "read_only"
     assert s.banks_mode == "read_only"
     assert s.inventory_mode == "read_only"
+
+
+# --- what the container KEEPS, as opposed to what it ships -------------------
+#
+# The tests above answer "is everything the app reads inside the image". This
+# one answers the opposite question, and it is the one that actually cost data:
+# everything the app *writes* lives in a SQLite file under `data/<name>/`, and a
+# `docker compose up -d --build` replaces the container — so any of those
+# directories without a bind mount in deploy.sh is deleted on the next deploy,
+# silently, with the deploy reporting success. It happened to `data/eta` and
+# `data/vat` (hence the comment they now carry), and `data/imports` shipped the
+# same way: every open shipment file would have gone with the first rebuild.
+#
+# Derived from the code rather than listed, so a new store cannot be forgotten.
+
+DEPLOY_SH = ROOT / "deploy" / "vps" / "deploy.sh"
+
+
+def _sqlite_data_dirs() -> set[str]:
+    """`data/<name>/` for every SQLite file the app opens under the repo root."""
+    found: set[str] = set()
+    for py in (ROOT / "app").rglob("*.py"):
+        found.update(re.findall(
+            r'_ROOT\s*/\s*"data"\s*/\s*"([a-z_]+)"\s*/\s*"[a-z_]+\.db"',
+            py.read_text(encoding="utf-8")))
+    assert found, "no SQLite stores found — the pattern this test scans for changed"
+    return found
+
+
+def test_every_sqlite_store_survives_a_rebuild():
+    text = DEPLOY_SH.read_text(encoding="utf-8")
+    mounted = set(re.findall(r'-\s*\./data/([a-z_]+):/app/data/\1', text))
+    unmounted = sorted(_sqlite_data_dirs() - mounted)
+    assert not unmounted, (
+        "these stores are written at runtime but have no bind mount in "
+        f"deploy/vps/deploy.sh — the next rebuild deletes them: {unmounted}")
+
+
+def test_the_deploy_creates_every_store_directory_it_mounts():
+    """A mount of a path that does not exist yet makes Docker create it as root,
+    and the container then cannot write to it — the store fails on first use
+    instead of at deploy time."""
+    text = DEPLOY_SH.read_text(encoding="utf-8")
+    mounted = set(re.findall(r'-\s*\./data/([a-z_]+):/app/data/\1', text))
+    made = set(re.findall(r'mkdir -p ([^\n&]*)', text))
+    created = {d.split("/")[-1] for line in made for d in line.split() if d.startswith("data/")}
+    missing = sorted(mounted - created)
+    assert not missing, f"mounted but never created by deploy.sh: {missing}"

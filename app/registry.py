@@ -103,6 +103,17 @@ SYSTEMS: list[System] = [
            "Meal eligibility & catering reports."),
     System("banks", "Bank Accounts", "حسابات البنوك", Status.LIVE,
            "Bank accounts (Nama): bank, GL account, currency. Balances = separate pending report."),
+    # LIVE since the shipment file: `/api/v1/imports/*` runs the two approved
+    # procedures (SOP-IMP-001/002) as one record per shipment — steps, ACID
+    # match across the documents, free-time counter, landed cost per ton. Nama's
+    # LCShipment stays the record of the shipment; this is the layer Nama has no
+    # field for. Live with no credential, like `legal`: the procedure and the
+    # file are on disk, and Nama credentials upgrade it from typed to synced.
+    System("imports", "Imports & Shipping", "الاستيراد والشحن", Status.LIVE,
+           "SOP-IMP-001/002 as a live shipment file over Nama's sea-shipping module "
+           "(LCShipment): 46 steps with 23 stop gates, letter-by-letter ACID match across "
+           "8 documents, free-time/demurrage counter, landed cost per ton vs the estimate.",
+           url="/tools/imports"),
     # Upstream parties the backlog already depends on. Each is a distinct
     # counterparty with its own credentials and lifecycle — the test that
     # separates a system from a mere capability. Added because connectors in

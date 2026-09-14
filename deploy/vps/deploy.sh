@@ -54,7 +54,7 @@ if ! grep -q '^AUTH_BOOTSTRAP_PASSWORD=.\+' .env; then
   echo "🔑 first admin: user=stlix  password in /root/.stlix-hub-password (change it from the admin screen)"
 fi
 chmod 600 .env
-mkdir -p data/auth data/cctv data/eta data/vat && chmod 700 data/auth data/eta data/vat
+mkdir -p data/auth data/cctv data/eta data/vat data/imports && chmod 700 data/auth data/eta data/vat data/imports
 
 log "4/6 gateway container (127.0.0.1:${GW_PORT} only — never public)"
 cat > docker-compose.prod.yml <<EOF
@@ -76,6 +76,11 @@ services:
       # the container, and a rebuild throws the month away without saying so.
       - ./data/eta:/app/data/eta
       - ./data/vat:/app/data/vat
+      # The shipment files. Same lesson as eta/vat above, and the one that costs
+      # most if it is learned twice: unmounted, imports.db sits inside the
+      # container and `up -d --build` throws every open shipment away — the ACID
+      # matches, the step history, the cost lines — without saying so.
+      - ./data/imports:/app/data/imports
       # Mounted so the keys screen edits the real file rather than a copy that
       # a rebuild discards — and so what it writes survives the next deploy.
       - ./.env:/app/.env

@@ -63,6 +63,17 @@ CONNECTORS: tuple[Connector, ...] = (
               "eta_configured", "vat_k_mode", "Gap → invoices needed → slots → package → draft match → paid."),
     Connector("cctv", "الكاميرات", "CCTV (Hikvision)", "cctv", "LAN agent -> ISAPI (push)", True,
               "cctv_configured", "", "Read-only view of DVR state; the agent key only allows uploads."),
+    # The shipment file. Nama's sea-shipping module (LCShipment) stays the record
+    # of the shipment itself — BL, containers, ports, ETD/ETA; this connector adds
+    # the layer Nama has no field for: where the SOP stands, whether the ACID
+    # survives the walk across the documents, the free-time counter, the landed
+    # cost. It is live with no credential: the procedure and the file are on disk,
+    # and `nama_configured` is what upgrades it from a file somebody types into
+    # one that syncs.
+    Connector("imports", "الاستيراد والشحن", "Imports & shipping", "imports",
+              "data/imports (SQLite) + Nama REST (LCShipment)", True,
+              "nama_configured", "nama_mode",
+              note="SOP-IMP-001/002 كملف شحنة حيّ — من غير تعريفة أرضيات بيقول التعريفة ناقصة، مش رقم متخمّن."),
     # Live for three of the eleven units: custody, documents, movement. Their
     # data was extracted verbatim from rep-system.html into data/rep/rep.json —
     # files on disk, no credential — and the extracted copy carries the original
@@ -230,6 +241,28 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/api/v1/cctv/snapshot/{device}/{channel}.jpg", "آخر لقطة لقناة", "cctv"),
     Endpoint("/api/v1/cctv/push", "تقرير الـ agent (أجهزة/قنوات/أحداث)", "cctv", method="POST"),
     Endpoint("/api/v1/cctv/push/snapshot/{device}/{channel}", "رفع لقطة من الـ agent", "cctv", method="POST"),
+    # imports & shipping — the SOP as a live shipment file (SOP-IMP-001/002)
+    Endpoint("/api/v1/imports/sop", "الإجراء نفسه كـ data — الخطوات والبوابات", "imports"),
+    Endpoint("/api/v1/imports", "الشحنات المفتوحة + فتح ملف جديد", "imports"),
+    Endpoint("/api/v1/imports/alerts", "تنبيهات كل الشحنات — الأخطر الأول", "imports"),
+    Endpoint("/api/v1/imports/nama/shipments", "شحنات الشحن البحري في نما (LCShipment)", "imports"),
+    Endpoint("/api/v1/imports/nama/{code}/open", "افتح ملف من شحنة نما", "imports", method="POST"),
+    Endpoint("/api/v1/imports/{ref}", "ملف شحنة كامل (قراءة/تعديل)", "imports"),
+    Endpoint("/api/v1/imports/{ref}/sync", "اسحب بيانات الشحنة من نما", "imports", method="POST"),
+    Endpoint("/api/v1/imports/{ref}/nama/expenses", "مصاريف الاعتماد من نما (مرجع)", "imports"),
+    Endpoint("/api/v1/imports/{ref}/steps/{sop_code}/{no}", "حرّك خطوة في الإجراء", "imports",
+             method="POST"),
+    Endpoint("/api/v1/imports/{ref}/docs/{kind}", "سجّل مستند + رقم الـ ACID المكتوب عليه", "imports",
+             method="POST"),
+    Endpoint("/api/v1/imports/{ref}/checklist/{key}", "بند مراجعة مسودة البوليصة", "imports",
+             method="POST"),
+    Endpoint("/api/v1/imports/{ref}/costs", "بنود التكلفة (إضافة)", "imports", method="POST"),
+    Endpoint("/api/v1/imports/{ref}/costs/{cost_id}", "حذف بند تكلفة", "imports", method="DELETE"),
+    Endpoint("/api/v1/imports/{ref}/containers", "الحاويات (إضافة)", "imports", method="POST"),
+    Endpoint("/api/v1/imports/{ref}/containers/{cid}", "حاوية واحدة (تعديل/حذف)", "imports",
+             method="PATCH"),
+    Endpoint("/api/v1/imports/{ref}/log", "سجل الملف — مين غيّر إيه وإمتى", "imports"),
+    Endpoint("/api/v1/imports/{ref}/file.csv", "ملف الشحنة CSV", "imports"),
     # finance (SQL)
     Endpoint("/api/v1/finance/kpis", "مؤشرات مالية حقيقية", "sql"),
     Endpoint("/api/v1/finance/customers", "أرصدة العملاء (AR)", "sql"),
@@ -279,6 +312,18 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/api/v1/auth/admin/roles", "الأدوار", "auth"),
     Endpoint("/api/v1/auth/admin/roles/{key}", "دور واحد (حفظ/حذف)", "auth"),
     Endpoint("/api/v1/auth/admin/audit", "سجل التدقيق", "auth"),
+    # password recovery — the only auth routes that answer before a session exists
+    Endpoint("/forgot", "نسيت كلمة السر", "auth", kind="page"),
+    Endpoint("/reset", "تعيين كلمة سر جديدة", "auth", kind="page"),
+    Endpoint("/api/v1/auth/systems", "الأنظمة اللي الاسترجاع بيغطيها", "auth"),
+    Endpoint("/api/v1/auth/forgot", "اطلب رابط استرجاع", "auth", method="POST"),
+    Endpoint("/api/v1/auth/reset/check", "الرابط لسه صالح ولا لأ", "auth"),
+    Endpoint("/api/v1/auth/reset", "غيّر كلمة السر بالرابط", "auth", method="POST"),
+    Endpoint("/api/v1/auth/admin/resets", "طلبات الاسترجاع", "auth"),
+    Endpoint("/api/v1/auth/admin/resets/{req_id}/cancel", "إلغاء طلب استرجاع", "auth", method="POST"),
+    Endpoint("/api/v1/auth/admin/users/{username}/link", "إصدار رابط لمستخدم", "auth", method="POST"),
+    Endpoint("/api/v1/auth/admin/users/{username}/email", "إيميل المستخدم", "auth", method="PUT"),
+    Endpoint("/api/v1/auth/admin/mail/test", "اختبار إرسال الإيميل (SMTP)", "auth", method="POST"),
     # hub
     Endpoint("/hub/", "STLIX Hub — الباب الواحد", "hub", kind="page"),
     Endpoint("/hub/{name}", "صفحة هَب (platform / admin)", "hub", kind="page"),
@@ -295,6 +340,7 @@ _ROUTES: tuple[Endpoint, ...] = (
     Endpoint("/tools/rep", "REP — العهدة والمستندات والحركة", "front-end", kind="page"),
     Endpoint("/tools/cctv", "الكاميرات — حائط اللقطات والأحداث", "front-end", kind="page"),
     Endpoint("/tools/vat", "ض.ق.م — الفجوة والإقرار", "front-end", kind="page"),
+    Endpoint("/tools/imports", "الاستيراد والشحن — ملف الشحنة", "front-end", kind="page"),
     Endpoint("/tools/portal", "شاشة بورتال الضرايب المباشرة", "front-end", kind="page"),
     Endpoint("/tools/voice.js", "طبقة البحث الصوتي — تتحقن في كل صفحة", "voice",
              kind="page"),
